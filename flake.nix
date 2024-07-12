@@ -19,7 +19,6 @@
                     xorg.libX11.dev
 				];
 				packages = with pkgs; [
-				    premake5
 				] ++ libraries;
       		in
     		{ devShell = pkgs.mkShell {
