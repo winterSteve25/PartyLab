@@ -11,10 +11,7 @@ int main ()
 	Camera2D camera;
 	camera.zoom = 1;
 	camera.rotation = 0;
-	camera.offset = {
-		.x = 0,
-		.y = 0
-	};
+	camera.offset = { 0, 0 };
 
 	while (!WindowShouldClose())
 	{
