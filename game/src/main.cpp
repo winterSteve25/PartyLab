@@ -1,21 +1,28 @@
 #include "raylib.h"
-#include "rendering/Renderer.h"
-#define LAY_IMPLEMENTATION
-#include "ui/layout.h"
-#include "steam_api.h"
+#include "core/Core.h"
 
 int main ()
 {
-	Renderer renderer;
+	Core updater;
 	SetConfigFlags(ConfigFlags::FLAG_WINDOW_RESIZABLE);
 	InitWindow(1280, 800, "Party Lab");
 	SetTargetFPS(60);
-	SteamAPI_Init();
+
+	Camera2D camera;
+	camera.zoom = 1;
+	camera.rotation = 0;
+	camera.offset = {
+		.x = 0,
+		.y = 0
+	};
 
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
-		renderer.render(GetFrameTime());
+		updater.Update();
+		BeginMode2D(camera);
+		updater.Render(camera);
+		EndMode2D();
 		EndDrawing();
 	}
 

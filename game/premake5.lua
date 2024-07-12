@@ -18,17 +18,27 @@
 local function link_steam()
     includedirs { "../steam/include" }
 
-    filter "system:windows"
-        libdirs { "../steam/redistributable_bin/" }
+    filter { "system:windows", "platforms:x64" }
+        libdirs { "../steam/redistributable_bin/win64" }
+        links { "steam_api64" }
+    
+    filter { "system:windows", "platforms:x86" }
+        libdirs { "../steam/redistributable_bin" }
+        links { "steam_api" }
 
-    filter "system:linux"
+    filter { "system:linux", "platforms:x64" }
         libdirs { "../steam/redistributable_bin/linux64" }
+        links { "steam_api" }
+        
+    filter { "system:linux", "platforms:x86" }
+        libdirs { "../steam/redistributable_bin/linux32" }
+        links { "steam_api" }
 
     filter "system:macosx"
         libdirs { "../steam/redistributable_bin/osx" }
+        links { "steam_api" }
     
     filter {}
-    links { "steam_api" }
 end
 
 baseName = path.getbasename(os.getcwd());
