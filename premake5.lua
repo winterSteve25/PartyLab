@@ -103,7 +103,7 @@ cdialect "C99"
 cppdialect "C++17"
 check_raylib();
 
-include ("raylib_premake5.lua")
+include("raylib_premake5.lua")
 
 if(os.isdir("game")) then
     include ("game")

@@ -15,8 +15,23 @@
 --
 --  3. This notice may not be removed or altered from any source distribution.
 
-baseName = path.getbasename(os.getcwd());
+local function link_steam()
+    includedirs { "../steam/include" }
 
+    filter "system:windows"
+        libdirs { "../steam/redistributable_bin/" }
+
+    filter "system:linux"
+        libdirs { "../steam/redistributable_bin/linux64" }
+
+    filter "system:macosx"
+        libdirs { "../steam/redistributable_bin/osx" }
+    
+    filter {}
+    links { "steam_api" }
+end
+
+baseName = path.getbasename(os.getcwd());
 project (workspaceName)
     kind "ConsoleApp"
     location "./"
@@ -45,7 +60,5 @@ project (workspaceName)
     includedirs { "src" }
     includedirs { "include" }
 
+    link_steam()
     link_raylib()
-	link_to("steam")
-
--- To link to a lib use link_to("LIB_FOLDER_NAME")
