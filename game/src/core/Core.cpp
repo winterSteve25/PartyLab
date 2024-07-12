@@ -4,7 +4,8 @@
 Core::Core()
 {
     m_scenes = std::vector<Scene>();
-    m_activesScenes = std::vector<int>(5);
+    m_activesScenes = std::vector<int>();
+    m_activesScenes.reserve(3);
 }
 
 void Core::Render(Camera2D& camera)
