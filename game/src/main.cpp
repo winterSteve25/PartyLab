@@ -3,8 +3,8 @@
 
 int main ()
 {
-	Core updater;
-	SetConfigFlags(ConfigFlags::FLAG_WINDOW_RESIZABLE);
+	Core core;
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(1280, 800, "Party Lab");
 	SetTargetFPS(60);
 
@@ -16,10 +16,8 @@ int main ()
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
-		updater.Update();
-		BeginMode2D(camera);
-		updater.Render(camera);
-		EndMode2D();
+		core.Update();
+		core.Render(camera);
 		EndDrawing();
 	}
 
