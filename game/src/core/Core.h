@@ -7,19 +7,21 @@
 class Core
 {
 public:
-    Core();
+    Core(int defaultScene);
     void Render(Camera2D& camera);
     void Update();
-    void TransitionTo(int sceneIndices[]);
+    void TransitionTo(int sceneIndices);
     void AddScene(Scene* scene);
+
+    static Core* INSTANCE;
+    bool shouldExit;
 
 private:
     void Transition();
     
     std::vector<Scene*> m_scenes;
-    std::vector<int> m_activesScenes;
-    std::vector<int> m_overlayScenes;
-    std::vector<int> m_loadingScenes;
+    int m_activesScene;
+    int m_loadingScene;
     
     bool m_inTransition;
     bool m_readyToFinishTransition;

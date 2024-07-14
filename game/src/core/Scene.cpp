@@ -1,10 +1,20 @@
 #include "Scene.h"
 
-void Scene::Render(Camera2D& camera)
+Scene::Scene() = default;
+
+void Scene::RenderOverlay()
 {
     for (Renderable* renderable : m_renderables)
     {
-        renderable->Render(camera);
+        renderable->RenderOverlay();
+    }
+}
+
+void Scene::Render()
+{
+    for (Renderable* renderable : m_renderables)
+    {
+        renderable->Render();
     }
 }
 

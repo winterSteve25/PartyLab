@@ -1,18 +1,27 @@
 #include "Core.h"
 #include <string>
 #include "raylib.h"
+#include "assets/game_assets.h"
+#include "scenes/MainMenuScene.h"
 
-Core::Core() :
+Core* Core::INSTANCE = nullptr;
+
+Core::Core(int defaultScene) :
+    shouldExit(false),
+    m_activesScene(defaultScene),
+    m_loadingScene(-1),
     m_inTransition(false),
     m_readyToFinishTransition(false),
     m_transitionTime(0),
     m_totalTransitionTime(1.5f)
 {
-    m_scenes = std::vector<Scene*>();
-    m_overlayScenes = std::vector<int>();
-    m_activesScenes = std::vector<int>();
-    m_activesScenes.reserve(3);
-    m_loadingScenes = std::vector<int>();
+    Core::INSTANCE = this;
+    game_assets::LoadAssets();
+    
+    AddScene(new MainMenuScene());
+
+    if (m_activesScene < 0) return;
+    m_scenes[m_activesScene]->Load();
 }
 
 void Core::AddScene(Scene* scene)
@@ -25,16 +34,16 @@ void Core::Render(Camera2D& camera)
     ClearBackground(WHITE);
     Transition();
 
-    for (int i : m_overlayScenes)
+    if (m_activesScene >= 0)
     {
-        m_scenes[i]->Render(camera);
+        m_scenes[m_activesScene]->RenderOverlay();
     }
 
     BeginMode2D(camera);
 
-    for (int i : m_activesScenes)
+    if (m_activesScene >= 0)
     {
-        m_scenes[i]->Render(camera);
+        m_scenes[m_activesScene]->Render();
     }
 
     EndMode2D();
@@ -42,48 +51,23 @@ void Core::Render(Camera2D& camera)
 
 void Core::Update()
 {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-    {
-        m_inTransition = true;
-        m_transitionTime = 0;
-    }
-
-    for (int i : m_overlayScenes)
-    {
-        m_scenes[i]->Update();
-    }
-
-    for (int i : m_activesScenes)
-    {
-        m_scenes[i]->Update();
-    }
+    if (m_activesScene < 0) return;
+    m_scenes[m_activesScene]->Update();
 }
 
-void Core::TransitionTo(int sceneIndices[])
+void Core::TransitionTo(int scene)
 {
-    bool any = false;
-
-    for (int s : sceneIndices)
+    if (m_activesScene == scene) return;
+    if (m_loadingScene == scene) return;
+    if (m_loadingScene != -1)
     {
-        if (std::find(m_activesScenes.begin(), m_activesScenes.end(), s) != m_activesScenes.end()
-            || std::find(m_overlayScenes.begin(), m_overlayScenes.end(), s) != m_overlayScenes.end())
-        {
-            continue;
-        }
-        
-        m_loadingScenes.push_back(s);
-        any = true;
+        TraceLog(LOG_WARNING, "Trying to load scene when loading another scene already");
+        return;
     }
 
-    if (!any) return;
-
-    // should not happen but just in case
-    // if occurs it might act funny
-    if (!m_inTransition)
-    {
-        m_inTransition = true;
-        m_transitionTime = 0;
-    }
+    m_loadingScene = scene;
+    m_inTransition = true;
+    m_transitionTime = 0;
 }
 
 void RenderTransition(float percentage)
@@ -105,7 +89,8 @@ void Core::Transition()
     {
         float t = Ease(m_transitionTime / m_totalTransitionTime);
         RenderTransition(m_readyToFinishTransition ? -t : (1 - t));
-    } else
+    }
+    else
     {
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
     }
@@ -113,26 +98,18 @@ void Core::Transition()
     if (m_transitionTime < m_totalTransitionTime) return;
     if (m_readyToFinishTransition)
     {
+        // finished transition
         m_readyToFinishTransition = false;
         m_transitionTime = 0;
         m_inTransition = false;
     }
     else
     {
-        for (int scene : m_activesScenes)
-        {
-            m_scenes[scene]->Cleanup();
-        }
-
-        m_activesScenes.clear();
-        
-        for (int scene : m_loadingScenes)
-        {
-            m_scenes[scene]->Load();
-            m_activesScenes.push_back(scene);
-        }
-
-        m_loadingScenes.clear();
+        // finished transition intro, begin actual loading
+        m_scenes[m_activesScene]->Cleanup();
+        m_scenes[m_loadingScene]->Load();
+        m_activesScene = m_loadingScene;
+        m_loadingScene = -1;
         m_readyToFinishTransition = true;
         m_transitionTime = -1; // delay before actually starts finishing
     }

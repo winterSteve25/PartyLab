@@ -6,7 +6,9 @@
 class Scene : public Renderable
 {
 public:
-    void Render(Camera2D& camera) override;
+    Scene();
+    void Render() override;
+    void RenderOverlay() override;
     void Update() override;
     virtual void Load();
     virtual void Cleanup();

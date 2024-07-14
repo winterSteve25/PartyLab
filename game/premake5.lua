@@ -62,9 +62,10 @@ project (workspaceName)
     vpaths 
     {
         ["Header Files/*"] = { "include/**.h",  "include/**.hpp", "src/**.h", "src/**.hpp", "**.h", "**.hpp"},
-        ["Source Files/*"] = {"src/**.c", "src/**.cpp","**.c", "**.cpp"},
+        ["Source Files/*"] = {"src/**.c", "src/**.cpp","**.c", "**.cpp", "include/**.tcc" },
     }
-    files {"**.c", "**.cpp", "**.h", "**.hpp"}
+
+    files {"**.c", "**.cpp", "**.h", "**.hpp", "**.tcc" }
 
     includedirs { "./" }
     includedirs { "src" }
