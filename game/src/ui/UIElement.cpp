@@ -6,11 +6,15 @@ UIElement::UIElement(Vector2 pos, Vector2 size):
     m_pos(pos),
     m_size(size),
     m_isHeldDown(false),
-    m_wasHovered(false)
+    m_isHovering(false)
 {
 }
 
 void UIElement::Render()
+{
+}
+
+void UIElement::Update()
 {
     bool within = ui_helper::Within(GetMousePosition(), m_pos, m_size);
     
@@ -32,28 +36,31 @@ void UIElement::Render()
             OnPressed();
         }
 
-        if (m_wasHovered) return;
-        m_wasHovered = true;
-        OnHover();
+        if (m_isHovering) return;
+        m_isHovering = true;
+        OnEnterHover();
     }
     else
     {
-        if (!m_wasHovered) return;
-        m_wasHovered = false;
+        if (!m_isHovering) return;
+        m_isHovering = false;
+        OnExitHover();
     }
 }
 
-void UIElement::OnHover()
+void UIElement::OnEnterHover()
 {
-    TraceLog(LOG_INFO, "hovered");
+}
+
+void UIElement::OnExitHover()
+{
+    TraceLog(LOG_INFO, "Exit Hover");
 }
 
 void UIElement::OnClick()
 {
-    TraceLog(LOG_INFO, "Clicked");
 }
 
 void UIElement::OnPressed()
 {
-    TraceLog(LOG_INFO, "Pressed");
 }

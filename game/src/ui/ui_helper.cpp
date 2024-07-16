@@ -24,11 +24,24 @@ namespace ui_helper
         return { pos.x, GetScreenHeight() - pos.y };
     }
 
-    Vector2 DrawText(const char* text, float fontSize, Vector2 pos)
+    Vector2 DrawText(const char* text, float fontSize, Vector2 pos, Color color)
     {
-        Vector2 size = MeasureTextEx(game_assets::game_font, text, fontSize, 2);
-        DrawTextEx(game_assets::game_font, text, pos, fontSize, 2, BLACK);
+        Vector2 size = MeasureText(text, fontSize);
+        DrawTextEx(game_assets::game_font, text, pos, fontSize, 2, color);
         return size;
+    }
+
+    Vector2 MeasureText(const char* text, float fontSize)
+    {
+        return MeasureTextEx(game_assets::game_font, text, fontSize, 2);
+    }
+
+    Vector2 GetCenter(Vector2 size, Vector2 totalSize)
+    {
+        return {
+            (totalSize.x - size.x) / 2,
+            (totalSize.y - size.y) / 2
+        };
     }
 
     bool Within(Vector2 x, Vector2 pos, Vector2 size)

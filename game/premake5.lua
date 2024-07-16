@@ -17,6 +17,7 @@
 
 local function link_steam()
     includedirs { "../steam/include" }
+    includedirs { "steam/include" }
 
     filter { "system:windows", "platforms:x64" }
         libdirs { "../steam/redistributable_bin/win64" }
@@ -39,6 +40,12 @@ local function link_steam()
         links { "steam_api" }
     
     filter {}
+end
+
+local function link_luajit() 
+    includedirs { "../luajit/include", "luajit/include" }
+    libdirs { "../luajit", "luajit" }
+    links { "lua51", "luajit" }
 end
 
 baseName = path.getbasename(os.getcwd());
@@ -66,6 +73,8 @@ project (workspaceName)
     }
 
     files {"**.c", "**.cpp", "**.h", "**.hpp", "**.tcc" }
+
+    link_luajit()
 
     includedirs { "./" }
     includedirs { "src" }
