@@ -1,9 +1,5 @@
-local function load()
-    print("Hallo")
-end
-
 return {
-    name = "",
-    description = "",
-    onLoad = load,
+    name = "Base Game",
+    description = "The base games",
+    events = require("base.events")
 }

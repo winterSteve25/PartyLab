@@ -1,10 +1,22 @@
 #pragma once
-#include <string>
-
 #include "LuaMod.h"
 
 class LuaHook
 {
 public:
-    std::optional<std::shared_ptr<LuaMod>> LoadMod(const std::string& name);
+
+    LuaHook();
+    void LoadMods();
+
+    template <typename... Args>
+    void BroadcastEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)
+    {
+        for (auto lua : m_luaMods)
+        {
+            lua->ReceiveEvent<Args...>(event, args...);
+        }
+    }
+
+private:
+    std::vector<std::shared_ptr<LuaMod>> m_luaMods;
 };

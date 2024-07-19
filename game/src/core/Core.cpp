@@ -1,8 +1,8 @@
 #include "Core.h"
 #include "raylib.h"
 #include "assets/game_assets.h"
-#include "scenes/BrowseLobbiesScene.h"
-#include "scenes/GameLobbyScene.h"
+#include "lua/LuaConstants.h"
+#include "lua/LuaScene.h"
 #include "scenes/MainMenuScene.h"
 
 Core* Core::INSTANCE = nullptr;
@@ -13,6 +13,7 @@ Core::Core(int defaultScene) :
     m_loadingScene(-1)
 {
     Core::INSTANCE = this;
+    lua.LoadMods();
     game_assets::LoadAssets();
     AddScenes();
     if (m_activesScene < 0) return;
@@ -31,8 +32,21 @@ size_t Core::AddScene(Scene* scene)
 void Core::AddScenes()
 {
     AddScene(new MainMenuScene());
-    AddScene(new GameLobbyScene());
-    AddScene(new BrowseLobbiesScene());
+
+    lua.BroadcastEvent<std::function<size_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
+    {
+        return [this](const sol::table& scene)
+        {
+            TraceLog(LOG_INFO, "Custom lua scene added");
+            return this->AddScene(new LuaScene(
+                scene[SCENE_PROP_RENDER],
+                scene[SCENE_PROP_RENDER_OVERLAY],
+                scene[SCENE_PROP_UPDATE],
+                scene[SCENE_PROP_LOAD],
+                scene[SCENE_PROP_CLEANUP]
+            ));
+        };
+    });
 }
 
 void Core::Render(Camera2D& camera)

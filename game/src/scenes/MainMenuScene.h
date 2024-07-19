@@ -19,10 +19,6 @@ static void HostGame()
     Core::INSTANCE->transitionManager.TransitionTo(1);
 }
 
-static void Addons()
-{
-}
-
 static void Quit()
 {
     Core::INSTANCE->shouldExit = true;

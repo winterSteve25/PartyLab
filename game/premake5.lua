@@ -64,6 +64,10 @@ project (workspaceName)
     filter {"action:vs*", "configurations:Release"}
             kind "WindowedApp"
             entrypoint "mainCRTStartup"
+
+    filter { "configurations:Debug" }
+        sanitize { "Address", "Fuzzer" }
+
     filter {}
 
     vpaths 
