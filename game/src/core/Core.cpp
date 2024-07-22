@@ -1,9 +1,9 @@
 #include "Core.h"
 #include "raylib.h"
+#include "TestScene.h"
 #include "assets/game_assets.h"
 #include "lua/LuaConstants.h"
 #include "lua/LuaScene.h"
-#include "scenes/MainMenuScene.h"
 
 Core* Core::INSTANCE = nullptr;
 
@@ -31,8 +31,7 @@ size_t Core::AddScene(Scene* scene)
 
 void Core::AddScenes()
 {
-    AddScene(new MainMenuScene());
-
+    AddScene(new TestScene);
     lua.BroadcastEvent<std::function<size_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
     {
         return [this](const sol::table& scene)
@@ -43,7 +42,8 @@ void Core::AddScenes()
                 scene[SCENE_PROP_RENDER_OVERLAY],
                 scene[SCENE_PROP_UPDATE],
                 scene[SCENE_PROP_LOAD],
-                scene[SCENE_PROP_CLEANUP]
+                scene[SCENE_PROP_CLEANUP],
+                scene[SCENE_PROP_UI]
             ));
         };
     });

@@ -22,6 +22,19 @@ public:
             tweeny::tween<Ts...>* tween = tweens[i];
             tween->step(dt);
             if (tween->progress() < 1) continue;
+
+            // finished
+            delete tween;
+            tweens.erase(tweens.begin() + i);
+            i--;
+        }
+    }
+
+    void DeleteAll()
+    {
+        for (int i = 0; i < tweens.size(); i++)
+        {
+            tweeny::tween<Ts...>* tween = tweens[i];
             delete tween;
             tweens.erase(tweens.begin() + i);
             i--;

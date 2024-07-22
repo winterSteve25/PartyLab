@@ -2,6 +2,7 @@
 #include <format>
 #include <string>
 
+#include "lua_utils.h"
 #include "raylib.h"
 #include "sol/sol.hpp"
 
@@ -17,9 +18,10 @@ public:
     void ReceiveEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)
     {
         TraceLog(LOG_INFO, std::format("Event '{}' was received in mod '{}'", event, name).c_str());
-        std::optional<sol::function> handler = m_eventListeners[event];
+        std::optional<sol::protected_function> handler = m_eventListeners[event];
         if (!handler.has_value()) return;
-        handler.value()(args(&m_lua)...);
+        sol::protected_function_result result = handler.value()(args(&m_lua)...);
+        lua_utils::UnwrapResult(result, std::optional<std::string>(std::nullopt));
     }
 
 private:

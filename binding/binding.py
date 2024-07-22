@@ -17,6 +17,9 @@ funcs = {
         ("getCenter", "Vector2", [("Vector2", "size"), ("Vector2", "totalSize")]),
         ("within", "boolean", [("Vector2", "x"), ("Vector2", "pos"), ("Vector2", "size")])
     ],
+    "core": [
+        ("transitionTo", "nil", [("number", "scene")])
+    ]
 }
 
 for key, funcs in funcs.items():

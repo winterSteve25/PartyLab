@@ -1,7 +1,9 @@
 #include "LuaMod.h"
 #include "LuaConstants.h"
 #include "raylib.h"
+#include "core/Core.h"
 #include "ui/ui_helper.h"
+#include "ui/styles/Transition.h"
 
 static int CustomRequire(lua_State* lua)
 {
@@ -22,27 +24,20 @@ static int CustomRequire(lua_State* lua)
         return 1;
     }
 
-    sol::stack::push(lua, std::string("\n\tno file: ") + GetWorkingDirectory() + "/" + filepath);
-    return 1;
+    return 0;
 }
 
 LuaMod::LuaMod(const std::string& filepath) : m_rootDir(GetDirectoryPath(filepath.c_str()))
 {
     m_lua.open_libraries(sol::lib::base, sol::lib::package);
     m_lua.add_package_loader(CustomRequire, false);
+
     AddCPPFunctions();
     AddCPPTypes();
 
     sol::protected_function_result result = m_lua.script_file(filepath);
-    if (!result.valid())
-    {
-        TraceLog(LOG_ERROR, ("Failed to initialize mod at" + filepath).c_str());
-        sol::error err = result;
-        TraceLog(LOG_ERROR, ("Status: " + sol::to_string(result.status())).c_str());
-        TraceLog(LOG_ERROR, ("Reason: " + std::string(err.what())).c_str());
-    }
+    sol::table modTable = lua_utils::UnwrapResult<sol::table>(result, "Failed to initialize mod at" + filepath);
 
-    sol::table modTable = result;
     name = modTable[GAME_MOD_PROP_NAME];
     const std::optional<std::string> desc = modTable[GAME_MOD_PROP_DESC];
     description = desc;
@@ -50,8 +45,8 @@ LuaMod::LuaMod(const std::string& filepath) : m_rootDir(GetDirectoryPath(filepat
     const sol::table event_listeners = modTable.get_or(GAME_MOD_PROP_EVENT_HANDLERS, m_lua.create_table());
     m_eventListeners = event_listeners;
 
-    sol::optional<sol::function> onLoad = m_eventListeners[GAME_EVENT_LOAD];
-    if (onLoad.has_value()) onLoad.value().call<void>();
+    sol::optional<sol::protected_function> onLoad = m_eventListeners[GAME_EVENT_LOAD];
+    if (onLoad.has_value()) lua_utils::UnwrapResult(onLoad.value()(), "Failed to load mod at" + filepath);
 }
 
 void LuaMod::AddCPPFunctions()
@@ -71,6 +66,8 @@ void LuaMod::AddCPPFunctions()
     AddCPPFunc("measureText", ui_helper::MeasureText);
     AddCPPFunc("getCenter", ui_helper::GetCenter);
     AddCPPFunc("within", ui_helper::Within);
+
+    AddCPPFunc("transitionTo", [](int scene) { Core::INSTANCE->transitionManager.TransitionTo(scene); });
 }
 
 void LuaMod::AddCPPTypes()
@@ -78,12 +75,45 @@ void LuaMod::AddCPPTypes()
     m_lua.new_usertype<Vector2>(
         "Vector2",
         sol::call_constructor,
-        sol::factories([](const double& x, const double& y)
-        {
-            return std::make_shared<Vector2>(x, y);
-        }),
+        sol::factories(
+            [](const double& x, const double& y)
+            {
+                return std::make_shared<Vector2>(x, y);
+            },
+            []()
+            {
+                constexpr Vector2 v{0, 0};
+                return v;
+            }
+        ),
         "x", &Vector2::x,
-        "y", &Vector2::y
+        "y", &Vector2::y,
+
+        "dot",
+        [](const Vector2& self, Vector2& other)
+        {
+            return self.x * other.x + self.y * other.y;
+        },
+
+        sol::meta_function::addition,
+        [](const Vector2& a, const Vector2& b)
+        {
+            Vector2 r = {a.x + b.x, a.y + b.y};
+            return r;
+        },
+
+        sol::meta_function::subtraction,
+        [](const Vector2& a, const Vector2& b)
+        {
+            Vector2 r = {a.x - b.x, a.y - b.y};
+            return r;
+        },
+
+        sol::meta_function::equal_to,
+        [](const Vector2& a, const Vector2& b)
+        {
+            return a.x == b.x && a.y == b.y;
+        }
     );
 
     m_lua.new_usertype<Color>(
@@ -97,5 +127,20 @@ void LuaMod::AddCPPTypes()
         "g", &Color::g,
         "b", &Color::b,
         "a", &Color::a
+    );
+
+    m_lua.new_usertype<Transition>(
+        "Transition",
+        sol::call_constructor,
+        sol::factories(
+            [](const unsigned int& duration, const sol::object& ease)
+            {
+                return std::make_shared<Transition>(duration, ease);
+            }
+        ),
+        "duration",
+        &Transition::duration,
+        "ease",
+        &Transition::ease
     );
 }

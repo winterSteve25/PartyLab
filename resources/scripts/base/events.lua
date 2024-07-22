@@ -1,10 +1,10 @@
-
-base_scenes = {}
+BASE_SCENES = {}
 
 local log = require("api.utils")
+
 local m = {
     addScenes = function(registrar)
-        base_scenes.mainmenu = registrar(require("base.scenes.mainmenu"))
+        BASE_SCENES.mainmenu = registrar(require("base.scenes.mainmenu"))
     end
 }
 

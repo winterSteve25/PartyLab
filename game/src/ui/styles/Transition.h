@@ -1,0 +1,41 @@
+#pragma once
+#include <string>
+#include <variant>
+
+#include "lua/lua_utils.h"
+#include "sol/sol.hpp"
+#include "tweeny/tween.h"
+
+struct Transition
+{
+public:
+    unsigned int duration;
+    sol::object ease;
+    Transition(const unsigned int duration, const sol::object& ease);
+
+    template <typename T, typename... Ts>
+    void SetupTween(tweeny::tween<T, Ts...>* tween)
+    {
+        tween->during(duration);
+        if (ease.is<sol::protected_function>())
+        {
+            auto e = ease.as<sol::protected_function>();
+            tween->via([e](float p, T a, T b)
+            {
+                return (b - a) * lua_utils::UnwrapResult<float>(e(p), "Errored when running transition function") + a;
+            });
+        }
+        // else if (ease.is<std::string>())
+        // {
+        //     auto e = ease.as<std::string>();
+        //     tween->via(e);
+        // }
+    }
+
+private:
+    template <class... Ts>
+    struct overload : Ts...
+    {
+        using Ts::operator()...;
+    };
+};

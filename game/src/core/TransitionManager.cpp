@@ -3,6 +3,10 @@
 
 void TransitionManager::ExecuteSceneTransition()
 {
+    Core::INSTANCE->colorTweenManager.DeleteAll();
+    Core::INSTANCE->floatTweenManager.DeleteAll();
+    Core::INSTANCE->vec2TweenManager.DeleteAll();
+    
     Core::INSTANCE->m_scenes[Core::INSTANCE->m_activesScene]->Cleanup();
     Core::INSTANCE->m_scenes[Core::INSTANCE->m_loadingScene]->Load();
     Core::INSTANCE->m_activesScene = Core::INSTANCE->m_loadingScene;

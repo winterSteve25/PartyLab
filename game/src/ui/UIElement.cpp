@@ -1,6 +1,6 @@
 #include "UIElement.h"
 
-#include "ui_helper.h"
+#include "ui/ui_helper.h"
 
 UIElement::UIElement(Vector2 pos, Vector2 size):
     m_pos(pos),

@@ -11,17 +11,17 @@ namespace ui_helper
 
     Vector2 AnchorTopRight(Vector2 pos)
     {
-        return { GetScreenWidth() - pos.x, pos.y };
+        return {GetScreenWidth() - pos.x, pos.y};
     }
 
     Vector2 AnchorBtmRight(Vector2 pos)
     {
-        return { GetScreenWidth() - pos.x, GetScreenHeight() - pos.y };
+        return {GetScreenWidth() - pos.x, GetScreenHeight() - pos.y};
     }
-    
+
     Vector2 AnchorBtmLeft(Vector2 pos)
     {
-        return { pos.x, GetScreenHeight() - pos.y };
+        return {pos.x, GetScreenHeight() - pos.y};
     }
 
     Vector2 DrawText(const char* text, float fontSize, Vector2 pos, Color color)
@@ -33,7 +33,9 @@ namespace ui_helper
 
     Vector2 MeasureText(const char* text, float fontSize)
     {
-        return MeasureTextEx(game_assets::game_font, text, fontSize, 2);
+        Vector2 s = MeasureTextEx(game_assets::game_font, text, fontSize, 2);
+        // s.y -= s.y * 0.2f;
+        return s;
     }
 
     Vector2 GetCenter(Vector2 size, Vector2 totalSize)

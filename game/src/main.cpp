@@ -2,6 +2,9 @@
 #include "core/Core.h"
 #include "steam_api.h"
 
+#define LAY_IMPLEMENTATION
+#include "layout.h"
+
 int main()
 {
     if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid))
@@ -17,9 +20,8 @@ int main()
         return EXIT_FAILURE;
     }
     
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     InitWindow(1280, 800, "Party Lab");
-    SetTargetFPS(60);
     SetExitKey(KEY_NULL);
 
     Camera2D camera;
@@ -34,6 +36,7 @@ int main()
         SteamAPI_RunCallbacks();
         core.Update();
         core.Render(camera);
+        DrawFPS(20, 20);
         EndDrawing();
     }
 
