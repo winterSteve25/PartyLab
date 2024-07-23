@@ -1,11 +1,16 @@
 #pragma once
-#include "Property.h"
+#include "base/FloatProperty.h"
 
-class FontSizeProperty : public Property<float>
+class FontSizeProperty : public FloatProperty
 {
 public:
     FontSizeProperty(UIElement* parent, const std::string* text);
-    void Set(const Style& style, bool doTransition) override;
+
+protected:
+    void OnSet() override;
+    float GetNewValue(const Style& style) override;
+
 private:
     const std::string* m_parentText;
+    UIElement* m_parent;
 };

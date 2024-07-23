@@ -4,34 +4,24 @@
 #include <map>
 
 #include "components/UIButton.h"
+#include "components/UIGroup.h"
 #include "components/UIText.h"
 #include "lua/LuaConstants.h"
 
 static std::map<std::string, std::function<UIElement*(const sol::table&)>> CONSTRUCTORS{
-    {"button", [](const sol::table& table) { return new UIButton(table); }}
+    {"button", [](const sol::table& table) { return new UIButton(table); }},
+    {"text", [](const sol::table& table) { return new UIText(table); }},
+    {"group", [](const sol::table& table) { return new UIGroup(table); }},
 };
 
-LuaUI::LuaUI(const sol::table& table): UIElement(table)
+LuaUI::LuaUI(const sol::table& table): m_screenWidth(0), m_screenHeight(0)
 {
-    layCtx = new lay_context;
-    lay_init_context(layCtx);
-    lay_reserve_items_capacity(layCtx, 64);
-    layParent = lay_item(layCtx);
-    layId = layParent;
-    lay_set_size_xy(layCtx, layParent, GetScreenWidth(), GetScreenHeight());
-    lay_set_behave(layCtx, layParent, lay_layout_flags::LAY_FILL);
-    Init(table);
     m_components.reserve(64);
-    m_isMain = true;
-}
 
-LuaUI::LuaUI(lay_context* context, const sol::table& totalTable): UIElement(totalTable)
-{
-    layCtx = context;
-    m_screenWidth = GetScreenWidth();
-    m_screenHeight = GetScreenHeight();
-    m_components.reserve(64);
-    m_isMain = false;
+    lay_init_context(&m_layCtx);
+    lay_reserve_items_capacity(&m_layCtx, 64);
+
+    ParseTable(&m_components, table);
 }
 
 LuaUI::~LuaUI()
@@ -44,70 +34,50 @@ LuaUI::~LuaUI()
         i--;
     }
 
-    if (m_isMain)
-    {
-        lay_destroy_context(layCtx);
-    }
+    lay_destroy_context(&m_layCtx);
 }
 
 void LuaUI::Render()
 {
-    UIElement::Render();
-}
+    lay_reset_context(&m_layCtx);
+    
+    lay_id root = lay_item(&m_layCtx);
+    lay_set_size_xy(&m_layCtx, root, static_cast<lay_scalar>(GetScreenWidth()), static_cast<lay_scalar>(GetScreenHeight()));
+    lay_set_behave(&m_layCtx, root, LAY_FILL);
 
-void LuaUI::RenderOverlay()
-{
-    UIElement::RenderOverlay();
     for (UIElement* renderable : m_components)
     {
-        renderable->RenderOverlay();
+        renderable->AddToLayout(&m_layCtx, root);
+    }
+
+    lay_run_context(&m_layCtx);
+
+    for (UIElement* renderable : m_components)
+    {
+        renderable->Render(&m_layCtx);
     }
 }
 
 void LuaUI::Update()
 {
-    if (m_isMain)
-    {
-        lay_run_context(layCtx);
-    }
-    
-    bool screenChanged = false;
-    if (m_isMain)
-    {
-        int tscreenWidth = GetScreenWidth();
-        int tscreenHeight = GetScreenHeight();
+    int tscreenWidth = GetScreenWidth();
+    int tscreenHeight = GetScreenHeight();
 
-        if (tscreenWidth != m_screenWidth || tscreenHeight != m_screenHeight)
-        {
-            lay_set_size_xy(layCtx, layParent, tscreenWidth, tscreenHeight);
-            m_screenWidth = tscreenWidth;
-            m_screenHeight = tscreenHeight;
-            screenChanged = true;
-        }
-    }
+    if (tscreenWidth == m_screenWidth && tscreenHeight == m_screenHeight) return;
+
+    m_screenWidth = tscreenWidth;
+    m_screenHeight = tscreenHeight;
 
     for (UIElement* renderable : m_components)
     {
-        renderable->Update();
-        if (!screenChanged) continue;
-        renderable->Init();
-    }
-
-    UIElement::Update();
-}
-
-void LuaUI::Init()
-{
-    UIElement::Init();
-    for (UIElement* comp : m_components)
-    {
-        comp->Init();
+        renderable->ApplyDefaultStyles();
     }
 }
 
-void LuaUI::Init(const sol::table& table)
+void LuaUI::ParseTable(std::vector<UIElement*>* collection, const sol::table& table)
 {
-    sol::optional<std::string> type = table[UI_PROP_TYPE];
+    sol::optional<std::string> type = table["type"];
+
     if (type.has_value())
     {
         if (!CONSTRUCTORS.contains(type.value()))
@@ -116,7 +86,7 @@ void LuaUI::Init(const sol::table& table)
             return;
         }
 
-        CreateUIElement(table, CONSTRUCTORS[type.value()]);
+        CreateUIElement(collection, table, CONSTRUCTORS[type.value()]);
     }
     else
     {
@@ -124,41 +94,37 @@ void LuaUI::Init(const sol::table& table)
         if (!first.has_value()) return;
         if (first.value().is<std::string>())
         {
-            CreateUIElement(table, [&first](const sol::table& table)
+            CreateUIElement(collection, table, [&first](const sol::table& table)
             {
                 return new UIText(table, first.value().as<std::string>());
             });
         }
         else
         {
-            LuaUI* group = dynamic_cast<LuaUI*>(CreateUIElement(table, [this](const sol::table& t)
+            UIGroup* group = dynamic_cast<UIGroup*>(CreateUIElement(collection, table, [](const sol::table& t)
             {
-                return new LuaUI(layCtx, t);
+                return new UIGroup(t);
             }));
 
-            for (const auto& pair : table.pairs())
+            table.for_each([group](auto pair)
             {
-                const sol::object& key = pair.first;
-                const sol::object& val = pair.second;
-                if (key.is<std::string>()) continue;
-                group->Init(val);
-            }
+                sol::object key = pair.first;
+                sol::object val = pair.second;
+                if (key.is<std::string>()) return;
+                group->AddChild(val);
+            });
         }
     }
 }
 
 UIElement* LuaUI::CreateUIElement(
+    std::vector<UIElement*>* collection,
     const sol::table& table,
     const std::function<UIElement*(const sol::table&)>& ctor
 )
 {
     UIElement* comp = ctor(table);
-    lay_id newComp = lay_item(layCtx);
-    comp->layCtx = layCtx;
-    comp->layId = newComp;
-    comp->layParent = layParent;
-    lay_insert(layCtx, layParent, newComp);
-    comp->Init();
-    m_components.push_back(comp);
+    comp->ApplyDefaultStyles();
+    collection->push_back(comp);
     return comp;
 }

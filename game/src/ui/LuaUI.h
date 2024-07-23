@@ -4,26 +4,20 @@
 #include "layout.h"
 #include "components/UIElement.h"
 
-class LuaUI : public UIElement
+class LuaUI
 {
 public:
     LuaUI(const sol::table& table);
-    ~LuaUI() override;
+    ~LuaUI();
 
-    UIElement* CreateUIElement(const sol::table& table, const std::function<UIElement*(const sol::table&)>& ctor);
+    void Render();
+    void Update();
 
-    void RenderOverlay() override;
-    void Render() override;
-    void Update() override;
-    void Init() override;
-
+    static UIElement* CreateUIElement(std::vector<UIElement*>* collection, const sol::table& table, const std::function<UIElement*(const sol::table&)>& ctor);
+    static void ParseTable(std::vector<UIElement*>* collection, const sol::table& table);
 private:
-    LuaUI(lay_context* context, const sol::table& totalTable);
-    void Init(const sol::table& table);
-
     std::vector<UIElement*> m_components;
     int m_screenWidth;
     int m_screenHeight;
-
-    bool m_isMain;
+    lay_context m_layCtx;
 };

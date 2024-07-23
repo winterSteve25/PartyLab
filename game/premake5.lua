@@ -45,7 +45,14 @@ end
 local function link_luajit() 
     includedirs { "../luajit/include", "luajit/include" }
     libdirs { "../luajit", "luajit" }
-    links { "lua51", "luajit" }
+    
+    filter { "platforms:x86" }
+        links { "lua51-x86", "luajit-x86" }
+    
+    filter { "platforms:x64" }
+        links { "lua51", "luajit" }
+    
+    filter {}
 end
 
 baseName = path.getbasename(os.getcwd());
@@ -65,8 +72,9 @@ project (workspaceName)
             kind "WindowedApp"
             entrypoint "mainCRTStartup"
 
-    filter { "configurations:Debug" }
+    filter { "action:vs*", "configurations:Debug" }
         sanitize { "Address", "Fuzzer" }
+        editandcontinue "Off"
 
     filter {}
 
@@ -76,6 +84,7 @@ project (workspaceName)
         ["Source Files/*"] = {"src/**.c", "src/**.cpp","**.c", "**.cpp", "include/**.tcc" },
     }
 
+    defines { "SOL_LUAJIT=1" }
     files {"**.c", "**.cpp", "**.h", "**.hpp", "**.tcc" }
 
     link_luajit()

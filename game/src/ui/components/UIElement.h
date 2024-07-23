@@ -2,42 +2,52 @@
 
 #include "layout.h"
 #include "raylib.h"
-#include "core/Renderable.h"
 #include "sol/sol.hpp"
-#include "ui/properties/BackgroundColorProperty.h"
-#include "ui/styles/Style.h"
+#include "ui/Style.h"
+#include "ui/properties/DirectionalProperty.h"
+#include "ui/properties/base/ColorProperty.h"
+#include "ui/properties/base/LayFlagProperty.h"
+#include "ui/properties/base/SizeProperty.h"
 
-class UIElement : public Renderable
+class UIElement
 {
 public:
-    ~UIElement() override = default;
-    void Update() override;
-    void Render() override;
-    void RenderOverlay() override;
-    virtual void Init();
+    virtual ~UIElement() = default;
+    virtual void Render(const lay_context* ctx);
+    virtual void ApplyDefaultStyles();
+    virtual void AddToLayout(lay_context* ctx, lay_id root);
+    virtual void ApplyStyles(const Style& style, bool doTransition);
 
-    lay_context* layCtx;
-    lay_id layId;
-    lay_id layParent;
+    ColorProperty sBackgroundColor;
+    SizeProperty sWidth;
+    SizeProperty sHeight;
+    DirectionalProperty sMarginLeft;
+    DirectionalProperty sMarginRight;
+    DirectionalProperty sMarginTop;
+    DirectionalProperty sMarginBottom;
+    LayFlagProperty sAlignSelf;
+    LayFlagProperty sAlignItems;
+
+    lay_id id;
 protected:
     UIElement(const sol::table& table);
 
-    Vector2 m_sPos;
-    Vector2 m_sSize;
-    
     Style m_normalStyle;
     Style m_hoverStyle;
-    Style m_pressedStyle;
-
+    Style m_pressStyle;
+    
     virtual void OnEnterHover();
     virtual void OnExitHover();
     virtual void OnClick();
     virtual void OnPressed();
     virtual void OnReleased();
-    virtual void ApplyStyles(const Style& style, bool doTransition);
+
+    Vector2 GetPos(const lay_context* ctx) const;
+    Vector2 GetSize(const lay_context* ctx) const;
 private:
+    void CheckEvents(const Vector2& pos);
+    
     bool m_isHeldDown;
     bool m_isHovering;
-    BackgroundColorProperty m_sBackgroundColor;
     Color m_randItemColor;
 };

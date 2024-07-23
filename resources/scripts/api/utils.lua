@@ -23,39 +23,6 @@ m.getScreenHeight = function()
 	cpp_getScreenHeight()
 end
 
----@param pos Vector2
----@return Vector2
-m.anchorTopLeft = function(pos)
-	cpp_anchorTopLeft(pos)
-end
-
----@param pos Vector2
----@return Vector2
-m.anchorTopRight = function(pos)
-	cpp_anchorTopRight(pos)
-end
-
----@param pos Vector2
----@return Vector2
-m.anchorBtmLeft = function(pos)
-	cpp_anchorBtmLeft(pos)
-end
-
----@param pos Vector2
----@return Vector2
-m.anchorBtmRight = function(pos)
-	cpp_anchorBtmRight(pos)
-end
-
----@param text string
----@param fontSize number
----@param pos Vector2
----@param color Color
----@return Vector2
-m.drawText = function(text,fontSize,pos,color)
-	cpp_drawText(text,fontSize,pos,color)
-end
-
 ---@param text string
 ---@param fontSize number
 ---@return Vector2

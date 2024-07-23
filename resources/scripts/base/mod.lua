@@ -1,3 +1,5 @@
+
+---@type ModDescriptor
 return {
     name = "Base Game",
     description = "The base games",

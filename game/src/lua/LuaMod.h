@@ -13,7 +13,8 @@ public:
     std::optional<std::string> description;
 
     LuaMod(const std::string& file_path);
-
+    ~LuaMod();
+    
     template <typename... Args>
     void ReceiveEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)
     {

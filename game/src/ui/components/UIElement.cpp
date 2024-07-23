@@ -1,75 +1,99 @@
 #include "UIElement.h"
 
-#include "raymath.h"
-#include "lua/LuaConstants.h"
+#include "layout.h"
 #include "ui/ui_helper.h"
+#include "ui/properties/properties.h"
+
+#define SCALER_CAST(x) static_cast<lay_scalar>(x)
 
 UIElement::UIElement(const sol::table& table):
-    m_sPos(Vector2Zero()),
-    m_sSize(Vector2Zero()),
+    sBackgroundColor(properties::ColorProp({0, 0, 0, 0})),
+    sWidth(properties::WidthProp()),
+    sHeight(properties::HeightProp()),
+    sMarginLeft(properties::MarginLeft()),
+    sMarginRight(properties::MarginRight()),
+    sMarginTop(properties::MarginTop()),
+    sMarginBottom(properties::MarginBottom()),
+    sAlignSelf(LayFlagProperty(LAY_TOP, "alignSelf")),
+    sAlignItems(LayFlagProperty(LAY_ROW, "alignItems")),
+    m_normalStyle(Style(table.lua_state(), table["style"])),
+    m_hoverStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("hovered"))),
+    m_pressStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("pressed"))),
     m_isHeldDown(false),
     m_isHovering(false),
-    m_sBackgroundColor(BackgroundColorProperty(this)),
-    m_randItemColor(Color(GetRandomValue(0, 255), GetRandomValue(0, 255), GetRandomValue(0, 255), 255))
+    m_randItemColor(Color(GetRandomValue(0, 255), GetRandomValue(0, 255),
+                          GetRandomValue(0, 255), 255))
 {
-    sol::optional<sol::table> styles = table[UI_PROP_STYLE];
-    m_normalStyle = Style(styles);
-    m_hoverStyle = Style(Style::GetOptionalField<sol::table>(styles, UI_PROP_STYLE_HOVER));
-    m_pressedStyle = Style(Style::GetOptionalField<sol::table>(styles, UI_PROP_STYLE_PRESS));
 }
 
-void UIElement::Init()
+void UIElement::ApplyDefaultStyles()
 {
-    Style& style = m_normalStyle;
-
     if (m_isHovering)
     {
-        style = m_hoverStyle.InheritFrom(style);
+        if (m_isHeldDown)
+        {
+            ApplyStyles(m_pressStyle.InheritFrom(m_hoverStyle.InheritFrom(m_normalStyle)), false);
+            return;
+        }
+
+        ApplyStyles(m_hoverStyle.InheritFrom(m_normalStyle), false);
+        return;
     }
 
-    if (m_isHeldDown)
-    {
-        style = m_pressedStyle.InheritFrom(style);
-    }
-
-    ApplyStyles(style, false);
+    ApplyStyles(m_normalStyle, false);
 }
 
-void UIElement::Render()
+void UIElement::AddToLayout(lay_context* ctx, lay_id root)
 {
+    id = lay_item(ctx);
+
+    lay_set_size_xy(ctx, id, SCALER_CAST(sWidth.Get()), SCALER_CAST(sHeight.Get()));
+    lay_set_behave(ctx, id, sAlignSelf.Get());
+    lay_set_contain(ctx, id, sAlignItems.Get());
+    lay_set_margins_ltrb(ctx, id, SCALER_CAST(sMarginLeft.Get()), SCALER_CAST(sMarginTop.Get()),
+                         SCALER_CAST(sMarginRight.Get()), SCALER_CAST(sMarginBottom.Get()));
+
+    lay_insert(ctx, root, id);
 }
 
-void UIElement::RenderOverlay()
+void UIElement::Render(const lay_context* ctx)
 {
-    if (m_sBackgroundColor.Get().a != 0)
+    auto rect = lay_get_rect(ctx, id);
+    Vector2 pos = GetPos(ctx);
+
+    CheckEvents(pos);
+
+    Vector2 size = GetSize(ctx);
+    const float width = size.x;
+    const float height = size.y;
+
+    if (sBackgroundColor.Get().a != 0)
     {
-        DrawRectangle(m_sPos.x, m_sPos.y, m_sSize.x, m_sSize.y, m_sBackgroundColor.Get());
+        // DrawRectangle(pos.x, pos.y, width, height, sBackgroundColor.Get());
     }
 
     if (!IsKeyDown(KEY_LEFT_CONTROL) || !IsKeyDown(KEY_E)) return;
-    lay_vec4 margin = lay_get_margins(layCtx, layId);
-
-    if (margin[0] != 0 || margin[1] != 0 || margin[2] != 0 || margin[3] != 0)
-    {
-        DrawRectangleLines(m_sPos.x - margin[0], m_sPos.y - margin[1], m_sPos.x + m_sSize.x + margin[2],
-                      m_sPos.y + m_sSize.y + margin[3], m_randItemColor);
-    }
-
-    DrawRectangleLines(m_sPos.x, m_sPos.y, m_sSize.x, m_sSize.y, m_randItemColor);
+    DrawRectangleLinesEx({pos.x, pos.y, width, height}, 2, m_randItemColor);
 }
 
-void UIElement::Update()
+void UIElement::CheckEvents(const Vector2& pos)
 {
-    auto rect = lay_get_rect(layCtx, layId);
-    m_sPos = Vector2(rect[0], rect[1]);
-    m_sSize = Vector2(rect[2], rect[3]);
-
-    bool within = ui_helper::Within(GetMousePosition(), m_sPos, m_sSize);
+    bool within = ui_helper::Within(GetMousePosition(), pos, {sWidth.Get(), sHeight.Get()});
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
     {
         if (m_isHeldDown && within)
         {
             OnClick();
+            OnReleased();
+
+            if (m_isHovering)
+            {
+                ApplyStyles(m_hoverStyle.InheritFrom(m_normalStyle), true);
+            }
+            else
+            {
+                ApplyStyles(m_normalStyle, true);
+            }
         }
 
         m_isHeldDown = false;
@@ -80,69 +104,79 @@ void UIElement::Update()
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             m_isHeldDown = true;
+            if (m_isHovering)
+            {
+                ApplyStyles(m_pressStyle.InheritFrom(m_hoverStyle.InheritFrom(m_normalStyle)), true);
+            }
             OnPressed();
         }
 
         if (m_isHovering) return;
         m_isHovering = true;
+
+        if (m_isHeldDown)
+        {
+            ApplyStyles(m_pressStyle.InheritFrom(m_hoverStyle.InheritFrom(m_normalStyle)), true);
+        }
+        else
+        {
+            ApplyStyles(m_hoverStyle.InheritFrom(m_normalStyle), true);
+        }
+
         OnEnterHover();
     }
     else
     {
         if (!m_isHovering) return;
         m_isHovering = false;
+        ApplyStyles(m_normalStyle, true);
         OnExitHover();
     }
 }
 
 void UIElement::OnEnterHover()
 {
-    ApplyStyles(m_hoverStyle.InheritFrom(m_normalStyle), true);
 }
 
 void UIElement::OnExitHover()
 {
-    ApplyStyles(m_normalStyle, true);
 }
 
 void UIElement::OnPressed()
 {
-    ApplyStyles(m_pressedStyle.InheritFrom(m_hoverStyle.InheritFrom(m_normalStyle)), true);
 }
 
 void UIElement::OnReleased()
 {
-    if (m_isHovering)
-    {
-        ApplyStyles(m_hoverStyle.InheritFrom(m_normalStyle), true);
-    }
-    else
-    {
-        ApplyStyles(m_normalStyle, true);
-    }
 }
 
 void UIElement::ApplyStyles(const Style& style, bool doTransition)
 {
-    m_sBackgroundColor.Set(style, doTransition);
+    sBackgroundColor.Set(style, doTransition);
+    sWidth.Set(style, doTransition);
+    sHeight.Set(style, doTransition);
+    sMarginTop.Set(style, doTransition);
+    sMarginBottom.Set(style, doTransition);
+    sMarginRight.Set(style, doTransition);
+    sMarginLeft.Set(style, doTransition);
+    sAlignSelf.Set(style, doTransition);
+    sAlignItems.Set(style, doTransition);
+}
 
-    auto parent = lay_get_rect(layCtx, layParent);
-    int parentWidth = parent[2];
-    int parentHeight = parent[3];
-    int width = style.width.val.Eval(parentWidth);
-    int height = style.height.val.Eval(parentHeight);
+Vector2 UIElement::GetPos(const lay_context* ctx) const
+{
+    auto rect = lay_get_rect(ctx, id);
+    float x = static_cast<float>(rect[0]);
+    float y = static_cast<float>(rect[1]);
+    return {x, y};
+}
 
-    lay_set_size_xy(layCtx, layId, width, height);
-    lay_set_contain(layCtx, layId, style.alignItems.val);
-    lay_set_behave(layCtx, layId, style.alignSelf.val);
-    lay_set_margins_ltrb(
-        layCtx,
-        layId,
-        style.marginLeft.val.Eval(parentWidth),
-        style.marginTop.val.Eval(parentHeight),
-        style.marginRight.val.Eval(parentWidth),
-        style.marginBottom.val.Eval(parentHeight)
-    );
+Vector2 UIElement::GetSize(const lay_context* ctx) const
+{
+    auto rect = lay_get_rect(ctx, id);
+    float x = static_cast<float>(rect[2]);
+    float y = static_cast<float>(rect[3]);
+    return {x, y};
 }
 
 void UIElement::OnClick()

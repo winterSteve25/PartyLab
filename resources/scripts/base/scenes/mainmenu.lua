@@ -1,57 +1,67 @@
+---@type Scene
 local mainMenu = {}
 
-local colors = require("api.colors")
-local layout = require("api.layout")
+local colors = require("api.ui.colors")
+local layout = require("api.ui.layout")
+local styles = require("api.ui.styles")
 local utils = require("api.utils")
 
-mainMenu.load = function()
-end
-
----@type UI
 mainMenu.ui = {
     style = {
-        alignItems = layout.items.LAY_ROW,
-        marginTop = 0.4,
-        marginLeft = 0.2,
+        alignItems = layout.items.LAY_COLUMN,
+        alignSelf = layout.self.LAY_TOP_LEFT,
+        margin = 0.16,
     },
     {
-        "Party",
         style = {
-            color = colors.text_color,
-            fontSize = 128,
-            transition = {
-                color = Transition(100, function(t)
-                    return t ^ 2
-                end),
+            alignItems = layout.items.LAY_ROW,
+        },
+        {
+            "Party",
+            style = {
+                color = colors.text_color,
+                fontSize = 200,
+                marginRight = 0.02,
             },
-            hovered = {
+        },
+        {
+            "Lab",
+            style = {
                 color = colors.accent_color,
+                fontSize = 200,
             },
         },
     },
     {
-        "Lab",
         style = {
-            color = colors.text_color,
-            fontSize = 128,
+            alignItems = layout.items.LAY_COLUMN,
+            alignSelf = layout.self.LAY_LEFT,
+        },
+        {
+            type = "button",
+            text = "Join Game",
+            style = styles.defaultButton,
+            onClick = function()
+                utils.info("Join")
+            end
+        },
+        {
+            type = "button",
+            text = "Host Game",
+            style = styles.defaultButton,
+            onClick = function()
+                utils.info("Host")
+            end
+        },
+        {
+            type = "button",
+            text = "Quit",
+            style = styles.defaultButton,
+            onClick = function()
+                require("api.core").exit()
+            end
         },
     },
 }
-
---mainMenu.ui = {
---    "Party",
---    style = {
---        color = colors.text_color,
---        fontSize = 128,
---        transition = {
---            color = Transition(100, function(t)
---                return t ^ 2
---            end),
---        },
---        hovered = {
---            color = colors.accent_color,
---        },
---    },
---}
 
 return mainMenu

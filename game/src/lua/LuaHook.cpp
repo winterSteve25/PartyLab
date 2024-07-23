@@ -19,13 +19,12 @@ void LuaHook::LoadMods()
         std::string dir = mods.paths[i];
         std::string path = dir + base;
         if (!FileExists(path.c_str())) continue;
-        m_luaMods.emplace_back(std::make_shared<LuaMod>(path));
+        m_luaMods.push_back(new LuaMod(path));
     }
 
     UnloadDirectoryFiles(mods);
 
     if (!DirectoryExists("mods")) return;
-    
     mods = LoadDirectoryFiles("mods");
     
     for (unsigned int i = 0; i < mods.count; i++)
@@ -33,8 +32,18 @@ void LuaHook::LoadMods()
         std::string dir = mods.paths[i];
         std::string path = dir + base;
         if (!FileExists(path.c_str())) continue;
-        m_luaMods.emplace_back(std::make_shared<LuaMod>(path));
+        m_luaMods.emplace_back(new LuaMod(path));
     }
 
     UnloadDirectoryFiles(mods);
+}
+
+void LuaHook::UnloadMods()
+{
+    for (LuaMod*& mod : m_luaMods)
+    {
+        delete mod;
+    }
+    
+    m_luaMods.clear();
 }

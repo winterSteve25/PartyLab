@@ -7,5 +7,10 @@ m.transitionTo = function(scene)
 	cpp_transitionTo(scene)
 end
 
+---@return nil
+m.exit = function()
+	cpp_exit()
+end
+
 
 return m

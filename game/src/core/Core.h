@@ -19,7 +19,7 @@ public:
     void Render(Camera2D& camera);
     void Update();
     size_t AddScene(Scene* scene);
-    void AddScenes();
+    void AddLuaScenes();
     
     bool shouldExit;
     TransitionManager transitionManager;
@@ -30,6 +30,9 @@ public:
     SimpleTweenManager<float, float> vec2TweenManager;
     SimpleTweenManager<unsigned char, unsigned char, unsigned char, unsigned char> colorTweenManager;
 private:
+    void ReloadLua();
+
+    int m_luaSceneStartIdx;
     std::vector<Scene*> m_scenes;
     int m_activesScene;
     int m_loadingScene;

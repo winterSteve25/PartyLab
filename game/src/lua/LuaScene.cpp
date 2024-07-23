@@ -22,24 +22,19 @@ LuaScene::LuaScene(
 
 void LuaScene::Render()
 {
-    if (m_uiBuilt.has_value())
-    {
-        m_uiBuilt.value()->Render();
-    }
-
     if (!m_render.has_value()) return;
     lua_utils::UnwrapResult(m_render.value()(), "Failed to render");
 }
 
 void LuaScene::RenderOverlay()
 {
-    if (m_uiBuilt.has_value())
+    if (m_renderOverlay.has_value())
     {
-        m_uiBuilt.value()->RenderOverlay();
+        lua_utils::UnwrapResult(m_renderOverlay.value()(), "Failed to render overlay");
     }
 
-    if (!m_renderOverlay.has_value()) return;
-    lua_utils::UnwrapResult(m_renderOverlay.value()(), "Failed to render overlay");
+    if (!m_uiBuilt.has_value()) return;
+    m_uiBuilt.value()->Render();
 }
 
 void LuaScene::Update()
@@ -58,11 +53,16 @@ void LuaScene::Load()
     if (m_ui.has_value())
     {
         LuaUI* ui = new LuaUI(m_ui.value());
-        m_uiBuilt.emplace(ui);
+        if (m_uiBuilt.has_value())
+        {
+            delete m_uiBuilt.value();
+        }
+
+        m_uiBuilt = ui;
     }
 
     if (!m_load.has_value()) return;
-    lua_utils::UnwrapResult(m_load.value()(), "Failed to load");
+    lua_utils::UnwrapResult(m_load.value()(), "Failed to load a custom lua scene");
 }
 
 void LuaScene::Cleanup()
@@ -71,7 +71,7 @@ void LuaScene::Cleanup()
     {
         delete m_uiBuilt.value();
     }
-    
+
     if (!m_cleanup.has_value()) return;
     lua_utils::UnwrapResult(m_cleanup.value()(), "Failed to clean up");
 }

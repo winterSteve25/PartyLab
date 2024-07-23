@@ -23,7 +23,7 @@ local UI = {}
 ---@field width number
 ---@field height number
 ---
----@field margin number[4] | number
+---@field margin number
 ---@field marginLeft number
 ---@field marginTop number
 ---@field marginRight number
@@ -43,3 +43,18 @@ local Style = {}
 ---@field duration number
 ---@field ease string | fun(t: number): number
 local Transition = {}
+
+---@class ModDescriptor
+---@field name string
+---@field description string
+---@field events table
+local ModDescriptor = {}
+
+---@class Scene
+---@field load fun()
+---@field cleanup fun()
+---@field ui UI
+---@field render fun()
+---@field renderOverlay fun()
+---@field update fun()
+local Scene = {}

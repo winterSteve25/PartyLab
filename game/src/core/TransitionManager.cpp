@@ -51,7 +51,7 @@ bool TransitionManager::IsInTransition() const
 
 static void render_transition(float percentage)
 {
-    DrawRectangle(0, percentage * GetScreenHeight(), GetScreenWidth(), GetScreenHeight(), BLACK);
+    DrawRectangle(0, static_cast<int>(GetScreenHeight() * percentage), GetScreenWidth(), GetScreenHeight(), BLACK);
 }
 
 static float ease(float t)

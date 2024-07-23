@@ -1,49 +1,28 @@
 #include "FontSizeProperty.h"
-
 #include "core/Core.h"
-#include "lua/LuaConstants.h"
 #include "ui/ui_helper.h"
 #include "ui/components/UIElement.h"
 
 FontSizeProperty::FontSizeProperty(UIElement* parent, const std::string* text):
-    Property(parent),
-    m_parentText(text)
+    FloatProperty(64, "fontSize"),
+    m_parentText(text),
+    m_parent(parent)
 {
 }
 
-void FontSizeProperty::Set(const Style& style, bool doTransition)
+void FontSizeProperty::OnSet()
 {
-    sol::optional<Transition> transition = Style::GetOptionalField<Transition>(
-        style.transitions, UI_PROP_STYLE_FONTSIZE);
+    Vector2 size = ui_helper::MeasureText(this->m_parentText->c_str(), m_val);
+    this->m_parent->sWidth.Override(size.x);
+    this->m_parent->sHeight.Override(size.y);
+}
 
-    if (!doTransition || !transition.has_value())
-    {
-        m_val = style.fontSize;
-        Vector2 size = ui_helper::MeasureText(this->m_parentText->c_str(), m_val);
-        lay_set_size_xy(
-            this->m_parent->layCtx,
-            this->m_parent->layId,
-            static_cast<lay_scalar>(size.x),
-            static_cast<lay_scalar>(size.y)
-        );
-        return;
-    }
-
-    const auto fs = style.fontSize.val;
-    auto tween = Core::INSTANCE->floatTweenManager.Create(m_val);
-    tween->to(fs);
-    tween->onStep([this](auto t, auto s)
-    {
-        this->m_val = s;
-        Vector2 size = ui_helper::MeasureText(this->m_parentText->c_str(), s);
-        lay_set_size_xy(
-            this->m_parent->layCtx,
-            this->m_parent->layId,
-            static_cast<lay_scalar>(size.x),
-            static_cast<lay_scalar>(size.y)
-        );
-        return false;
-    });
-
-    transition.value().SetupTween(tween);
+float FontSizeProperty::GetNewValue(const Style& style)
+{
+    float newFontSize = FloatProperty::GetNewValue(style);
+    
+    float hRatio = static_cast<float>(GetScreenWidth()) / 1920.0f;
+    float vRatio = static_cast<float>(GetScreenHeight()) / 1080.0f;
+    
+    return newFontSize * (hRatio + vRatio) * 0.5f;
 }

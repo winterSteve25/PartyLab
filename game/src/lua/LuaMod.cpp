@@ -1,9 +1,8 @@
 #include "LuaMod.h"
-#include "LuaConstants.h"
 #include "raylib.h"
 #include "core/Core.h"
+#include "ui/Transition.h"
 #include "ui/ui_helper.h"
-#include "ui/styles/Transition.h"
 
 static int CustomRequire(lua_State* lua)
 {
@@ -29,7 +28,9 @@ static int CustomRequire(lua_State* lua)
 
 LuaMod::LuaMod(const std::string& filepath) : m_rootDir(GetDirectoryPath(filepath.c_str()))
 {
-    m_lua.open_libraries(sol::lib::base, sol::lib::package);
+    TraceLog(LOG_INFO, std::format("Loading mod at: {}", m_rootDir).c_str());
+    
+    m_lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table, sol::lib::bit32);
     m_lua.add_package_loader(CustomRequire, false);
 
     AddCPPFunctions();
@@ -38,15 +39,17 @@ LuaMod::LuaMod(const std::string& filepath) : m_rootDir(GetDirectoryPath(filepat
     sol::protected_function_result result = m_lua.script_file(filepath);
     sol::table modTable = lua_utils::UnwrapResult<sol::table>(result, "Failed to initialize mod at" + filepath);
 
-    name = modTable[GAME_MOD_PROP_NAME];
-    const std::optional<std::string> desc = modTable[GAME_MOD_PROP_DESC];
+    name = modTable["name"];
+    const std::optional<std::string> desc = modTable["description"];
     description = desc;
 
-    const sol::table event_listeners = modTable.get_or(GAME_MOD_PROP_EVENT_HANDLERS, m_lua.create_table());
+    const sol::table event_listeners = modTable.get_or("events", m_lua.create_table());
     m_eventListeners = event_listeners;
+}
 
-    sol::optional<sol::protected_function> onLoad = m_eventListeners[GAME_EVENT_LOAD];
-    if (onLoad.has_value()) lua_utils::UnwrapResult(onLoad.value()(), "Failed to load mod at" + filepath);
+LuaMod::~LuaMod()
+{
+    TraceLog(LOG_INFO, std::format("Unloading mod at: {}", m_rootDir).c_str());
 }
 
 void LuaMod::AddCPPFunctions()
@@ -58,16 +61,12 @@ void LuaMod::AddCPPFunctions()
     AddCPPFunc("getScreenWidth", GetScreenWidth);
     AddCPPFunc("getScreenHeight", GetScreenHeight);
 
-    AddCPPFunc("anchorTopLeft", ui_helper::AnchorTopLeft);
-    AddCPPFunc("anchorTopRight", ui_helper::AnchorTopRight);
-    AddCPPFunc("anchorBtmLeft", ui_helper::AnchorBtmLeft);
-    AddCPPFunc("anchorBtmRight", ui_helper::AnchorBtmRight);
-    AddCPPFunc("drawText", ui_helper::DrawText);
     AddCPPFunc("measureText", ui_helper::MeasureText);
     AddCPPFunc("getCenter", ui_helper::GetCenter);
     AddCPPFunc("within", ui_helper::Within);
 
     AddCPPFunc("transitionTo", [](int scene) { Core::INSTANCE->transitionManager.TransitionTo(scene); });
+    AddCPPFunc("exit", []() { Core::INSTANCE->shouldExit = true; });
 }
 
 void LuaMod::AddCPPTypes()
