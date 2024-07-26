@@ -5,7 +5,7 @@
 #include "Scene.h"
 #include "TransitionManager.h"
 #include "SimpleTweenManager.h"
-#include "lua/LuaHook.h"
+#include "lua/LuaManager.h"
 #include "network/NetworkManager.h"
 
 class Core
@@ -24,7 +24,7 @@ public:
     bool shouldExit;
     TransitionManager transitionManager;
     NetworkManager networkManager;
-    LuaHook lua;
+    LuaManager lua;
     
     SimpleTweenManager<float> floatTweenManager;
     SimpleTweenManager<float, float> vec2TweenManager;

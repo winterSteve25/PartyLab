@@ -1,16 +1,17 @@
 ---@type Scene
-local mainMenu = {}
+local m = {}
 
 local colors = require("api.ui.colors")
 local layout = require("api.ui.layout")
 local styles = require("api.ui.styles")
-local utils = require("api.utils")
+local core = require("api.core")
 
-mainMenu.ui = {
+local ui = {
     style = {
         alignItems = layout.items.LAY_COLUMN,
         alignSelf = layout.self.LAY_TOP_LEFT,
-        margin = 0.16,
+        marginTop = 0.2,
+        marginLeft = 0.16,
     },
     {
         style = {
@@ -19,7 +20,7 @@ mainMenu.ui = {
         {
             "Party",
             style = {
-                color = colors.text_color,
+                color = colors.textColor,
                 fontSize = 200,
                 marginRight = 0.02,
             },
@@ -27,7 +28,7 @@ mainMenu.ui = {
         {
             "Lab",
             style = {
-                color = colors.accent_color,
+                color = colors.accentColor,
                 fontSize = 200,
             },
         },
@@ -36,13 +37,15 @@ mainMenu.ui = {
         style = {
             alignItems = layout.items.LAY_COLUMN,
             alignSelf = layout.self.LAY_LEFT,
+            marginTop = 0.05,
+            marginLeft = 0.03,
         },
         {
             type = "button",
             text = "Join Game",
             style = styles.defaultButton,
             onClick = function()
-                utils.info("Join")
+                core.transitionTo(BASE_SCENES.lobby)
             end
         },
         {
@@ -50,7 +53,7 @@ mainMenu.ui = {
             text = "Host Game",
             style = styles.defaultButton,
             onClick = function()
-                utils.info("Host")
+                core.transitionTo(BASE_SCENES.lobby)
             end
         },
         {
@@ -58,10 +61,14 @@ mainMenu.ui = {
             text = "Quit",
             style = styles.defaultButton,
             onClick = function()
-                require("api.core").exit()
+                core.exit()
             end
         },
     },
 }
 
-return mainMenu
+m.ui = function(data)
+    return ui
+end
+
+return m

@@ -14,6 +14,25 @@ SizeProperty::SizeProperty(const Size& defaultValue, const std::string& key, con
     m_evaled = static_cast<float>(defaultValue.Eval(max()));
 }
 
+SizeProperty::~SizeProperty()
+{
+    for (tween_type tween : m_tweens)
+    {
+        if (auto t = tween.lock())
+        {
+            t->Kill();
+        }
+    }
+
+    m_tweens.clear();
+}
+
+void SizeProperty::ManageTween(tween_type tween)
+{
+    m_tweens.push_back(tween);
+}
+
+
 void SizeProperty::Set(const Style& style, bool doTransition)
 {
     if (m_overriden) return;
@@ -23,8 +42,7 @@ void SizeProperty::Set(const Style& style, bool doTransition)
         m_key
     );
 
-    const sol::optional<sol::object> newValueA = style.Get<sol::object>(m_key);
-    Size newValue = newValueA.has_value() ? Size(newValueA.value()) : m_default;
+    Size newValue = GetNewValue(style);
 
     if (!doTransition || !transition.has_value())
     {
@@ -32,7 +50,9 @@ void SizeProperty::Set(const Style& style, bool doTransition)
         return;
     }
 
-    auto tween = Core::INSTANCE->floatTweenManager.Create(m_evaled);
+    auto tweenPtr = Core::INSTANCE->floatTweenManager.Create(m_evaled);
+    ManageTween(tweenPtr);
+    const auto tween = tweenPtr.lock()->Value();
 
     tween->to(static_cast<float>(newValue.Eval(m_max())));
     tween->onStep([this](auto t, auto f)
@@ -54,4 +74,10 @@ void SizeProperty::Override(float val)
 {
     m_overriden = true;
     m_override = val;
+}
+
+Size SizeProperty::GetNewValue(const Style& style)
+{
+    const sol::optional<sol::object> newValueA = style.Get<sol::object>(m_key);
+    return newValueA.has_value() ? Size(newValueA.value()) : m_default;
 }

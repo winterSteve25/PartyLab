@@ -7,7 +7,7 @@
 #define SCALER_CAST(x) static_cast<lay_scalar>(x)
 
 UIElement::UIElement(const sol::table& table):
-    sBackgroundColor(properties::ColorProp({0, 0, 0, 0})),
+    sBackgroundColor(properties::BackgroundColorProp({0, 0, 0, 0})),
     sWidth(properties::WidthProp()),
     sHeight(properties::HeightProp()),
     sMarginLeft(properties::MarginLeft()),
@@ -69,7 +69,7 @@ void UIElement::Render(const lay_context* ctx)
 
     if (sBackgroundColor.Get().a != 0)
     {
-        // DrawRectangle(pos.x, pos.y, width, height, sBackgroundColor.Get());
+        DrawRectangle(pos.x, pos.y, width, height, sBackgroundColor.Get());
     }
 
     if (!IsKeyDown(KEY_LEFT_CONTROL) || !IsKeyDown(KEY_E)) return;

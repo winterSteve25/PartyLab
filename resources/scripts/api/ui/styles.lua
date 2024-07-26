@@ -6,14 +6,15 @@ local ease = require("api.ui.ease")
 ---@type Style
 m.defaultButton = {
     alignSelf = require("api.ui.layout").self.LAY_LEFT,
-    color = colors.text_color,
-    fontSize = 96,
+    color = colors.textColor,
+    fontSize = 100,
+    marginTop = 0.04,
     hovered = {
-        color = colors.accent_color,
-        fontSize = 128,
+        color = colors.accentColor,
+        fontSize = 130,
     },
     pressed = {
-        fontSize = 140,
+        fontSize = 150,
     },
     transition = {
         color = Transition(100, ease.easeLinear),

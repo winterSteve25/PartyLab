@@ -13,7 +13,6 @@ Style::Style(const sol::table& table) : m_table(table)
 
 Style Style::InheritFrom(const Style& other) const
 {
-    float initial = other.Get<float>("fontSize").value();
     sol::table result = sol::state::create_table(m_table.lua_state());
 
     for (auto pair : other.m_table)

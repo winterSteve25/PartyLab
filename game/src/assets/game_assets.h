@@ -3,12 +3,13 @@
 
 namespace game_assets
 {
-    inline Font game_font;
-    inline Color text_color = { 22, 22, 22, 255 };
-    inline Color accent_color = { 8, 88, 182, 255 };
-    inline Color foreground_color = { 0, 179, 255, 51 };
-    inline Color middleground_color = { 8, 88, 182, 255 };
-    inline Color background_color = { 243, 243, 243, 255 };
+    inline Font GAME_FONT;
+    
+    inline Color TEXT_COLOR = { 22, 22, 22, 255 };
+    inline Color ACCENT_COLOR = { 8, 88, 182, 255 };
+    inline Color FOREGROUND_COLOR = { 0, 179, 255, 51 };
+    inline Color MIDDLEGROUND_COLOR = { 8, 88, 182, 255 };
+    inline Color BACKGROUND_COLOR = { 243, 243, 243, 255 };
     
     void LoadAssets();
 }

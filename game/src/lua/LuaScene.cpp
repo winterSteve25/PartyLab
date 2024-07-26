@@ -9,7 +9,7 @@ LuaScene::LuaScene(
     const sol::optional<sol::protected_function>& update,
     const sol::optional<sol::protected_function>& load,
     const sol::optional<sol::protected_function>& cleanup,
-    const sol::optional<sol::table>& ui
+    const sol::optional<sol::protected_function>& ui
 ): m_render(render),
    m_renderOverlay(render_overlay),
    m_update(update),
@@ -52,13 +52,7 @@ void LuaScene::Load()
 {
     if (m_ui.has_value())
     {
-        LuaUI* ui = new LuaUI(m_ui.value());
-        if (m_uiBuilt.has_value())
-        {
-            delete m_uiBuilt.value();
-        }
-
-        m_uiBuilt = ui;
+        m_uiBuilt = new LuaUI(m_ui.value());
     }
 
     if (!m_load.has_value()) return;
@@ -70,6 +64,7 @@ void LuaScene::Cleanup()
     if (m_uiBuilt.has_value())
     {
         delete m_uiBuilt.value();
+        m_uiBuilt = sol::optional<LuaUI*>(sol::nullopt);
     }
 
     if (!m_cleanup.has_value()) return;

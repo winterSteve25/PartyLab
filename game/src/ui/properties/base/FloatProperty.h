@@ -1,7 +1,9 @@
 #pragma once
 #include "Property.h"
+#include "TweenManagingProperty.h"
+#include "tweeny/tweeny.h"
 
-class FloatProperty : public Property<float>
+class FloatProperty : public TweenManagingProperty<float, float>
 {
 public:
     FloatProperty(float defaultValue, const std::string& key);

@@ -11,7 +11,7 @@ public:
     static const char* LOBBY_DATA_KEY_HOST;
 
     GameLobby() = default;
-    CSteamID GetHost();
+    CSteamID GetHost() const;
 private:
     CSteamID m_lobbyId;
     

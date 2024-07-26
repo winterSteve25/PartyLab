@@ -12,7 +12,7 @@ public:
     std::string name;
     std::optional<std::string> description;
 
-    LuaMod(const std::string& file_path);
+    LuaMod(const std::string& file_path, bool privileged);
     ~LuaMod();
     
     template <typename... Args>
@@ -29,13 +29,4 @@ private:
     sol::state m_lua;
     sol::table m_eventListeners;
     std::string m_rootDir;
-
-    template <typename Func>
-    void AddCPPFunc(const std::string& name, Func&& fn)
-    {
-        m_lua.set_function("cpp_" + name, fn);
-    }
-
-    void AddCPPFunctions();
-    void AddCPPTypes();
 };

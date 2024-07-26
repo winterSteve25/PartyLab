@@ -5,7 +5,7 @@
 #include "ui/Transition.h"
 
 ColorProperty::ColorProperty(const Color& defaultValue, const std::string& key):
-    Property(defaultValue, key)
+    TweenManagingProperty(defaultValue, key)
 {
 }
 
@@ -16,20 +16,22 @@ void ColorProperty::Set(const Style& style, bool doTransition)
     {
         return;
     }
-    
+
     sol::optional<Transition> transition = Style::GetOptionalField<Transition>(
         style.GetOr(UI_PROP_STYLE_TRANSITIONS, sol::optional<sol::table>(sol::nullopt)),
         m_key
     );
-    
+
     if (!doTransition || !transition.has_value())
     {
         m_val = newValue;
         return;
     }
 
-    auto tween = Core::INSTANCE->colorTweenManager.Create(m_val.r, m_val.g, m_val.b, m_val.a);
-    
+    auto tweenptr = Core::INSTANCE->colorTweenManager.Create(m_val.r, m_val.g, m_val.b, m_val.a);
+    ManageTween(tweenptr);
+    const auto tween = tweenptr.lock()->Value();
+
     tween->to(newValue.r, newValue.g, newValue.b, newValue.a);
     tween->onStep([this](auto t, auto r, auto g, auto b, auto a)
     {

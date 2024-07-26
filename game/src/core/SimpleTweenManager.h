@@ -1,15 +1,17 @@
 #pragma once
 #include <vector>
+#include <memory>
 
 #include "tweeny/tweeny.h"
+#include "utils/Managed.h"
 
 template <typename... Ts>
 class SimpleTweenManager
 {
 public:
-    tweeny::tween<Ts...>* Create(Ts... from)
+    std::weak_ptr<Managed<tweeny::tween<Ts...>*>> Create(Ts... from)
     {
-        tweeny::tween<Ts...>* t = new tweeny::tween<Ts...>(tweeny::from(from...));
+        auto t = std::make_shared<Managed<tweeny::tween<Ts...>*>>(new tweeny::tween<Ts...>(tweeny::from(from...)));
         tweens.push_back(t);
         return t;
     }
@@ -19,12 +21,22 @@ public:
         int dt = static_cast<int>(1000.0f * GetFrameTime());
         for (int i = 0; i < tweens.size(); i++)
         {
-            tweeny::tween<Ts...>* tween = tweens[i];
-            tween->step(dt);
-            if (tween->progress() < 1) continue;
+            std::shared_ptr<Managed<tweeny::tween<Ts...>*>> tween = tweens[i];
+
+            if (tween->IsKilled())
+            {
+                delete tween->Value();
+                tweens.erase(tweens.begin() + i);
+                i--;
+                return;
+            }
+
+            auto tweenVal = tween->Value();
+            tweenVal->step(dt);
+            if (tweenVal->progress() < 1) continue;
 
             // finished
-            delete tween;
+            delete tweenVal;
             tweens.erase(tweens.begin() + i);
             i--;
         }
@@ -34,12 +46,13 @@ public:
     {
         for (int i = 0; i < tweens.size(); i++)
         {
-            tweeny::tween<Ts...>* tween = tweens[i];
-            delete tween;
+            std::shared_ptr<Managed<tweeny::tween<Ts...>*>> tween = tweens[i];
+            delete tween->Value();
             tweens.erase(tweens.begin() + i);
             i--;
         }
     }
+
 private:
-    std::vector<tweeny::tween<Ts...>*> tweens;
+    std::vector<std::shared_ptr<Managed<tweeny::tween<Ts...>*>>> tweens;
 };

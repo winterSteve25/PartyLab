@@ -5,23 +5,37 @@
 
 #include "components/UIButton.h"
 #include "components/UIGroup.h"
+#include "components/UIRendered.h"
 #include "components/UIText.h"
-#include "lua/LuaConstants.h"
+#include "core/Core.h"
+#include "lua/lua_utils.h"
+
+#define CONSTRUCT() lua_utils::UnwrapResult<sol::table>(m_uiSupplier(m_customData), "Failed to build UI by calling the constructor")
 
 static std::map<std::string, std::function<UIElement*(const sol::table&)>> CONSTRUCTORS{
     {"button", [](const sol::table& table) { return new UIButton(table); }},
     {"text", [](const sol::table& table) { return new UIText(table); }},
     {"group", [](const sol::table& table) { return new UIGroup(table); }},
+    {"rendered", [](const sol::table& table) { return new UIRendered(table); }}
 };
 
-LuaUI::LuaUI(const sol::table& table): m_screenWidth(0), m_screenHeight(0)
+LuaUI::LuaUI(const sol::protected_function& supplier):
+    m_uiSupplier(supplier),
+    m_customData(sol::state::create_table(supplier.lua_state())),
+    m_screenWidth(0),
+    m_screenHeight(0),
+    m_needsRebuild(false)
 {
+    m_customData["rebuild"] = [this]()
+    {
+        m_needsRebuild = true;
+    };
     m_components.reserve(64);
 
     lay_init_context(&m_layCtx);
     lay_reserve_items_capacity(&m_layCtx, 64);
 
-    ParseTable(&m_components, table);
+    ParseTable(&m_components, CONSTRUCT());
 }
 
 LuaUI::~LuaUI()
@@ -40,9 +54,10 @@ LuaUI::~LuaUI()
 void LuaUI::Render()
 {
     lay_reset_context(&m_layCtx);
-    
+
     lay_id root = lay_item(&m_layCtx);
-    lay_set_size_xy(&m_layCtx, root, static_cast<lay_scalar>(GetScreenWidth()), static_cast<lay_scalar>(GetScreenHeight()));
+    lay_set_size_xy(&m_layCtx, root, static_cast<lay_scalar>(GetScreenWidth()),
+                    static_cast<lay_scalar>(GetScreenHeight()));
     lay_set_behave(&m_layCtx, root, LAY_FILL);
 
     for (UIElement* renderable : m_components)
@@ -60,6 +75,20 @@ void LuaUI::Render()
 
 void LuaUI::Update()
 {
+    if (m_needsRebuild)
+    {
+        for (int i = 0; i < m_components.size(); i++)
+        {
+            UIElement* pointer = m_components[i];
+            delete pointer;
+            m_components.erase(m_components.begin() + i);
+            i--;
+        }
+
+        ParseTable(&m_components, CONSTRUCT());
+        m_needsRebuild = false;
+    }
+
     int tscreenWidth = GetScreenWidth();
     int tscreenHeight = GetScreenHeight();
 

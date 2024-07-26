@@ -10,15 +10,15 @@ Core* Core::INSTANCE = nullptr;
 
 Core::Core(int defaultScene) :
     shouldExit(false),
+    m_luaSceneStartIdx(-1),
     m_activesScene(defaultScene),
-    m_loadingScene(-1),
-    m_luaSceneStartIdx(-1)
+    m_loadingScene(-1)
 {
     Core::INSTANCE = this;
     game_assets::LoadAssets();
 
     lua.LoadMods();
-    AddScene(new TestScene);
+    // AddScene(new TestScene);
     AddLuaScenes();
 
     if (m_activesScene < 0) return;
@@ -87,7 +87,7 @@ void Core::ReloadLua()
 
 void Core::Render(Camera2D& camera)
 {
-    ClearBackground(game_assets::background_color);
+    ClearBackground(game_assets::BACKGROUND_COLOR);
     
     if (m_activesScene >= 0)
     {

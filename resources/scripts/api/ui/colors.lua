@@ -1,18 +1,18 @@
 local m = {}
 
 ---@type Color
-m.text_color = Color(22, 22, 22, 255)
+m.textColor = Color(22, 22, 22, 255)
 
 ---@type Color
-m.accent_color = Color(8, 88, 182, 255)
+m.accentColor = Color(8, 88, 182, 255)
 
 ---@type Color
-m.foreground_color = Color(0, 179, 255, 51)
+m.foregroundColor = Color(0, 179, 255, 51)
 
 ---@type Color
-m.middleground_color = Color(8, 88, 182, 255)
+m.middlegroundColor = Color(8, 88, 182, 255)
 
 ---@type Color
-m.background_color = Color(243, 243, 243, 255)
+m.backgroundColor = Color(243, 243, 243, 255)
 
 return m

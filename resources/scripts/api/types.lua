@@ -1,3 +1,5 @@
+---@meta types
+
 ---@class Vector2 Created by calling Vector2(x, y)
 ---@field x number
 ---@field y number
@@ -53,8 +55,13 @@ local ModDescriptor = {}
 ---@class Scene
 ---@field load fun()
 ---@field cleanup fun()
----@field ui UI
+---@field ui fun(): UI
 ---@field render fun()
 ---@field renderOverlay fun()
 ---@field update fun()
 local Scene = {}
+
+---@class Size
+---@field measure
+---@field type 
+local Size = {}

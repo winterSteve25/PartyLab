@@ -1,15 +1,15 @@
-#include "LuaHook.h"
+#include "LuaManager.h"
 
 #include <memory>
 
 #include "raylib.h"
 
-LuaHook::LuaHook()
+LuaManager::LuaManager()
 {
     m_luaMods.reserve(1);
 }
 
-void LuaHook::LoadMods()
+void LuaManager::LoadMods()
 {
     FilePathList mods = LoadDirectoryFiles("resources/scripts");
     const std::string base = "/mod.lua";
@@ -19,7 +19,7 @@ void LuaHook::LoadMods()
         std::string dir = mods.paths[i];
         std::string path = dir + base;
         if (!FileExists(path.c_str())) continue;
-        m_luaMods.push_back(new LuaMod(path));
+        m_luaMods.push_back(new LuaMod(path, true));
     }
 
     UnloadDirectoryFiles(mods);
@@ -32,13 +32,13 @@ void LuaHook::LoadMods()
         std::string dir = mods.paths[i];
         std::string path = dir + base;
         if (!FileExists(path.c_str())) continue;
-        m_luaMods.emplace_back(new LuaMod(path));
+        m_luaMods.emplace_back(new LuaMod(path, false));
     }
 
     UnloadDirectoryFiles(mods);
 }
 
-void LuaHook::UnloadMods()
+void LuaManager::UnloadMods()
 {
     for (LuaMod*& mod : m_luaMods)
     {

@@ -4,17 +4,18 @@
 struct Size
 {
 public:
-    enum SizeType
+    enum SizeType : uint8_t
     {
-        PERCENT,
-        ABSOLUTE,
+        VIEW = 1,
+        ABSOLUTE = 2,
     };
 
     Size();
     Size(const sol::object& size);
     Size(SizeType type, float measure);
     int Eval(int max) const;
-public:
+    
+private:
     SizeType m_type;
     float m_measure;
 };

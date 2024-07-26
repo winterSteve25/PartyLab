@@ -6,7 +6,7 @@
 std::optional<GameLobby*> GameLobby::CURRENT_LOBBY = std::optional<GameLobby*>(std::nullopt);
 const char* GameLobby::LOBBY_DATA_KEY_HOST = "host";
 
-CSteamID GameLobby::GetHost()
+CSteamID GameLobby::GetHost() const
 {
     const char* host = SteamMatchmaking()->GetLobbyData(m_lobbyId, LOBBY_DATA_KEY_HOST);
     uint64 id = std::stoull(host);

@@ -1,11 +1,11 @@
 #pragma once
 #include "LuaMod.h"
 
-class LuaHook
+class LuaManager
 {
 public:
 
-    LuaHook();
+    LuaManager();
     
     void LoadMods();
     void UnloadMods();

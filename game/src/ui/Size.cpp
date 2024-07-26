@@ -17,7 +17,7 @@ Size::Size(const sol::object& size)
     else if (size.is<float>())
     {
         float f = size.as<float>();
-        m_type = PERCENT;
+        m_type = VIEW;
         m_measure = f;
     }
     else

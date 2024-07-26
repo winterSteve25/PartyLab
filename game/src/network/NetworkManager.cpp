@@ -6,7 +6,8 @@
 #include "GameLobby.h"
 #include "raylib.h"
 
-NetworkManager::NetworkManager()
+NetworkManager::NetworkManager():
+    m_messageBuffer(new SteamNetworkingMessage_t[message_buffer_size])
 {
     SteamNetworkingUtils()->InitRelayNetworkAccess();
 }
@@ -28,15 +29,19 @@ void NetworkManager::OnLobbyCreated(LobbyCreated_t* lobby, bool failed)
     GameLobby::Created(lobby->m_eResult);
 }
 
+void NetworkManager::HandleMessage(const SteamNetworkingMessage_t* message)
+{
+}
+
 void NetworkManager::HandleMessages()
 {
-    SteamNetworkingMessage_t* messages[32];
-    int msgCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, messages, 32);
+    int msgCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, m_messageBuffer, message_buffer_size);
     if (msgCount <= 0) return;
-    
+
     for (int i = 0; i < msgCount; i++)
     {
-        SteamNetworkingMessage_t* msg = messages[i];
+        SteamNetworkingMessage_t* msg = m_messageBuffer[i];
+        HandleMessage(msg);
         msg->Release();
     }
 }
@@ -45,7 +50,7 @@ void NetworkManager::SendMessage()
 {
 }
 
-
+// ReSharper disable once CppMemberFunctionMayBeStatic
 void NetworkManager::OnSessionRequested(SteamNetworkingMessagesSessionRequest_t* request)
 {
     SteamNetworkingMessages()->AcceptSessionWithUser(request->m_identityRemote);

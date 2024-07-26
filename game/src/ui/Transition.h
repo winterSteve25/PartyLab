@@ -25,11 +25,6 @@ public:
                 return (b - a) * lua_utils::UnwrapResult<float>(e(p), "Errored when running transition function") + a;
             });
         }
-        // else if (ease.is<std::string>())
-        // {
-        //     auto e = ease.as<std::string>();
-        //     tween->via(e);
-        // }
     }
 
 private:

@@ -10,7 +10,7 @@ class LuaScene : public Scene
 public:
     LuaScene(const sol::optional<sol::protected_function>& render, const sol::optional<sol::protected_function>& render_overlay,
         const sol::optional<sol::protected_function>& update, const sol::optional<sol::protected_function>& load,
-        const sol::optional<sol::protected_function>& cleanup, const sol::optional<sol::table>& ui);
+        const sol::optional<sol::protected_function>& cleanup, const sol::optional<sol::protected_function>& ui);
 
     void Render() override;
     void RenderOverlay() override;
@@ -23,6 +23,6 @@ private:
     sol::optional<sol::protected_function> m_update;
     sol::optional<sol::protected_function> m_load;
     sol::optional<sol::protected_function> m_cleanup;
-    sol::optional<sol::table> m_ui;
+    sol::optional<sol::protected_function> m_ui;
     sol::optional<LuaUI*> m_uiBuilt;
 };
