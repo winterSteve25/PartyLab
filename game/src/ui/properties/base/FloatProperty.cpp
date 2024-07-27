@@ -31,20 +31,12 @@ void FloatProperty::Set(const Style& style, bool doTransition)
     auto tweenPtr = Core::INSTANCE->floatTweenManager.Create(m_val);
     ManageTween(tweenPtr);
     auto tween = tweenPtr.lock()->Value();
-    TraceLog(LOG_INFO, "Tween Created");
 
     tween->to(newValue);
     tween->onStep([this](auto t, auto s)
     {
         this->m_val = s;
         OnSet();
-
-        if (t.progress() < 1)
-        {
-            return false;
-        }
-        
-        TraceLog(LOG_INFO, "Tween COMPLETED");
         return false;
     });
 

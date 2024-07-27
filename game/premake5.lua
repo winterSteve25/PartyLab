@@ -22,10 +22,12 @@ local function link_steam()
     filter { "system:windows", "platforms:x64" }
         libdirs { "../steam/redistributable_bin/win64" }
         links { "steam_api64" }
+        postbuildcommands { "{COPYFILE} \"../steam/redistributable_bin/win64/steam_api64.dll\" \"../bin/%{cfg.buildcfg}\"" }
     
     filter { "system:windows", "platforms:x86" }
         libdirs { "../steam/redistributable_bin" }
         links { "steam_api" }
+        postbuildcommands { "{COPYFILE} \"../steam/redistributable_bin/steam_api.dll\" \"../bin/%{cfg.buildcfg}\"" }
 
     filter { "system:linux", "platforms:x64" }
         libdirs { "../steam/redistributable_bin/linux64" }
@@ -67,10 +69,11 @@ project (workspaceName)
 
     filter "action:vs*"
         debugdir "$(SolutionDir)"
+        flags { "MultiProcessorCompile" }
 
     filter {"action:vs*", "configurations:Release"}
-            kind "WindowedApp"
-            entrypoint "mainCRTStartup"
+        kind "WindowedApp"
+        entrypoint "mainCRTStartup"
 
     filter { "action:vs*", "configurations:Debug" }
         sanitize { "Address", "Fuzzer" }
@@ -95,3 +98,5 @@ project (workspaceName)
 
     link_steam()
     link_raylib()
+
+    postbuildcommands { "{COPYDIR} \"../resources\" \"../bin/%{cfg.buildcfg}/resources/\"" }
