@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "raylib.h"
+#include "async/WaitFor.h"
 #include "core/Core.h"
 #include "ui/Length.h"
 #include "ui/Transition.h"
@@ -104,6 +105,17 @@ void lua_hook::AddCppTypes(sol::state* state, bool privileged)
             [](const unsigned int& duration, const sol::object& ease)
             {
                 return std::make_shared<Transition>(duration, ease);
+            }
+        )
+    );
+
+    state->new_usertype<WaitFor>(
+        "WaitFor",
+        sol::call_constructor,
+        sol::factories(
+            [](const uint32_t type)
+            {
+                return std::make_shared<WaitFor>(static_cast<LuaWaitForEvent>(type));
             }
         )
     );

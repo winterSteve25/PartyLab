@@ -5,6 +5,9 @@
 #include "sol/sol.hpp"
 #include "ui/LuaUI.h"
 
+/**
+ * A scene created via lua
+ */
 class LuaScene : public Scene
 {
 public:

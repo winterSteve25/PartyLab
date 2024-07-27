@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ * Basically a marker on a type to mark the destruction of the contained type
+ * @tparam T Type to be managed, should be a pointer of some type
+ */
 template <typename T>
 class Managed
 {

@@ -3,6 +3,9 @@
 #define PERCENT_SIZE 1
 #define ABSOLUTE_SIZE 2
 
+/**
+ * Used to represent a length, could be absolute or a percentage of the screen size
+ */
 struct Length
 {
 public:

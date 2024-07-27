@@ -55,6 +55,8 @@ local function link_luajit()
         links { "lua51", "luajit" }
     
     filter {}
+    
+    postbuildcommands { "{COPYFILE} \"../luajit/lua51.dll\" \"../bin/%{cfg.buildcfg}\"" }
 end
 
 baseName = path.getbasename(os.getcwd());

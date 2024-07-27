@@ -2,11 +2,15 @@
 #include <isteammatchmaking.h>
 #include <isteamnetworkingmessages.h>
 
+/**
+ * Manages the network messages, does not store connections b/c of how new steam networking api works
+ */
 class NetworkManager
 {
 public:
     NetworkManager();
 
+    void HandleMessages();
     void HostLobby();
 private:
     static constexpr uint16_t message_buffer_size = 64;
@@ -14,7 +18,6 @@ private:
     SteamNetworkingMessage_t* m_messageBuffer[message_buffer_size];
     
     void HandleMessage(const SteamNetworkingMessage_t* message);
-    void HandleMessages();
     void SendMessage();
     
     STEAM_CALLBACK(NetworkManager, OnSessionRequested, SteamNetworkingMessagesSessionRequest_t);

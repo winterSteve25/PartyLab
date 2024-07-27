@@ -104,6 +104,7 @@ void Core::Render(Camera2D& camera)
 
 void Core::Update()
 {
+    networkManager.HandleMessages();
     if (transitionManager.IsInTransition()) return;
 
     if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_R))

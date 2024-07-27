@@ -6,6 +6,9 @@
 #include "sol/sol.hpp"
 #include "tweeny/tween.h"
 
+/**
+ * A transition object used to define transition effect in lua ui style
+ */
 struct Transition
 {
 public:

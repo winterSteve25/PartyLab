@@ -3,6 +3,11 @@
 #include "tweeny/tween.h"
 #include "utils/Managed.h"
 
+/**
+ * A property with helper methods to manage tweens to automatically cancel tweens when this property is destroyed (when UIComponent with this property is destroyed)
+ * @tparam T 
+ * @tparam TweenTs Type used by the tween
+ */
 template <typename T, typename... TweenTs>
 class TweenManagingProperty : public Property<T>
 {

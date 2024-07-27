@@ -4,6 +4,9 @@
 #include "layout.h"
 #include "components/UIElement.h"
 
+/**
+ * A UI defined in lua via a table
+ */
 class LuaUI
 {
 public:

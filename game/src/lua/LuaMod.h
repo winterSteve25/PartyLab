@@ -6,6 +6,9 @@
 #include "raylib.h"
 #include "sol/sol.hpp"
 
+/**
+ * A lua mod container, contains the lua state used to execute all the lua code within this mod
+ */
 class LuaMod
 {
 public:

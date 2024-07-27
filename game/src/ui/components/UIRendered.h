@@ -1,6 +1,9 @@
 #pragma once
 #include "UIElement.h"
 
+/**
+ * A ui element that can be supplied a custom function to do the rendering
+ */
 class UIRendered : public UIElement
 {
 public:

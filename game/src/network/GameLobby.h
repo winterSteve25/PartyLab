@@ -5,6 +5,10 @@
 
 #include "NetworkManager.h"
 
+/**
+ * Wrapper around a raw steam lobby, which is just represented by a CSteamID, which is a 64bit integer
+ * Provides helper functions related to a specific lobby instance
+ */
 class GameLobby
 {
 public:

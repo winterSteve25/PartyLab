@@ -1,11 +1,14 @@
 #pragma once
 #include "LuaMod.h"
 
-class LuaManager
+/**
+ * Manages all the lua mods
+ */
+class ModManager
 {
 public:
 
-    LuaManager();
+    ModManager();
     
     void LoadMods();
     void UnloadMods();

@@ -1,15 +1,15 @@
-#include "LuaManager.h"
+#include "ModManager.h"
 
 #include <memory>
 
 #include "raylib.h"
 
-LuaManager::LuaManager()
+ModManager::ModManager()
 {
     m_luaMods.reserve(1);
 }
 
-void LuaManager::LoadMods()
+void ModManager::LoadMods()
 {
     FilePathList mods = LoadDirectoryFiles("resources/scripts");
     const std::string base = "/mod.lua";
@@ -38,7 +38,7 @@ void LuaManager::LoadMods()
     UnloadDirectoryFiles(mods);
 }
 
-void LuaManager::UnloadMods()
+void ModManager::UnloadMods()
 {
     for (LuaMod*& mod : m_luaMods)
     {

@@ -1,6 +1,9 @@
 #pragma once
 #include "sol/sol.hpp"
 
+/**
+ * A wrapper around a lua table, contains helper methods to get default values of style properties of a UI component
+ */
 class Style
 {
 public:

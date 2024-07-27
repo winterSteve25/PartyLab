@@ -5,9 +5,12 @@
 #include "Scene.h"
 #include "TransitionManager.h"
 #include "SimpleTweenManager.h"
-#include "lua/LuaManager.h"
+#include "lua/ModManager.h"
 #include "network/NetworkManager.h"
 
+/**
+ * Manages the scenes in the game
+ */
 class Core
 {
 public:
@@ -18,13 +21,20 @@ public:
     
     void Render(Camera2D& camera);
     void Update();
+    
+    /**
+     * All scenes should be registered at the start of the application 
+     * @param scene The scene to be added, the memory will be managed by the core
+     * @return the index of the newly added scene, used to transition to the scene
+     */
     size_t AddScene(Scene* scene);
     void AddLuaScenes();
     
     bool shouldExit;
+    
     TransitionManager transitionManager;
     NetworkManager networkManager;
-    LuaManager lua;
+    ModManager lua;
     
     SimpleTweenManager<float> floatTweenManager;
     SimpleTweenManager<float, float> vec2TweenManager;
