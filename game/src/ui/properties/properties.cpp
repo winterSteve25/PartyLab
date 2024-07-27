@@ -2,44 +2,34 @@
 
 #include "DirectionalProperty.h"
 
-static int ScreenWidth()
+LengthProperty properties::WidthProp()
 {
-    return GetScreenWidth();
+    return LengthProperty(Length(ABSOLUTE_SIZE, 0), "width", true);
 }
 
-static int ScreenHeight()
+LengthProperty properties::HeightProp()
 {
-    return GetScreenHeight();
-}
-
-SizeProperty properties::WidthProp()
-{
-    return SizeProperty(Size(Size::ABSOLUTE, 0), "width", ScreenWidth);
-}
-
-SizeProperty properties::HeightProp()
-{
-    return SizeProperty(Size(Size::ABSOLUTE, 0), "height", ScreenHeight);
+    return LengthProperty(Length(ABSOLUTE_SIZE, 0), "height", false);
 }
 
 DirectionalProperty properties::MarginLeft()
 {
-    return DirectionalProperty(Size(Size::ABSOLUTE, 0), "marginLeft", "margin", ScreenWidth);
+    return DirectionalProperty(Length(ABSOLUTE_SIZE, 0), "marginLeft", "margin", true);
 }
 
 DirectionalProperty properties::MarginRight()
 {
-    return DirectionalProperty(Size(Size::ABSOLUTE, 0), "marginRight", "margin", ScreenWidth);
+    return DirectionalProperty(Length(ABSOLUTE_SIZE, 0), "marginRight", "margin", true);
 }
 
 DirectionalProperty properties::MarginTop()
 {
-    return DirectionalProperty(Size(Size::ABSOLUTE, 0), "marginTop", "margin", ScreenHeight);
+    return DirectionalProperty(Length(ABSOLUTE_SIZE, 0), "marginTop", "margin", false);
 }
 
 DirectionalProperty properties::MarginBottom()
 {
-    return DirectionalProperty(Size(Size::ABSOLUTE, 0), "marginBottom", "margin", ScreenHeight);
+    return DirectionalProperty(Length(ABSOLUTE_SIZE, 0), "marginBottom", "margin", false);
 }
 
 ColorProperty properties::ColorProp(const Color& def)

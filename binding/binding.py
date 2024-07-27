@@ -15,6 +15,8 @@ funcs = {
     "core": [
         ("transitionTo", "nil", [("number", "scene")]),
         ("exit", "nil", [])
+    ],
+    "steam": [
     ]
 }
 
@@ -36,7 +38,11 @@ for key, funcs in funcs.items():
             f.write(f"---@return {r}\n")
             param_list = ",".join(map(lambda arg: arg[1], args))
             f.write(f"m.{fn} = function({param_list})\n")
-            f.write(f"\tcpp_{fn}({param_list})\n")
+            
+            if r == "nil":
+                f.write(f"\tcpp_{fn}({param_list})\n")
+            else:
+                f.write(f"\treturn cpp_{fn}({param_list})\n")
             f.write("end\n\n")
 
         f.write("\nreturn m")

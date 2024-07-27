@@ -1,12 +1,12 @@
 #pragma once
 #include "DirectionalProperty.h"
 #include "base/ColorProperty.h"
-#include "base/SizeProperty.h"
+#include "base/LengthProperty.h"
 
 namespace properties
 {
-    SizeProperty WidthProp();
-    SizeProperty HeightProp();
+    LengthProperty WidthProp();
+    LengthProperty HeightProp();
     DirectionalProperty MarginLeft();
     DirectionalProperty MarginRight();
     DirectionalProperty MarginTop();

@@ -1,23 +1,30 @@
 #include "GameLobby.h"
 
-#include <isteamuser.h>
+#include <isteamclient.h>
 #include <string>
 
 std::optional<GameLobby*> GameLobby::CURRENT_LOBBY = std::optional<GameLobby*>(std::nullopt);
-const char* GameLobby::LOBBY_DATA_KEY_HOST = "host";
 
 CSteamID GameLobby::GetHost() const
 {
-    const char* host = SteamMatchmaking()->GetLobbyData(m_lobbyId, LOBBY_DATA_KEY_HOST);
-    uint64 id = std::stoull(host);
-    return id;
+    return SteamMatchmaking()->GetLobbyOwner(m_lobbyId);
+}
+
+void GameLobby::GetAllMembers(std::vector<CSteamID>* members) const
+{
+    members->clear();
+    
+    int n = SteamMatchmaking()->GetNumLobbyMembers(m_lobbyId);
+    for (int i = 0; i < n; i++)
+    {
+        members->push_back(SteamMatchmaking()->GetLobbyMemberByIndex(m_lobbyId, i));
+    }
 }
 
 void GameLobby::Created(uint64 lobbyid)
 {
     GameLobby* lobby = new GameLobby;
     lobby->m_lobbyId = lobbyid;
-    SteamMatchmaking()->SetLobbyData(lobbyid, LOBBY_DATA_KEY_HOST, std::to_string(lobbyid).c_str());
     CURRENT_LOBBY = lobby;
 }
 

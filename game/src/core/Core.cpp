@@ -1,7 +1,5 @@
 #include "Core.h"
 #include "raylib.h"
-#include "rlgl.h"
-#include "TestScene.h"
 #include "assets/game_assets.h"
 #include "lua/LuaConstants.h"
 #include "lua/LuaScene.h"
@@ -18,7 +16,6 @@ Core::Core(int defaultScene) :
     game_assets::LoadAssets();
 
     lua.LoadMods();
-    // AddScene(new TestScene);
     AddLuaScenes();
 
     if (m_activesScene < 0) return;

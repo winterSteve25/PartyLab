@@ -57,6 +57,17 @@ local function leftPanel(data)
                     }
                 }),
                 onClick = function()
+                    local test = {
+                        "Hallo",
+                        style = {
+                            alignSelf = layout.self.LAY_HFILL,
+                            margin = 0.01,
+                        },
+                    }
+                    
+                    local playerList = data.query("playerList")
+                    
+                    playerList.addChild(test)
                 end
             },
         },
@@ -102,6 +113,13 @@ local function rightPanel(data)
                     })
                 },
             },
+            {
+                id = "playerList",
+                style = {
+                    alignSelf = layout.self.LAY_FILL,
+                    alignItems = bit32.bor(layout.items.LAY_COLUMN, layout.items.LAY_START),
+                },
+            }
         },
         {
 

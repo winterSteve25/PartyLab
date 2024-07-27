@@ -1,29 +1,29 @@
 #pragma once
 #include "Property.h"
 #include "tweeny/tweeny.h"
-#include "ui/Size.h"
+#include "ui/Length.h"
 #include "utils/Managed.h"
 
-class SizeProperty
+class LengthProperty
 {
 public:
-    SizeProperty(const Size& defaultValue, const std::string& key, const std::function<int()>& max);
-    ~SizeProperty();
+    LengthProperty(const Length& defaultValue, const std::string& key, bool horizontal);
+    ~LengthProperty();
     
     void Set(const Style& style, bool doTransition);
     float Get() const;
     void Override(float val);
 
 protected:
-    virtual Size GetNewValue(const Style& style);
+    virtual Length GetNewValue(const Style& style);
     
     float m_evaled;
     float m_override;
     bool m_overriden;
     
-    std::function<int()> m_max;
+    bool m_isHorizontal;
     std::string m_key;
-    Size m_default;
+    Length m_default;
 
     using tween_type = std::weak_ptr<Managed<tweeny::tween<float>*>>;
     void ManageTween(tween_type tween);

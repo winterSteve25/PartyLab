@@ -17,11 +17,11 @@ end
 ---@return table A shallow copy of t
 m.shallowCopyTable = function(t)
     local tt = {}
-    
+
     for k, v in pairs(t) do
         tt[k] = v
     end
-    
+
     return tt
 end
 
@@ -33,9 +33,13 @@ m.mergeTables = function(t1, t2)
     local t = m.shallowCopyTable(t1)
 
     for k, v in pairs(t2) do
-        t[k] = v
+        if type(t[k]) == "table" and type(t2[k]) == "table" then
+            t[k] = m.mergeTables(t[k], t2[k])
+        else
+            t[k] = v
+        end
     end
-    
+
     return t
 end
 
@@ -44,37 +48,37 @@ end
 ---@param key string | number
 ---@param default T
 ---@return T
-m.getOr = function(t, key, default) 
+m.getOr = function(t, key, default)
     local val = t[key]
 
     if val == nil then
         return default
     end
-    
+
     return val
 end
 ---@return number
 m.getScreenWidth = function()
-	cpp_getScreenWidth()
+	return cpp_getScreenWidth()
 end
 
 ---@return number
 m.getScreenHeight = function()
-	cpp_getScreenHeight()
+	return cpp_getScreenHeight()
 end
 
 ---@param text string
 ---@param fontSize number
 ---@return Vector2
 m.measureText = function(text,fontSize)
-	cpp_measureText(text,fontSize)
+	return cpp_measureText(text,fontSize)
 end
 
 ---@param size Vector2
 ---@param totalSize Vector2
 ---@return Vector2
 m.getCenter = function(size,totalSize)
-	cpp_getCenter(size,totalSize)
+	return cpp_getCenter(size,totalSize)
 end
 
 ---@param x Vector2
@@ -82,7 +86,7 @@ end
 ---@param size Vector2
 ---@return boolean
 m.within = function(x,pos,size)
-	cpp_within(x,pos,size)
+	return cpp_within(x,pos,size)
 end
 
 

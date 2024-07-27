@@ -1,5 +1,7 @@
 #include "UIElement.h"
 
+#include <format>
+
 #include "layout.h"
 #include "ui/ui_helper.h"
 #include "ui/properties/properties.h"
@@ -16,9 +18,12 @@ UIElement::UIElement(const sol::table& table):
     sMarginBottom(properties::MarginBottom()),
     sAlignSelf(LayFlagProperty(LAY_TOP, "alignSelf")),
     sAlignItems(LayFlagProperty(LAY_ROW, "alignItems")),
+    offsetX(0),
+    offsetY(0),
     m_normalStyle(Style(table.lua_state(), table["style"])),
     m_hoverStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("hovered"))),
     m_pressStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("pressed"))),
+    m_id(table.get<std::optional<std::string>>("id")),
     m_isHeldDown(false),
     m_isHovering(false),
     m_randItemColor(Color(GetRandomValue(0, 255), GetRandomValue(0, 255),
@@ -56,14 +61,17 @@ void UIElement::AddToLayout(lay_context* ctx, lay_id root)
     lay_insert(ctx, root, id);
 }
 
+void UIElement::Update()
+{
+}
+
 void UIElement::Render(const lay_context* ctx)
 {
-    auto rect = lay_get_rect(ctx, id);
     Vector2 pos = GetPos(ctx);
-
-    CheckEvents(pos);
-
     Vector2 size = GetSize(ctx);
+
+    CheckEvents(ctx, pos, size);
+
     const float width = size.x;
     const float height = size.y;
 
@@ -76,9 +84,9 @@ void UIElement::Render(const lay_context* ctx)
     DrawRectangleLinesEx({pos.x, pos.y, width, height}, 2, m_randItemColor);
 }
 
-void UIElement::CheckEvents(const Vector2& pos)
+void UIElement::CheckEvents(const lay_context* ctx, const Vector2& pos, const Vector2& size)
 {
-    bool within = ui_helper::Within(GetMousePosition(), pos, {sWidth.Get(), sHeight.Get()});
+    bool within = ui_helper::Within(GetMousePosition(), pos, size);
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
     {
         if (m_isHeldDown && within)
@@ -101,6 +109,12 @@ void UIElement::CheckEvents(const Vector2& pos)
 
     if (within)
     {
+        auto wheel = GetMouseWheelMoveV();
+        if (fabs(wheel.x) > 0 || fabs(wheel.y) > 0)
+        {
+            OnScrolled(ctx, wheel.x, wheel.y);
+        }
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             m_isHeldDown = true;
@@ -150,6 +164,14 @@ void UIElement::OnReleased()
 {
 }
 
+void UIElement::OnClick()
+{
+}
+
+void UIElement::OnScrolled(const lay_context* ctx, float deltaX, float deltaY)
+{
+}
+
 void UIElement::ApplyStyles(const Style& style, bool doTransition)
 {
     sBackgroundColor.Set(style, doTransition);
@@ -163,11 +185,26 @@ void UIElement::ApplyStyles(const Style& style, bool doTransition)
     sAlignItems.Set(style, doTransition);
 }
 
+sol::optional<UIElement*> UIElement::Find(const std::string& id)
+{
+    if (m_id.has_value() && m_id.value() == id)
+    {
+        return this;
+    }
+
+    return sol::optional<UIElement*>(sol::nullopt);
+}
+
+sol::table UIElement::CreateLuaObject(lua_State* L)
+{
+    return sol::state::create_table(L);
+}
+
 Vector2 UIElement::GetPos(const lay_context* ctx) const
 {
     auto rect = lay_get_rect(ctx, id);
-    float x = static_cast<float>(rect[0]);
-    float y = static_cast<float>(rect[1]);
+    float x = static_cast<float>(rect[0]) + offsetX;
+    float y = static_cast<float>(rect[1]) + offsetY;
     return {x, y};
 }
 
@@ -177,8 +214,4 @@ Vector2 UIElement::GetSize(const lay_context* ctx) const
     float x = static_cast<float>(rect[2]);
     float y = static_cast<float>(rect[3]);
     return {x, y};
-}
-
-void UIElement::OnClick()
-{
 }

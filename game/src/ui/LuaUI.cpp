@@ -26,10 +26,18 @@ LuaUI::LuaUI(const sol::protected_function& supplier):
     m_screenHeight(0),
     m_needsRebuild(false)
 {
-    m_customData["rebuild"] = [this]()
+    m_customData["rebuild"] = [this](){ m_needsRebuild = true; };
+    m_customData["query"] = [this](const std::string& id) -> sol::optional<sol::table>
     {
-        m_needsRebuild = true;
+        for (UIElement* element : m_components)
+        {
+            auto v = element->Find(id);
+            if (v.has_value()) return v.value()->CreateLuaObject(m_uiSupplier.lua_state());
+        }
+
+        return sol::optional<sol::table>(sol::nullopt);
     };
+    
     m_components.reserve(64);
 
     lay_init_context(&m_layCtx);
@@ -89,6 +97,11 @@ void LuaUI::Update()
         m_needsRebuild = false;
     }
 
+    for (UIElement* element : m_components)
+    {
+        element->Update();
+    }
+
     int tscreenWidth = GetScreenWidth();
     int tscreenHeight = GetScreenHeight();
 
@@ -120,8 +133,7 @@ void LuaUI::ParseTable(std::vector<UIElement*>* collection, const sol::table& ta
     else
     {
         sol::optional<sol::object> first = table[1];
-        if (!first.has_value()) return;
-        if (first.value().is<std::string>())
+        if (first.has_value() && first.value().is<std::string>())
         {
             CreateUIElement(collection, table, [&first](const sol::table& table)
             {

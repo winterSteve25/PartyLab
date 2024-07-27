@@ -4,7 +4,7 @@
 
 #include "raylib.h"
 #include "core/Core.h"
-#include "ui/Size.h"
+#include "ui/Length.h"
 #include "ui/Transition.h"
 #include "ui/ui_helper.h"
 
@@ -124,4 +124,8 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged)
 
     AddCPPFunc(state, "transitionTo", [](int scene) { Core::INSTANCE->transitionManager.TransitionTo(scene); });
     AddCPPFunc(state, "exit", []() { Core::INSTANCE->shouldExit = true; });
+
+    AddCPPFunc(state, "getSteamAvatar_Large", [](uint64 sid) { return SteamFriends()->GetLargeFriendAvatar(sid); });
+    AddCPPFunc(state, "getSteamAvatar_Medium", [](uint64 sid) { return SteamFriends()->GetMediumFriendAvatar(sid); });
+    AddCPPFunc(state, "getSteamAvatar_Small", [](uint64 sid) { return SteamFriends()->GetSmallFriendAvatar(sid); });
 }

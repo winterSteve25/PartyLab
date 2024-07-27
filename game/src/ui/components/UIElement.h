@@ -7,20 +7,24 @@
 #include "ui/properties/DirectionalProperty.h"
 #include "ui/properties/base/ColorProperty.h"
 #include "ui/properties/base/LayFlagProperty.h"
-#include "ui/properties/base/SizeProperty.h"
+#include "ui/properties/base/LengthProperty.h"
 
 class UIElement
 {
 public:
+    
     virtual ~UIElement() = default;
+    virtual void Update();
     virtual void Render(const lay_context* ctx);
     virtual void ApplyDefaultStyles();
     virtual void AddToLayout(lay_context* ctx, lay_id root);
     virtual void ApplyStyles(const Style& style, bool doTransition);
+    virtual sol::optional<UIElement*> Find(const std::string& id);
+    virtual sol::table CreateLuaObject(lua_State* L);
 
     ColorProperty sBackgroundColor;
-    SizeProperty sWidth;
-    SizeProperty sHeight;
+    LengthProperty sWidth;
+    LengthProperty sHeight;
     DirectionalProperty sMarginLeft;
     DirectionalProperty sMarginRight;
     DirectionalProperty sMarginTop;
@@ -29,6 +33,9 @@ public:
     LayFlagProperty sAlignItems;
 
     lay_id id;
+    
+    float offsetX;
+    float offsetY;
 protected:
     UIElement(const sol::table& table);
 
@@ -36,17 +43,20 @@ protected:
     Style m_hoverStyle;
     Style m_pressStyle;
     
+    std::optional<std::string> m_id;
+    
     virtual void OnEnterHover();
     virtual void OnExitHover();
     virtual void OnClick();
     virtual void OnPressed();
     virtual void OnReleased();
+    virtual void OnScrolled(const lay_context* ctx, float deltaX, float deltaY);
 
     Vector2 GetPos(const lay_context* ctx) const;
     Vector2 GetSize(const lay_context* ctx) const;
 private:
-    void CheckEvents(const Vector2& pos);
-    
+    void CheckEvents(const lay_context* ctx, const Vector2& pos, const Vector2& size);
+
     bool m_isHeldDown;
     bool m_isHovering;
     Color m_randItemColor;

@@ -380,7 +380,7 @@ LAY_EXPORT void lay_set_behave(lay_context* ctx, lay_id item, uint32_t flags);
 // the output values to the specified addresses instead of returning the values
 // in a lay_vec4.
 // l: left, t: top, r: right, b: bottom
-LAY_EXPORT lay_vec4 lay_get_margins(lay_context* ctx, lay_id item);
+LAY_EXPORT lay_vec4 lay_get_margins(const lay_context* ctx, lay_id item);
 LAY_EXPORT void lay_get_margins_ltrb(lay_context* ctx, lay_id item, lay_scalar* l, lay_scalar* t, lay_scalar* r,
                                      lay_scalar* b);
 
@@ -392,6 +392,8 @@ LAY_EXPORT void lay_set_margins(lay_context* ctx, lay_id item, lay_vec4 ltrb);
 // (left, top, right, bottom).
 LAY_EXPORT void lay_set_margins_ltrb(lay_context* ctx, lay_id item, lay_scalar l, lay_scalar t, lay_scalar r,
                                      lay_scalar b);
+
+LAY_EXPORT lay_id lay_last_child(const lay_context* ctx, lay_id parent);
 
 // Get the pointer to an item in the buffer by its id. Don't keep this around --
 // it will become invalid as soon as any reallocation occurs. Just store the id
@@ -776,7 +778,7 @@ void lay_set_margins_ltrb(
     pitem->margins[3] = b;
 }
 
-lay_vec4 lay_get_margins(lay_context *ctx, lay_id item)
+lay_vec4 lay_get_margins(const lay_context *ctx, lay_id item)
 { return lay_get_item(ctx, item)->margins; }
 
 void lay_get_margins_ltrb(

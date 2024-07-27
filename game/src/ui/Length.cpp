@@ -1,23 +1,25 @@
-#include "Size.h"
+#include "Length.h"
+
+#include <format>
 
 #include "raylib.h"
 
-Size::Size(): m_type(ABSOLUTE), m_measure(0)
+Length::Length(): m_type(ABSOLUTE_SIZE), m_measure(0)
 {
 }
 
-Size::Size(const sol::object& size)
+Length::Length(const sol::object& size)
 {
-    if (size.is<int>())
+    if (size.is<int>() && size.as<int>() != 0)
     {
         int f = size.as<int>();
-        m_type = ABSOLUTE;
+        m_type = ABSOLUTE_SIZE;
         m_measure = f;
     }
     else if (size.is<float>())
     {
         float f = size.as<float>();
-        m_type = VIEW;
+        m_type = PERCENT_SIZE;
         m_measure = f;
     }
     else
@@ -26,13 +28,13 @@ Size::Size(const sol::object& size)
     }
 }
 
-Size::Size(SizeType type, float measure): m_type(type), m_measure(measure)
+Length::Length(int type, float measure): m_type(type), m_measure(measure)
 {
 }
 
-int Size::Eval(int max) const
+int Length::Eval(int max) const
 {
-    if (m_type == ABSOLUTE)
+    if (m_type == ABSOLUTE_SIZE)
     {
         return m_measure;
     }

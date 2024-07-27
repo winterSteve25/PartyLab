@@ -1,13 +1,13 @@
 #pragma once
-#include "base/SizeProperty.h"
+#include "base/LengthProperty.h"
 
-class DirectionalProperty : public SizeProperty
+class DirectionalProperty : public LengthProperty
 {
 public:
-    DirectionalProperty(const Size& def, const std::string& key, const std::string& allKey, const std::function<int()>& max);
+    DirectionalProperty(const Length& def, const std::string& key, const std::string& allKey, bool horizontal);
 
 protected:
-    Size GetNewValue(const Style& style) override;
+    Length GetNewValue(const Style& style) override;
 
 private:
     std::string m_allKey;

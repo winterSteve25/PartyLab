@@ -1,6 +1,7 @@
 #pragma once
 #include <optional>
 #include <steamtypes.h>
+#include <vector>
 
 #include "NetworkManager.h"
 
@@ -8,10 +9,12 @@ class GameLobby
 {
 public:
     static std::optional<GameLobby*> CURRENT_LOBBY;
-    static const char* LOBBY_DATA_KEY_HOST;
 
     GameLobby() = default;
+    
     CSteamID GetHost() const;
+    void GetAllMembers(std::vector<CSteamID>* members) const;
+    
 private:
     CSteamID m_lobbyId;
     

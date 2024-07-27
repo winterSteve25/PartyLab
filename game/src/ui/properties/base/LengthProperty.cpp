@@ -1,20 +1,20 @@
-#include "SizeProperty.h"
+#include "LengthProperty.h"
 
 #include "core/Core.h"
 #include "lua/LuaConstants.h"
 #include "ui/Transition.h"
 
-SizeProperty::SizeProperty(const Size& defaultValue, const std::string& key, const std::function<int()>& max):
-    m_max(max),
+LengthProperty::LengthProperty(const Length& defaultValue, const std::string& key, bool horizontal):
+    m_isHorizontal(horizontal),
     m_key(key),
     m_default(defaultValue),
     m_overriden(false),
     m_override(0)
 {
-    m_evaled = static_cast<float>(defaultValue.Eval(max()));
+    m_evaled = static_cast<float>(defaultValue.Eval(m_isHorizontal ? GetScreenWidth() : GetScreenHeight()));
 }
 
-SizeProperty::~SizeProperty()
+LengthProperty::~LengthProperty()
 {
     for (tween_type tween : m_tweens)
     {
@@ -27,13 +27,13 @@ SizeProperty::~SizeProperty()
     m_tweens.clear();
 }
 
-void SizeProperty::ManageTween(tween_type tween)
+void LengthProperty::ManageTween(tween_type tween)
 {
     m_tweens.push_back(tween);
 }
 
 
-void SizeProperty::Set(const Style& style, bool doTransition)
+void LengthProperty::Set(const Style& style, bool doTransition)
 {
     if (m_overriden) return;
 
@@ -42,11 +42,11 @@ void SizeProperty::Set(const Style& style, bool doTransition)
         m_key
     );
 
-    Size newValue = GetNewValue(style);
+    Length newValue = GetNewValue(style);
 
     if (!doTransition || !transition.has_value())
     {
-        m_evaled = static_cast<float>(newValue.Eval(m_max()));
+        m_evaled = static_cast<float>(newValue.Eval(m_isHorizontal ? GetScreenWidth() : GetScreenHeight()));
         return;
     }
 
@@ -54,7 +54,7 @@ void SizeProperty::Set(const Style& style, bool doTransition)
     ManageTween(tweenPtr);
     const auto tween = tweenPtr.lock()->Value();
 
-    tween->to(static_cast<float>(newValue.Eval(m_max())));
+    tween->to(static_cast<float>(newValue.Eval(m_isHorizontal ? GetScreenWidth() : GetScreenHeight())));
     tween->onStep([this](auto t, auto f)
     {
         this->m_evaled = f;
@@ -64,20 +64,20 @@ void SizeProperty::Set(const Style& style, bool doTransition)
     transition.value().SetupTween(tween);
 }
 
-float SizeProperty::Get() const
+float LengthProperty::Get() const
 {
     if (m_overriden) return m_override;
     return m_evaled;
 }
 
-void SizeProperty::Override(float val)
+void LengthProperty::Override(float val)
 {
     m_overriden = true;
     m_override = val;
 }
 
-Size SizeProperty::GetNewValue(const Style& style)
+Length LengthProperty::GetNewValue(const Style& style)
 {
     const sol::optional<sol::object> newValueA = style.Get<sol::object>(m_key);
-    return newValueA.has_value() ? Size(newValueA.value()) : m_default;
+    return newValueA.has_value() ? Length(newValueA.value()) : m_default;
 }

@@ -13,9 +13,10 @@ public:
     void Render();
     void Update();
 
-    static UIElement* CreateUIElement(std::vector<UIElement*>* collection, const sol::table& table, const std::function<UIElement*(const sol::table&)>& ctor);
     static void ParseTable(std::vector<UIElement*>* collection, const sol::table& table);
 private:
+    static UIElement* CreateUIElement(std::vector<UIElement*>* collection, const sol::table& table, const std::function<UIElement*(const sol::table&)>& ctor);
+    
     std::vector<UIElement*> m_components;
     sol::protected_function m_uiSupplier;
     sol::table m_customData;
