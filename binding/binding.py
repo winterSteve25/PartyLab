@@ -17,6 +17,7 @@ funcs = {
         ("exit", "nil", [])
     ],
     "steam": [
+        ("getCurrentUserID", "string", [])
     ]
 }
 
