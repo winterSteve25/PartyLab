@@ -4,13 +4,14 @@
 /**
  * A ui component that renders a texture from steam given a steam image handle
  */
-class UISteamImage : UIElement
+class UISteamImage : public UIElement
 {
 public:
     UISteamImage(const sol::table& table);
+    ~UISteamImage() override;
     void Render(const lay_context* ctx) override;
 
 private:
     sol::coroutine m_handle;
-    std::optional<RenderTexture2D> m_texture;
+    std::optional<Texture2D> m_texture;
 };

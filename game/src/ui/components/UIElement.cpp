@@ -18,11 +18,11 @@ UIElement::UIElement(const sol::table& table):
     sMarginBottom(properties::MarginBottom()),
     sAlignSelf(LayFlagProperty(LAY_TOP, "alignSelf")),
     sAlignItems(LayFlagProperty(LAY_ROW, "alignItems")),
-    offsetX(0),
-    offsetY(0),
     m_normalStyle(Style(table.lua_state(), table["style"])),
     m_hoverStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("hovered"))),
     m_pressStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("pressed"))),
+    m_offsetX(0),
+    m_offsetY(0),
     m_id(table.get<std::optional<std::string>>("id")),
     m_isHeldDown(false),
     m_isHovering(false),
@@ -59,6 +59,12 @@ void UIElement::AddToLayout(lay_context* ctx, lay_id root)
                          SCALER_CAST(sMarginRight.Get()), SCALER_CAST(sMarginBottom.Get()));
 
     lay_insert(ctx, root, id);
+}
+
+void UIElement::AdjustLayout(lay_context* ctx)
+{
+    Vector2 size = sRatio.Apply(GetSize(ctx));
+    lay_set_size_xy(ctx, id, SCALER_CAST(size.x), SCALER_CAST(size.y));
 }
 
 void UIElement::Update()
@@ -183,6 +189,7 @@ void UIElement::ApplyStyles(const Style& style, bool doTransition)
     sMarginLeft.Set(style, doTransition);
     sAlignSelf.Set(style, doTransition);
     sAlignItems.Set(style, doTransition);
+    sRatio.Set(style, doTransition);
 }
 
 sol::optional<UIElement*> UIElement::Find(const std::string& id)
@@ -200,11 +207,17 @@ sol::table UIElement::CreateLuaObject(lua_State* L)
     return sol::state::create_table(L);
 }
 
+void UIElement::AddOffset(float x, float y)
+{
+    m_offsetX += x;
+    m_offsetY += y;
+}
+
 Vector2 UIElement::GetPos(const lay_context* ctx) const
 {
     auto rect = lay_get_rect(ctx, id);
-    float x = static_cast<float>(rect[0]) + offsetX;
-    float y = static_cast<float>(rect[1]) + offsetY;
+    float x = static_cast<float>(rect[0]) + m_offsetX;
+    float y = static_cast<float>(rect[1]) + m_offsetY;
     return {x, y};
 }
 
@@ -213,5 +226,5 @@ Vector2 UIElement::GetSize(const lay_context* ctx) const
     auto rect = lay_get_rect(ctx, id);
     float x = static_cast<float>(rect[2]);
     float y = static_cast<float>(rect[3]);
-    return {x, y};
+    return { x, y };
 }

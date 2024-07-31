@@ -1,5 +1,6 @@
 #pragma once
 #include "DirectionalProperty.h"
+#include "base/BooleanProperty.h"
 #include "base/ColorProperty.h"
 #include "base/LengthProperty.h"
 
@@ -13,4 +14,9 @@ namespace properties
     DirectionalProperty MarginBottom();
     ColorProperty ColorProp(const Color& def);
     ColorProperty BackgroundColorProp(const Color& def);
+    BooleanProperty CanClipProp();
+    DirectionalProperty PaddingLeft();
+    DirectionalProperty PaddingRight();
+    DirectionalProperty PaddingTop();
+    DirectionalProperty PaddingBottom();
 }

@@ -7,13 +7,13 @@ namespace ui_helper
     Vector2 DrawText(const char* text, float fontSize, Vector2 pos, Color color)
     {
         Vector2 size = MeasureText(text, fontSize);
-        DrawTextEx(game_assets::GAME_FONT, text, pos, fontSize, 2, color);
+        DrawTextEx(game_assets::GAME_FONT, text, pos, fontSize, 1, color);
         return size;
     }
 
     Vector2 MeasureText(const char* text, float fontSize)
     {
-        Vector2 s = MeasureTextEx(game_assets::GAME_FONT, text, fontSize, 2);
+        Vector2 s = MeasureTextEx(game_assets::GAME_FONT, text, fontSize, 1);
         s.y -= s.y * 0.38f;
         return s;
     }

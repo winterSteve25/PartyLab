@@ -9,14 +9,16 @@ LuaScene::LuaScene(
     const sol::optional<sol::protected_function>& update,
     const sol::optional<sol::protected_function>& load,
     const sol::optional<sol::protected_function>& cleanup,
-    const sol::optional<sol::protected_function>& ui
+    const sol::optional<sol::protected_function>& ui,
+    const sol::optional<sol::table>& eventHandlers
 ): m_render(render),
    m_renderOverlay(render_overlay),
    m_update(update),
    m_load(load),
    m_cleanup(cleanup),
    m_ui(ui),
-   m_uiBuilt(sol::optional<LuaUI*>(sol::nullopt))
+   m_uiBuilt(sol::optional<LuaUI*>(sol::nullopt)),
+   m_eventHandlers(eventHandlers)
 {
 }
 

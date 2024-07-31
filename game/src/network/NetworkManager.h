@@ -12,6 +12,7 @@ public:
 
     void HandleMessages();
     void HostLobby();
+    void LeaveCurrentLobby();
 private:
     static constexpr uint16_t message_buffer_size = 64;
     
@@ -20,8 +21,8 @@ private:
     void HandleMessage(const SteamNetworkingMessage_t* message);
     void SendMessage();
     
-    STEAM_CALLBACK(NetworkManager, OnSessionRequested, SteamNetworkingMessagesSessionRequest_t);
-
     void OnLobbyCreated(LobbyCreated_t* lobby, bool failure);
     CCallResult<NetworkManager, LobbyCreated_t> m_lobbyCreatedCR;
+    
+    STEAM_CALLBACK(NetworkManager, OnSessionRequested, SteamNetworkingMessagesSessionRequest_t);
 };

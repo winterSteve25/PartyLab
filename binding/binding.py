@@ -14,10 +14,12 @@ funcs = {
     ],
     "core": [
         ("transitionTo", "nil", [("number", "scene")]),
+        ("transitionToCB", "nil", [("number", "scene"), ("fun()", "callback")]),
         ("exit", "nil", [])
     ],
     "steam": [
-        ("getCurrentUserID", "string", [])
+        ("getCurrentUserID", "SteamID", []),
+        ("getCurrentLobby", "GameLobby", [])
     ]
 }
 

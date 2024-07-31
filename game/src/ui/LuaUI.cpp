@@ -1,22 +1,25 @@
 #include "LuaUI.h"
 
 #include <format>
-#include <map>
 
 #include "components/UIButton.h"
 #include "components/UIGroup.h"
 #include "components/UIRendered.h"
+#include "components/UISteamImage.h"
 #include "components/UIText.h"
+#include "components/UITextField.h"
 #include "core/Core.h"
 #include "lua/lua_utils.h"
 
 #define CONSTRUCT() lua_utils::UnwrapResult<sol::table>(m_uiSupplier(m_customData), "Failed to build UI by calling the constructor")
 
-static std::map<std::string, std::function<UIElement*(const sol::table&)>> CONSTRUCTORS{
+static std::unordered_map<std::string, std::function<UIElement*(const sol::table&)>> CONSTRUCTORS{
     {"button", [](const sol::table& table) { return new UIButton(table); }},
     {"text", [](const sol::table& table) { return new UIText(table); }},
     {"group", [](const sol::table& table) { return new UIGroup(table); }},
-    {"rendered", [](const sol::table& table) { return new UIRendered(table); }}
+    {"rendered", [](const sol::table& table) { return new UIRendered(table); }},
+    {"steamImage", [](const sol::table& table) { return new UISteamImage(table); }},
+    {"textField", [](const sol::table& table){ return new UITextField(table); }}
 };
 
 LuaUI::LuaUI(const sol::protected_function& supplier):
@@ -73,6 +76,13 @@ void LuaUI::Render()
         renderable->AddToLayout(&m_layCtx, root);
     }
 
+    lay_run_context(&m_layCtx);
+
+    for (UIElement* renderable : m_components)
+    {
+        renderable->AdjustLayout(&m_layCtx);
+    }
+    
     lay_run_context(&m_layCtx);
 
     for (UIElement* renderable : m_components)

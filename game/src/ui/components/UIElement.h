@@ -5,6 +5,7 @@
 #include "sol/sol.hpp"
 #include "ui/Style.h"
 #include "ui/properties/DirectionalProperty.h"
+#include "ui/properties/RatioProperty.h"
 #include "ui/properties/base/ColorProperty.h"
 #include "ui/properties/base/LayFlagProperty.h"
 #include "ui/properties/base/LengthProperty.h"
@@ -18,9 +19,11 @@ public:
     virtual void Render(const lay_context* ctx);
     virtual void ApplyDefaultStyles();
     virtual void AddToLayout(lay_context* ctx, lay_id root);
+    virtual void AdjustLayout(lay_context* ctx);
     virtual void ApplyStyles(const Style& style, bool doTransition);
     virtual sol::optional<UIElement*> Find(const std::string& id);
     virtual sol::table CreateLuaObject(lua_State* L);
+    virtual void AddOffset(float x, float y);
 
     ColorProperty sBackgroundColor;
     LengthProperty sWidth;
@@ -31,17 +34,18 @@ public:
     DirectionalProperty sMarginBottom;
     LayFlagProperty sAlignSelf;
     LayFlagProperty sAlignItems;
+    RatioProperty sRatio;
 
     lay_id id;
-    
-    float offsetX;
-    float offsetY;
 protected:
     UIElement(const sol::table& table);
 
     Style m_normalStyle;
     Style m_hoverStyle;
     Style m_pressStyle;
+    
+    float m_offsetX;
+    float m_offsetY;
     
     std::optional<std::string> m_id;
     
