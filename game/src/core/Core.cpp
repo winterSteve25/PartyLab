@@ -12,10 +12,10 @@ Core::Core(int defaultScene) :
     m_activesScene(defaultScene),
     m_loadingScene(-1)
 {
-    Core::INSTANCE = this;
+    INSTANCE = this;
     game_assets::LoadAssets();
 
-    lua.LoadMods();
+    modManager.LoadMods();
     AddLuaScenes();
 
     if (m_activesScene < 0) return;
@@ -24,7 +24,7 @@ Core::Core(int defaultScene) :
 
 Core::~Core() = default;
 
-size_t Core::AddScene(Scene* scene)
+size_t Core::AddScene(LuaScene* scene)
 {
     size_t i = m_scenes.size();
     m_scenes.push_back(scene);
@@ -34,7 +34,7 @@ size_t Core::AddScene(Scene* scene)
 void Core::AddLuaScenes()
 {
     m_luaSceneStartIdx = m_scenes.size();
-    lua.BroadcastEvent<std::function<size_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
+    modManager.BroadcastEvent<std::function<size_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
     {
         return [this](const sol::table& scene)
         {
@@ -46,7 +46,8 @@ void Core::AddLuaScenes()
                 scene["update"],
                 scene["load"],
                 scene["cleanup"],
-                scene["ui"]
+                scene["ui"],
+                scene["events"]
             ));
         };
     });
@@ -62,15 +63,15 @@ void Core::ReloadLua()
     
     for (int i = m_luaSceneStartIdx; i < m_scenes.size(); i++)
     {
-        Scene* scene = m_scenes[i];
+        LuaScene* scene = m_scenes[i];
         scene->Cleanup();
         delete scene;
         m_scenes.erase(m_scenes.begin() + i);
         i--;
     }
 
-    lua.UnloadMods();
-    lua.LoadMods();
+    modManager.UnloadMods();
+    modManager.LoadMods();
 
     AddLuaScenes();
 

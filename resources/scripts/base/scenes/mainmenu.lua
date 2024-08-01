@@ -53,7 +53,7 @@ local ui = {
             text = "Host Game",
             style = styles.defaultButton,
             onClick = function()
-                core.transitionTo(BASE_SCENES.lobby)
+                core.transitionTo(BASE_SCENES.hosting)
             end
         },
         {

@@ -1,7 +1,6 @@
 #include "UIText.h"
 
 #include "assets/game_assets.h"
-#include "lua/LuaConstants.h"
 #include "ui/ui_helper.h"
 #include "ui/properties/properties.h"
 
@@ -26,6 +25,7 @@ void UIText::Render(const lay_context* ctx)
     UIElement::Render(ctx);
     Vector2 pos = GetPos(ctx);
     Vector2 size = GetSize(ctx);
+    // the default font size is a bit bigger than it actually is so we need to do some hacky stuff
     pos.y -= size.y * 0.24f;
     ui_helper::DrawText(m_text.c_str(), m_sFontSize.Get(), pos, m_sColor.Get());
 }

@@ -7,6 +7,13 @@ m.transitionTo = function(scene)
 	cpp_transitionTo(scene)
 end
 
+---@param scene number
+---@param callback fun()
+---@return nil
+m.transitionToCB = function(scene,callback)
+	cpp_transitionToCB(scene,callback)
+end
+
 ---@return nil
 m.exit = function()
 	cpp_exit()

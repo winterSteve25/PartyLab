@@ -6,11 +6,11 @@ void TransitionManager::ExecuteSceneTransition()
     Core::INSTANCE->colorTweenManager.DeleteAll();
     Core::INSTANCE->floatTweenManager.DeleteAll();
     Core::INSTANCE->vec2TweenManager.DeleteAll();
-    
-    Core::INSTANCE->m_scenes[Core::INSTANCE->m_activesScene]->Cleanup();
-    Core::INSTANCE->m_scenes[Core::INSTANCE->m_loadingScene]->Load();
-    Core::INSTANCE->m_activesScene = Core::INSTANCE->m_loadingScene;
-    Core::INSTANCE->m_loadingScene = -1;
+
+     Core::INSTANCE->m_scenes[Core::INSTANCE->m_activesScene]->Cleanup();
+     Core::INSTANCE->m_scenes[Core::INSTANCE->m_loadingScene]->Load();
+     Core::INSTANCE->m_activesScene = Core::INSTANCE->m_loadingScene;
+     Core::INSTANCE->m_loadingScene = -1;
 }
 
 TransitionManager::TransitionManager():
@@ -21,7 +21,7 @@ TransitionManager::TransitionManager():
 {
 }
 
-void TransitionManager::TransitionTo(int scene)
+void TransitionManager::TransitionTo(int scene, const sol::optional<sol::protected_function>& callback)
 {
     if (Core::INSTANCE->m_activesScene == scene) return;
     if (Core::INSTANCE->m_loadingScene == scene) return;
@@ -34,7 +34,20 @@ void TransitionManager::TransitionTo(int scene)
     Core::INSTANCE->m_loadingScene = scene;
     m_inTransition = true;
     m_transitionTime = 0;
-    m_callback = TransitionManager::ExecuteSceneTransition;
+
+    if (callback.has_value())
+    {
+        const sol::protected_function cbv = callback.value();
+        m_callback = [cbv]()
+        {
+            lua_utils::UnwrapResult(cbv(), "Failed to execute transition callback");
+            ExecuteSceneTransition();
+        };
+    }
+    else
+    {
+        m_callback = ExecuteSceneTransition;
+    }
 }
 
 void TransitionManager::TransitionCustom(void (*callback)())

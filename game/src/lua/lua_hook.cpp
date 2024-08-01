@@ -1,16 +1,21 @@
 #include "lua_hook.h"
 
+#include <isteamclient.h>
+#include <isteamuser.h>
+#include <isteamutils.h>
+#include <memory>
 #include <memory>
 
 #include "raylib.h"
 #include "async/WaitFor.h"
 #include "core/Core.h"
+#include "steam/SteamIDWrapper.h"
 #include "ui/Length.h"
 #include "ui/Transition.h"
 #include "ui/ui_helper.h"
 
 template <typename Func>
-void AddCPPFunc(sol::state* state, const std::string& name, Func&& fn)
+void AddCppFunc(sol::state* state, const std::string& name, Func&& fn)
 {
     state->set_function("cpp_" + name, fn);
 }
@@ -119,25 +124,84 @@ void lua_hook::AddCppTypes(sol::state* state, bool privileged)
             }
         )
     );
+
+    state->new_usertype<SteamIDWrapper>("SteamID", sol::no_constructor);
+    state->new_usertype<GameLobby>(
+        "GameLobby",
+        sol::call_constructor,
+        sol::factories(
+            [](const SteamIDWrapper id)
+            {
+                return std::make_shared<GameLobby>(id);
+            }
+        ),
+        "getHost", [](const GameLobby& gameLobby)
+        {
+            return static_cast<SteamIDWrapper>(gameLobby.GetHost());
+        },
+        "sendChatString", [](const GameLobby& gameLobby, const std::string& str)
+        {
+            gameLobby.SendChatString(str);
+        },
+        "getAllMembers", [](const GameLobby& gameLobby)
+        {
+            std::vector<SteamIDWrapper> v;
+            gameLobby.GetAllMembers(&v);
+            return sol::as_table(v);
+        }
+    );
 }
 
 void lua_hook::AddCppFuncs(sol::state* state, bool privileged)
 {
-    AddCPPFunc(state, "info", [](const char* text) { TraceLog(LOG_INFO, text); });
-    AddCPPFunc(state, "warning", [](const char* text) { TraceLog(LOG_WARNING, text); });
-    AddCPPFunc(state, "error", [](const char* text) { TraceLog(LOG_ERROR, text); });
+    // Logging
+    AddCppFunc(state, "info", [](const char* text) { TraceLog(LOG_INFO, text); });
+    AddCppFunc(state, "warning", [](const char* text) { TraceLog(LOG_WARNING, text); });
+    AddCppFunc(state, "error", [](const char* text) { TraceLog(LOG_ERROR, text); });
 
-    AddCPPFunc(state, "getScreenWidth", GetScreenWidth);
-    AddCPPFunc(state, "getScreenHeight", GetScreenHeight);
+    // UI Helper
+    AddCppFunc(state, "getScreenWidth", GetScreenWidth);
+    AddCppFunc(state, "getScreenHeight", GetScreenHeight);
 
-    AddCPPFunc(state, "measureText", ui_helper::MeasureText);
-    AddCPPFunc(state, "getCenter", ui_helper::GetCenter);
-    AddCPPFunc(state, "within", ui_helper::Within);
+    AddCppFunc(state, "measureText", ui_helper::MeasureText);
+    AddCppFunc(state, "getCenter", ui_helper::GetCenter);
+    AddCppFunc(state, "within", ui_helper::Within);
 
-    AddCPPFunc(state, "transitionTo", [](int scene) { Core::INSTANCE->transitionManager.TransitionTo(scene); });
-    AddCPPFunc(state, "exit", []() { Core::INSTANCE->shouldExit = true; });
+    // Core
+    AddCppFunc(state, "transitionTo", [](int scene)
+    {
+        Core::INSTANCE->transitionManager.TransitionTo(
+            scene, sol::optional<sol::protected_function>(sol::nullopt));
+    });
+    AddCppFunc(state, "transitionToCB", [](int scene, sol::protected_function callback)
+    {
+        Core::INSTANCE->transitionManager.TransitionTo(scene, callback);
+    });
+    AddCppFunc(state, "exit", []() { Core::INSTANCE->shouldExit = true; });
 
-    AddCPPFunc(state, "getSteamAvatar_Large", [](uint64 sid) { return SteamFriends()->GetLargeFriendAvatar(sid); });
-    AddCPPFunc(state, "getSteamAvatar_Medium", [](uint64 sid) { return SteamFriends()->GetMediumFriendAvatar(sid); });
-    AddCPPFunc(state, "getSteamAvatar_Small", [](uint64 sid) { return SteamFriends()->GetSmallFriendAvatar(sid); });
+    // Steam API
+    AddCppFunc(state, "getSteamAvatar_Large", [](SteamIDWrapper sid)
+    {
+        return SteamFriends()->GetLargeFriendAvatar(sid);
+    });
+    AddCppFunc(state, "getSteamAvatar_Medium", [](SteamIDWrapper sid)
+    {
+        return SteamFriends()->GetMediumFriendAvatar(sid);
+    });
+    AddCppFunc(state, "getSteamAvatar_Small", [](SteamIDWrapper sid)
+    {
+        return SteamFriends()->GetSmallFriendAvatar(sid);
+    });
+    AddCppFunc(state, "getCurrentUserID", []()
+    {
+        SteamIDWrapper x = SteamUser()->GetSteamID();
+        return x;
+    });
+
+    AddCppFunc(state, "getCurrentLobby", []() { return GameLobby::CURRENT_LOBBY; });
+
+    if (!privileged) return;
+    AddCppFunc(state, "hostLobby", []() { Core::INSTANCE->networkManager.HostLobby(); });
+    AddCppFunc(state, "leaveLobby", []() { Core::INSTANCE->networkManager.LeaveCurrentLobby(); });
+    AddCppFunc(state, "joinedLobby", []() { Core::INSTANCE->networkManager.LeaveCurrentLobby(); });
 }

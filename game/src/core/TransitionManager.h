@@ -1,4 +1,7 @@
 #pragma once
+#include <functional>
+
+#include "sol/sol.hpp"
 
 /**
  * Accessed via Core::INSTANCE->transitionManager
@@ -10,12 +13,7 @@ class TransitionManager
 public:
     TransitionManager();
     void Render();
-    void TransitionTo(int sceneIndex);
-    
-    /**
-     * Instead of transitioning to a different scene, a callback will be called during the black screen
-     * @param callback the callback that will be called during the black screen
-     */
+    void TransitionTo(int sceneIndex, const sol::optional<sol::protected_function>& callback);
     void TransitionCustom(void(*callback)());
     bool IsInTransition() const;
 private:
@@ -24,5 +22,5 @@ private:
     bool m_readyToFinishTransition;
     float m_transitionTime;
     float m_totalTransitionTime;
-    void(*m_callback)();
+    std::function<void()> m_callback;
 };

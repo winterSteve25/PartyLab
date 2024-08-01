@@ -41,3 +41,8 @@ ColorProperty properties::BackgroundColorProp(const Color& def)
 {
     return ColorProperty(def, "backgroundColor");
 }
+
+BooleanProperty properties::CanClipProp()
+{
+    return BooleanProperty(false, "clip");
+}

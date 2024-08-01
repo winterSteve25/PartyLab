@@ -4,6 +4,8 @@
 
 #define LAY_IMPLEMENTATION
 #include "layout.h"
+#include "lua/LuaConstants.h"
+#include "steam/SteamEvents.h"
 
 int main()
 {
@@ -28,6 +30,7 @@ int main()
     camera.zoom = 1;
     camera.rotation = 0;
     camera.offset = {0, 0};
+    SteamEvents steamEvents;
     Core core(0);
 
     while (!WindowShouldClose() && !core.shouldExit)

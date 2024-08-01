@@ -59,9 +59,39 @@ local ModDescriptor = {}
 ---@field render fun()
 ---@field renderOverlay fun()
 ---@field update fun()
+---@field events SceneEventHandler
 local Scene = {}
 
 ---@class Size
 ---@field measure
 ---@field type 
 local Size = {}
+
+---@class SteamID
+local SteamID = {}
+
+---@class GameLobby
+---@field getHost fun(): SteamID
+---@field sendChatString fun(msg: string)
+---@field getAllMembers fun(): SteamID[]
+local GameLobby = {}
+
+---@return SteamID
+function GameLobby:getHost() end 
+
+---@param msg string
+function GameLobby:sendChatString(msg) end
+
+---@return SteamID[]
+function GameLobby:getAllMembers() end
+
+---@class SceneEventHandler
+---@field playerEnteredLobby fun(user: SteamID)
+---@field playerLeftLobby fun(user: SteamID)
+---@field lobbyChatMsgReceived fun(sender: SteamID, msg: string, type: ChatType)
+---@field enteredLobby fun()
+local SceneEventHandler = {}
+
+---@class GlobalEventHandler
+---@field addScenes fun(registrar: fun(scene: Scene)): number
+local GlobalEventHandler
