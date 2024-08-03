@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "LuaWaitForEvent.h"
+#include "lua/lua_utils.h"
 #include "sol/sol.hpp"
 
 class LuaAsyncManager
@@ -36,7 +37,8 @@ public:
 
             if (predicate.has_value())
             {
-                if (!predicate.value()(arg)) continue;
+                sol::protected_function_result result = predicate.value()(arg);
+                if (!lua_utils::UnwrapResult<bool>(result, "Failed to run await predicate")) continue;
             }
 
             sol::protected_function_result result = coroutine();

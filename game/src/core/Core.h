@@ -4,11 +4,11 @@
 #include "raylib.h"
 #include "TransitionManager.h"
 #include "SimpleTweenManager.h"
+#include "assets/ResourceManager.h"
 #include "lua/LuaScene.h"
 #include "lua/ModManager.h"
 #include "lua/async/LuaAsyncManager.h"
 #include "network/NetworkManager.h"
-#include "steam/SteamEvents.h"
 
 /**
  * Manages the scenes in the game
@@ -52,6 +52,7 @@ public:
     NetworkManager networkManager;
     ModManager modManager;
     LuaAsyncManager luaAsyncManager;
+    ResourceManager resourceManager;
     
     SimpleTweenManager<float> floatTweenManager;
     SimpleTweenManager<float, float> vec2TweenManager;
@@ -59,7 +60,7 @@ public:
 private:
     void ReloadLua();
 
-    int m_luaSceneStartIdx;
+    size_t m_luaSceneStartIdx;
     std::vector<LuaScene*> m_scenes;
     int m_activesScene;
     int m_loadingScene;

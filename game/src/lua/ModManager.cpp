@@ -1,5 +1,6 @@
 #include "ModManager.h"
 
+#include <filesystem>
 #include <memory>
 
 #include "raylib.h"
@@ -12,12 +13,12 @@ ModManager::ModManager()
 void ModManager::LoadMods()
 {
     FilePathList mods = LoadDirectoryFiles("resources/scripts");
-    const std::string base = "/mod.lua";
+    const std::filesystem::path base = "mod.lua";
 
     for (unsigned int i = 0; i < mods.count; i++)
     {
-        std::string dir = mods.paths[i];
-        std::string path = dir + base;
+        std::filesystem::path dir = mods.paths[i];
+        std::string path = (dir / base).generic_string();
         if (!FileExists(path.c_str())) continue;
         m_luaMods.push_back(new LuaMod(path, true));
     }
@@ -29,8 +30,8 @@ void ModManager::LoadMods()
     
     for (unsigned int i = 0; i < mods.count; i++)
     {
-        std::string dir = mods.paths[i];
-        std::string path = dir + base;
+        std::filesystem::path dir = mods.paths[i];
+        std::string path = (dir / base).generic_string();
         if (!FileExists(path.c_str())) continue;
         m_luaMods.emplace_back(new LuaMod(path, false));
     }

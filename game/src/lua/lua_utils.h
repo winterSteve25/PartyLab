@@ -34,6 +34,5 @@ namespace lua_utils
         sol::error err = result;
         TraceLog(LOG_ERROR, ("Status: " + sol::to_string(result.status())).c_str());
         TraceLog(LOG_ERROR, ("Reason: " + std::string(err.what())).c_str());
-        std::terminate();
     }
 }

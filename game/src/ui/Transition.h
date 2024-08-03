@@ -1,6 +1,4 @@
 #pragma once
-#include <string>
-#include <variant>
 
 #include "lua/lua_utils.h"
 #include "sol/sol.hpp"

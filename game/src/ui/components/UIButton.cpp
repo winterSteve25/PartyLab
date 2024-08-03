@@ -3,9 +3,10 @@
 #include "core/Core.h"
 #include "lua/LuaConstants.h"
 
-UIButton::UIButton(const sol::table& table): UIText(table)
+UIButton::UIButton(const sol::table& table):
+    UIText(table),
+    m_onClicked(table.get<sol::optional<sol::protected_function>>("onClick"))
 {
-    m_onClicked = table.get<sol::optional<sol::protected_function>>("onClick");
 }
 
 void UIButton::OnClick()

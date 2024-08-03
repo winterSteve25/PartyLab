@@ -28,6 +28,8 @@ protected:
 private:
     std::vector<UIElement*> m_components;
     std::vector<sol::table> m_queuedAddChild;
+    std::vector<int> m_queuedRemoveChild;
+    std::vector<sol::protected_function> m_queuedRemoveChildPredicate;
     bool m_clearAllChildren;
 
     BooleanProperty m_enableClipping;

@@ -1,5 +1,6 @@
 #pragma once
 #include <isteamfriends.h>
+#include <isteammatchmaking.h>
 #include <steam_api_common.h>
 
 #include "network/GameLobby.h"
@@ -11,4 +12,5 @@ public:
     STEAM_CALLBACK(SteamEvents, OnLobbyChatMessageReceived, LobbyChatMsg_t);
     STEAM_CALLBACK(SteamEvents, OnLobbyChatUpdated, LobbyChatUpdate_t);
     STEAM_CALLBACK(SteamEvents, OnLobbyEnter, LobbyEnter_t);
+    STEAM_CALLBACK(SteamEvents, OnJoinLobbyRequested, GameLobbyJoinRequested_t);
 };

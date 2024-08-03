@@ -4,15 +4,16 @@
 
 #include "layout.h"
 #include "raymath.h"
+#include "lua/lua_utils.h"
 #include "ui/LuaUI.h"
 #include "ui/properties/properties.h"
 
 UIGroup::UIGroup(const sol::table& table):
     UIElement(table),
+    m_clearAllChildren(false),
     m_enableClipping(properties::CanClipProp()),
     m_scrollOffsetX(0),
-    m_scrollOffsetY(0),
-    m_clearAllChildren(false)
+    m_scrollOffsetY(0)
 {
     m_components.reserve(4);
 
@@ -50,7 +51,32 @@ void UIGroup::Update()
             m_components.erase(m_components.begin() + i);
             i--;
         }
+        m_clearAllChildren = false;
     }
+    
+    for (const int& i : m_queuedRemoveChild)
+    {
+        if (i < 0 || i > m_components.size()) continue;
+        UIElement* pointer = m_components[i];
+        delete pointer;
+        m_components.erase(m_components.begin() + i);
+    }
+
+    m_queuedRemoveChild.clear();
+
+    for (const sol::protected_function& pred : m_queuedRemoveChildPredicate)
+    {
+        for (int i = 0; i < m_components.size(); i++)
+        {
+            UIElement* pointer = m_components[i];
+            if (!lua_utils::UnwrapResult<bool>(pred(i, pointer->CreateLuaObject(pred.lua_state())), "Failed to run remove child predicate")) continue;
+            delete pointer;
+            m_components.erase(m_components.begin() + i);
+            i--;
+        }
+    }
+
+    m_queuedRemoveChild.clear();
 
     for (const sol::table& t : m_queuedAddChild)
     {
@@ -137,9 +163,19 @@ sol::table UIGroup::CreateLuaObject(lua_State* L)
         m_queuedAddChild.push_back(table);
     };
 
-    t["clearChildren"] = [this](const sol::table& table)
+    t["clearChildren"] = [this]()
     {
         m_clearAllChildren = true;
+    };
+
+    t["removeChild"] = [this](const int& index)
+    {
+        m_queuedRemoveChild.push_back(index);
+    };
+
+    t["removeChildWithPredicate"] = [this](const sol::protected_function& predicate)
+    {
+        m_queuedRemoveChildPredicate.push_back(predicate);
     };
 
     return t;

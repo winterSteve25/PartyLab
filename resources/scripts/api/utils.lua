@@ -57,6 +57,19 @@ m.getOr = function(t, key, default)
 
     return val
 end
+
+---@param t table
+---@param predicate fun(t: any): boolean
+---@return boolean
+m.getFirst = function(t, predicate, default)
+    for k, v in pairs(t) do
+        if predicate(k) then
+            return v
+        end
+    end
+    
+    return default
+end
 ---@return number
 m.getScreenWidth = function()
 	return cpp_getScreenWidth()

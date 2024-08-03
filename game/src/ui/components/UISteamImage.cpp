@@ -25,13 +25,26 @@ static bool BuildImage(Image* image, int handle)
     return true;
 }
 
+std::unordered_map<int, Texture2D> UISteamImage::m_storedTextures = {};
+std::unordered_map<int, int> UISteamImage::m_storedTexturesRc = {};
+
 UISteamImage::UISteamImage(const sol::table& table):
     UIElement(table),
-    m_texture(std::optional<Texture2D>(std::nullopt))
+    m_texture(std::optional<Texture2D>(std::nullopt)),
+    m_textureHandle(-1)
 {
     Core::INSTANCE->luaAsyncManager.CallAsync(table["image"], [this](const sol::protected_function_result& result)
     {
         int handle = lua_utils::UnwrapResult<int>(result, "Failed to get image handle");
+        m_textureHandle = handle;
+
+        if (m_storedTextures.contains(handle))
+        {
+            m_texture = m_storedTextures[handle];
+            m_storedTexturesRc[handle] = m_storedTexturesRc[handle] + 1;
+            return;
+        }
+
         Image img;
 
         if (!BuildImage(&img, handle))
@@ -42,13 +55,22 @@ UISteamImage::UISteamImage(const sol::table& table):
 
         m_texture = LoadTextureFromImage(img);
         UnloadImage(img);
+
+        m_storedTextures[handle] = m_texture.value();
+        m_storedTexturesRc[handle] = 1;
     });
 }
 
 UISteamImage::~UISteamImage()
 {
-    if (!m_texture.has_value()) return;
-    UnloadTexture(m_texture.value());
+    if (m_textureHandle == -1) return;
+    m_storedTexturesRc[m_textureHandle] = m_storedTexturesRc[m_textureHandle] - 1;
+    if (m_storedTexturesRc[m_textureHandle] == 0)
+    {
+        m_storedTexturesRc.erase(m_textureHandle);
+        UnloadTexture(m_storedTextures[m_textureHandle]);
+        m_storedTextures.erase(m_textureHandle);
+    }
 }
 
 void UISteamImage::Render(const lay_context* ctx)

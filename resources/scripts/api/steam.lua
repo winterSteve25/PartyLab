@@ -39,11 +39,11 @@ m.awaits = {
 
 local function idPredicate(steamID)
     return function(id)
-        return id == steamID
+        return id:equals(steamID)
     end
 end
 
----@param steamID string
+---@param steamID SteamID
 ---@return number handle to the image, can be used with UISteamImage 
 ---This is a coroutine
 m.getAvatarLarge = function(steamID)
@@ -59,7 +59,7 @@ m.getAvatarLarge = function(steamID)
     end
 end
 
----@param steamID string
+---@param steamID SteamID
 ---@return number handle to the image, can be used with UISteamImage 
 ---This is a coroutine
 m.getAvatarMedium = function(steamID)
@@ -75,7 +75,7 @@ m.getAvatarMedium = function(steamID)
     end
 end
 
----@param steamID string
+---@param steamID SteamID
 ---@return number handle to the image, can be used with UISteamImage 
 ---This is a coroutine
 m.getAvatarSmall = function(steamID)
@@ -99,6 +99,12 @@ end
 ---@return GameLobby
 m.getCurrentLobby = function()
 	return cpp_getCurrentLobby()
+end
+
+---@param userId SteamID
+---@return string
+m.getSteamUsername = function(userId)
+	return cpp_getSteamUsername(userId)
 end
 
 

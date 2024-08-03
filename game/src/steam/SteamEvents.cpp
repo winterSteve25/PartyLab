@@ -7,7 +7,7 @@
 
 void SteamEvents::OnAvatarLoaded(AvatarImageLoaded_t* pParam)
 {
-    Core::INSTANCE->luaAsyncManager.NotifyEvent(AvatarLoaded, pParam->m_steamID.ConvertToUint64());
+    Core::INSTANCE->luaAsyncManager.NotifyEvent(AvatarLoaded, SteamIDWrapper(pParam->m_steamID));
 }
 
 void SteamEvents::OnLobbyChatMessageReceived(LobbyChatMsg_t* pParam)
@@ -28,9 +28,9 @@ void SteamEvents::OnLobbyChatMessageReceived(LobbyChatMsg_t* pParam)
     if (readData > 0)
     {
         const std::function sd = [&sender](sol::state_view*) { return static_cast<SteamIDWrapper>(sender); };
-        const std::function msg = [&data](sol::state_view*)
+        const std::function msg = [data, readData](sol::state_view*)
         {
-            std::string message = *static_cast<std::string*>(data);
+            std::string message(static_cast<char*>(data), readData);
             return message;
         };
         const std::function type = [chatEntryType](sol::state_view*)
@@ -80,6 +80,31 @@ void SteamEvents::OnLobbyEnter(LobbyEnter_t* pParam)
         [resp](sol::state_view* stateview)
         {
             return resp;
+        }
+    );
+
+    if (pParam->m_EChatRoomEnterResponse != k_EChatRoomEnterResponseSuccess)
+    {
+        return;
+    }
+    
+    TraceLog(LOG_INFO, "Steam lobby entered");
+    GameLobby::JoinedOrCreated(pParam->m_ulSteamIDLobby);
+}
+
+void SteamEvents::OnJoinLobbyRequested(GameLobbyJoinRequested_t* pParam)
+{
+    SteamIDWrapper lobby(pParam->m_steamIDLobby);
+    SteamIDWrapper fr(pParam->m_steamIDFriend);
+    
+    Core::INSTANCE->BroadcastSceneEvent<SteamIDWrapper, SteamIDWrapper>(SCENE_EVENT_JOIN_LOBBY_REQUEST,
+        [lobby](sol::state_view* stateview)
+        {
+            return lobby;
+        },
+        [fr](sol::state_view* stateview)
+        {
+            return fr;
         }
     );
 }

@@ -19,6 +19,10 @@ public:
     virtual void Render(const lay_context* ctx);
     virtual void ApplyDefaultStyles();
     virtual void AddToLayout(lay_context* ctx, lay_id root);
+    /**
+     * This should not add any more elements to the layout, only modify the existing elements
+     * @param ctx 
+     */
     virtual void AdjustLayout(lay_context* ctx);
     virtual void ApplyStyles(const Style& style, bool doTransition);
     virtual sol::optional<UIElement*> Find(const std::string& id);
@@ -48,6 +52,7 @@ protected:
     float m_offsetY;
     
     std::optional<std::string> m_id;
+    sol::optional<sol::table> m_customData;
     
     virtual void OnEnterHover();
     virtual void OnExitHover();

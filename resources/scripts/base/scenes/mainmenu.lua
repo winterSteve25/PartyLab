@@ -45,7 +45,6 @@ local ui = {
             text = "Join Game",
             style = styles.defaultButton,
             onClick = function()
-                core.transitionTo(BASE_SCENES.lobby)
             end
         },
         {
@@ -53,7 +52,8 @@ local ui = {
             text = "Host Game",
             style = styles.defaultButton,
             onClick = function()
-                core.transitionTo(BASE_SCENES.hosting)
+                TransitionData.lobbyStatus = LOBBY_STATUS.HOSTING
+                core.transitionTo(SCENES.waitingLobby)
             end
         },
         {
@@ -70,5 +70,13 @@ local ui = {
 m.ui = function(data)
     return ui
 end
+
+m.events = {
+    joinLobbyRequest = function(lobby, friend)
+        TransitionData.lobbyStatus = LOBBY_STATUS.JOINING
+        TransitionData.joining = lobby
+        core.transitionTo(SCENES.waitingLobby)
+    end
+}
 
 return m

@@ -17,6 +17,7 @@ Core::Core(int defaultScene) :
 
     modManager.LoadMods();
     AddLuaScenes();
+    networkManager.RegisterPackets();
 
     if (m_activesScene < 0) return;
     m_scenes[m_activesScene]->Load();
@@ -39,7 +40,6 @@ void Core::AddLuaScenes()
         return [this](const sol::table& scene)
         {
             TraceLog(LOG_INFO, "Adding custom lua scene");
-            sol::object o = scene["load"];
             return this->AddScene(new LuaScene(
                 scene["render"],
                 scene["renderOverlay"],
@@ -60,11 +60,16 @@ void Core::ReloadLua()
     floatTweenManager.DeleteAll();
     colorTweenManager.DeleteAll();
     vec2TweenManager.DeleteAll();
-    
+
     for (int i = m_luaSceneStartIdx; i < m_scenes.size(); i++)
     {
         LuaScene* scene = m_scenes[i];
-        scene->Cleanup();
+
+        if (i == m_activesScene)
+        {
+            scene->Cleanup();
+        }
+
         delete scene;
         m_scenes.erase(m_scenes.begin() + i);
         i--;
@@ -74,6 +79,8 @@ void Core::ReloadLua()
     modManager.LoadMods();
 
     AddLuaScenes();
+    networkManager.UnregisterPackets();
+    networkManager.RegisterPackets();
 
     if (m_activesScene >= m_scenes.size())
     {
@@ -86,7 +93,7 @@ void Core::ReloadLua()
 void Core::Render(Camera2D& camera)
 {
     ClearBackground(game_assets::BACKGROUND_COLOR);
-    
+
     if (m_activesScene >= 0)
     {
         m_scenes[m_activesScene]->RenderOverlay();

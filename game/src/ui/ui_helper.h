@@ -1,6 +1,7 @@
 #pragma once
 
-#include "raylib.h"
+struct Vector2;
+struct Color;
 
 namespace ui_helper
 {

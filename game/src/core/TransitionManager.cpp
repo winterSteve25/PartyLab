@@ -23,6 +23,7 @@ TransitionManager::TransitionManager():
 
 void TransitionManager::TransitionTo(int scene, const sol::optional<sol::protected_function>& callback)
 {
+    if (m_inTransition) return;
     if (Core::INSTANCE->m_activesScene == scene) return;
     if (Core::INSTANCE->m_loadingScene == scene) return;
     if (Core::INSTANCE->m_loadingScene != -1)
@@ -52,6 +53,7 @@ void TransitionManager::TransitionTo(int scene, const sol::optional<sol::protect
 
 void TransitionManager::TransitionCustom(void (*callback)())
 {
+    if (m_inTransition) return;
     m_inTransition = true;
     m_transitionTime = 0;
     m_callback = callback;

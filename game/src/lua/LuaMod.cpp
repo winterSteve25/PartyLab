@@ -1,27 +1,34 @@
 #include "LuaMod.h"
 
-#include "lua_hook.h"
+#include <filesystem>
+
 #include "raylib.h"
-#include "core/Core.h"
+#include "hooks/lua_hook.h"
 #include "ui/Transition.h"
-#include "ui/ui_helper.h"
 
 static int CustomRequire(lua_State* lua)
 {
     std::string path = sol::stack::get<std::string>(lua, 1);
     std::ranges::replace(path, '.', '/');
-    std::string filepath = "resources/scripts/" + path + ".lua";
+    std::filesystem::path actualPath = std::filesystem::path(path + ".lua");
 
-    if (FileExists(filepath.c_str()))
+    const std::filesystem::path resourcesDir = "resources/scripts";
+    std::filesystem::path modsDir = "mods";
+    std::filesystem::path filepath = resourcesDir / actualPath;
+    std::string filepathInStr = filepath.generic_string();
+
+    if (FileExists(filepathInStr.c_str()))
     {
-        luaL_loadfile(lua, filepath.c_str());
+        luaL_loadfile(lua, filepathInStr.c_str());
         return 1;
     }
-
-    filepath = "mods/" + path + ".lua";
-    if (FileExists(filepath.c_str()))
+    
+    filepath = modsDir / actualPath;
+    filepathInStr = filepath.generic_string();
+    
+    if (FileExists(filepathInStr.c_str()))
     {
-        luaL_loadfile(lua, filepath.c_str());
+        luaL_loadfile(lua, filepathInStr.c_str());
         return 1;
     }
 
@@ -36,7 +43,7 @@ LuaMod::LuaMod(const std::string& filepath, bool privileged) : m_rootDir(GetDire
     m_lua.add_package_loader(CustomRequire, false);
 
     lua_hook::AddCppTypes(&m_lua, privileged);
-    lua_hook::AddCppFuncs(&m_lua, privileged);
+    lua_hook::AddCppFuncs(&m_lua, privileged, m_rootDir);
 
     sol::protected_function_result result = m_lua.script_file(filepath);
     sol::table modTable = lua_utils::UnwrapResult<sol::table>(result, "Failed to initialize mod at" + filepath);

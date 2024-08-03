@@ -14,4 +14,8 @@ public:
 private:
     sol::coroutine m_handle;
     std::optional<Texture2D> m_texture;
+    int m_textureHandle;
+
+    static std::unordered_map<int, Texture2D> m_storedTextures;
+    static std::unordered_map<int, int> m_storedTexturesRc;
 };

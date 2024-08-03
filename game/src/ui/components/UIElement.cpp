@@ -24,6 +24,7 @@ UIElement::UIElement(const sol::table& table):
     m_offsetX(0),
     m_offsetY(0),
     m_id(table.get<std::optional<std::string>>("id")),
+    m_customData(table.get<sol::optional<sol::table>>("data")),
     m_isHeldDown(false),
     m_isHovering(false),
     m_randItemColor(Color(GetRandomValue(0, 255), GetRandomValue(0, 255),
@@ -204,7 +205,9 @@ sol::optional<UIElement*> UIElement::Find(const std::string& id)
 
 sol::table UIElement::CreateLuaObject(lua_State* L)
 {
-    return sol::state::create_table(L);
+    sol::table table = sol::state::create_table(L);
+    table["data"] = m_customData;
+    return table;
 }
 
 void UIElement::AddOffset(float x, float y)
@@ -226,5 +229,5 @@ Vector2 UIElement::GetSize(const lay_context* ctx) const
     auto rect = lay_get_rect(ctx, id);
     float x = static_cast<float>(rect[2]);
     float y = static_cast<float>(rect[3]);
-    return { x, y };
+    return {x, y};
 }

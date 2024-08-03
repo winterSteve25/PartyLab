@@ -19,8 +19,15 @@ funcs = {
     ],
     "steam": [
         ("getCurrentUserID", "SteamID", []),
-        ("getCurrentLobby", "GameLobby", [])
-    ]
+        ("getCurrentLobby", "GameLobby", []),
+        ("getSteamUsername", "string", [("SteamID", "userId")]),
+    ],
+    "rendering": [
+        ("loadTexture", "number", [("string", "file")]),
+        ("unloadTexture", "nil", [("number", "textureHandle")]),
+        ("drawTexture", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size")]),
+        ("getTextureSize", "Vector2", [("int", "textureHandle")]),
+    ],
 }
 
 for key, funcs in funcs.items():

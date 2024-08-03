@@ -1,17 +1,19 @@
 #pragma once
-#include "SteamEvents.h"
+#include <isteamuser.h>
+#include <steamclientpublic.h>
+
+class CSteamID;
 
 class SteamIDWrapper
 {
 public:
     SteamIDWrapper(const CSteamID& steamId);
     
-    operator CSteamID() const
-    {
-        return CSteamID(m_unAccountID, m_unAccountInstance, m_EUniverse, static_cast<EAccountType>(m_EAccountType));
-    }
+    operator CSteamID() const;
+    bool operator==(const CSteamID& steamId) const;
+    
+    uint32 unAccountId;
 private:
-    uint32 m_unAccountID;
     unsigned int m_unAccountInstance;
     unsigned int m_EAccountType;
     EUniverse m_EUniverse;

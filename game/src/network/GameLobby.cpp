@@ -1,7 +1,7 @@
 #include "GameLobby.h"
 
-#include <isteamclient.h>
 #include <string>
+#include <isteammatchmaking.h>
 
 #include "raylib.h"
 #include "steam/SteamIDWrapper.h"
@@ -33,8 +33,14 @@ void GameLobby::GetAllMembers(std::vector<SteamIDWrapper>* members) const
     int n = SteamMatchmaking()->GetNumLobbyMembers(m_lobbyId);
     for (int i = 0; i < n; i++)
     {
-        members->emplace_back(SteamMatchmaking()->GetLobbyMemberByIndex(m_lobbyId, i));
+        CSteamID id = SteamMatchmaking()->GetLobbyMemberByIndex(m_lobbyId, i);
+        members->emplace_back(id);
     }
+}
+
+int GameLobby::GetMemberCount() const
+{
+    return SteamMatchmaking()->GetNumLobbyMembers(m_lobbyId);
 }
 
 void GameLobby::SetData(const std::string& key, const std::string& value) const
@@ -42,14 +48,15 @@ void GameLobby::SetData(const std::string& key, const std::string& value) const
     SteamMatchmaking()->SetLobbyData(m_lobbyId, key.c_str(), value.c_str());
 }
 
-void GameLobby::Created(uint64 lobbyid)
+std::string GameLobby::GetData(const std::string& key) const
+{
+    return SteamMatchmaking()->GetLobbyData(m_lobbyId, key.c_str());
+}
+
+void GameLobby::JoinedOrCreated(uint64 lobbyid)
 {
     GameLobby* lobby = new GameLobby(lobbyid);
     CURRENT_LOBBY = lobby;
-}
-
-void GameLobby::Joined(uint64 lobbyid)
-{
 }
 
 void GameLobby::Left()

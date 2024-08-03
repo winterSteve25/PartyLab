@@ -8,6 +8,7 @@
 #include "components/UISteamImage.h"
 #include "components/UIText.h"
 #include "components/UITextField.h"
+#include "components/UIToggleButton.h"
 #include "core/Core.h"
 #include "lua/lua_utils.h"
 
@@ -19,17 +20,18 @@ static std::unordered_map<std::string, std::function<UIElement*(const sol::table
     {"group", [](const sol::table& table) { return new UIGroup(table); }},
     {"rendered", [](const sol::table& table) { return new UIRendered(table); }},
     {"steamImage", [](const sol::table& table) { return new UISteamImage(table); }},
-    {"textField", [](const sol::table& table){ return new UITextField(table); }}
+    {"textField", [](const sol::table& table) { return new UITextField(table); }},
+    {"toggle", [](const sol::table& table) { return new UIToggleButton(table); }},
 };
 
 LuaUI::LuaUI(const sol::protected_function& supplier):
     m_uiSupplier(supplier),
     m_customData(sol::state::create_table(supplier.lua_state())),
-    m_screenWidth(0),
-    m_screenHeight(0),
+    m_screenWidth(GetScreenWidth()),
+    m_screenHeight(GetScreenHeight()),
     m_needsRebuild(false)
 {
-    m_customData["rebuild"] = [this](){ m_needsRebuild = true; };
+    m_customData["rebuild"] = [this]() { m_needsRebuild = true; };
     m_customData["query"] = [this](const std::string& id) -> sol::optional<sol::table>
     {
         for (UIElement* element : m_components)
@@ -40,8 +42,6 @@ LuaUI::LuaUI(const sol::protected_function& supplier):
 
         return sol::optional<sol::table>(sol::nullopt);
     };
-    
-    m_components.reserve(64);
 
     lay_init_context(&m_layCtx);
     lay_reserve_items_capacity(&m_layCtx, 64);
@@ -67,8 +67,8 @@ void LuaUI::Render()
     lay_reset_context(&m_layCtx);
 
     lay_id root = lay_item(&m_layCtx);
-    lay_set_size_xy(&m_layCtx, root, static_cast<lay_scalar>(GetScreenWidth()),
-                    static_cast<lay_scalar>(GetScreenHeight()));
+    lay_set_size_xy(&m_layCtx, root, static_cast<lay_scalar>(m_screenWidth),
+                    static_cast<lay_scalar>(m_screenHeight));
     lay_set_behave(&m_layCtx, root, LAY_FILL);
 
     for (UIElement* renderable : m_components)
@@ -82,7 +82,7 @@ void LuaUI::Render()
     {
         renderable->AdjustLayout(&m_layCtx);
     }
-    
+
     lay_run_context(&m_layCtx);
 
     for (UIElement* renderable : m_components)
