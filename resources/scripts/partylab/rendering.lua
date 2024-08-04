@@ -41,6 +41,18 @@ m.drawTextureWithTint = function(textureHandle,pos,size,tint)
 end
 
 ---@param textureHandle int
+---@param pos Vector2
+---@param size Vector2
+---@param origin Vector2
+---@param flipH boolean
+---@param flipV boolean
+---@param tint Color
+---@return nil
+m.drawTextureCustom = function(textureHandle,pos,size,origin,flipH,flipV,tint)
+	cpp_drawTextureCustom(textureHandle,pos,size,origin,flipH,flipV,tint)
+end
+
+---@param textureHandle int
 ---@return Vector2
 m.getTextureSize = function(textureHandle)
 	return cpp_getTextureSize(textureHandle)
@@ -95,6 +107,13 @@ end
 ---@return boolean
 m.within = function(x,pos,size)
 	return cpp_within(x,pos,size)
+end
+
+---@param pos Vector2
+---@param size Vector2
+---@return boolean
+m.isMouseHovering = function(pos,size)
+	return cpp_isMouseHovering(pos,size)
 end
 
 

@@ -23,7 +23,7 @@ m.update = function()
     end
 
     LobbyReadyStatus = {}
-    require("api.core").transitionTo(SCENES.lobby)
+    require("partylab.core").transitionTo(SCENES.lobby)
 end
 
 m.ui = function(data)
@@ -40,7 +40,7 @@ m.ui = function(data)
     {
         text,
         style = {
-            alignSelf = require("api.ui.layout").self.LAY_CENTER,
+            alignSelf = require("partylab.ui.layout").self.LAY_CENTER,
             fontSize = 128,
         },
     }

@@ -201,3 +201,11 @@ function MemoryReader:readObject() end
 
 ---@return SteamID
 function MemoryReader:readSteamID() end
+
+---@class Tween
+local Tween = {}
+function Tween:update() end
+function Tween:runForward() end
+function Tween:runBackward() end
+function Tween:reset() end
+function Tween:get() end

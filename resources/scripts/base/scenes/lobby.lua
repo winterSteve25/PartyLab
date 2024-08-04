@@ -16,14 +16,13 @@ local currentLobby = nil
 local hostSteamID = nil
 local selfSteamID = nil
 
-local flux = nil
-
-local rendering = require("api.rendering")
-local layout = require("api.ui.layout")
-local styles = require("api.ui.styles")
-local colors = require("api.ui.colors")
-local utils = require("api.utils")
-local steam = require("api.steam")
+local tween = require("partylab.ui.tween")
+local rendering = require("partylab.rendering")
+local layout = require("partylab.ui.layout")
+local styles = require("partylab.ui.styles")
+local colors = require("partylab.ui.colors")
+local utils = require("partylab.utils")
+local steam = require("partylab.steam")
 local textStyle = {
     color = colors.backgroundColor,
     fontSize = 70,
@@ -163,7 +162,7 @@ local function playerList(data)
                     }
                 }),
                 onToggle = function(val)
-                    local network = require("api.network")
+                    local network = require("partylab.network")
                     network.sendPacketReliable(network.targets.Everyone, PACKETS.readyToggle, {
                         who = selfSteamID.id,
                         val = val
@@ -325,7 +324,7 @@ local function leftPanel(data)
                 }),
                 onClick = function()
                     cpp_leaveLobby()
-                    require("api.core").transitionTo(SCENES.mainmenu)
+                    require("partylab.core").transitionTo(SCENES.mainmenu)
                 end,
             },
             {
@@ -361,14 +360,21 @@ local function leftPanel(data)
             id = "gameModesSelection",
             type = "rendered",
             data = {
-                gameModes = require("api.core").getAllGameModes(),
+                gameModes = require("partylab.core").getAllGameModes(),
                 scroll = 2,
                 loadedTextures = {}, -- should be in format: scrollIndex = texHandle
+                arrowLTween = tween.createLinear(1, 1.2, 0.05, require("partylab.ui.ease").easeOutExpo),
+                arrowRTween = tween.createLinear(1, 1.2, 0.05, require("partylab.ui.ease").easeOutExpo),
+                arrowLHovered = false,
+                arrowRHovered = false,
             },
             style = {
                 alignSelf = layout.self.LAY_FILL,
             },
             render = function(pos, size, thisData)
+                thisData.arrowLTween:update()
+                thisData.arrowRTween:update()
+
                 ---@type GameMode[]
                 local gameModes = thisData.gameModes
                 local min = thisData.scroll - 1
@@ -384,7 +390,7 @@ local function leftPanel(data)
 
                 rendering.beginScissor(pos, size);
 
-                for i = min, max, 1 do
+                for i = min - 1, max + 1, 1 do
                     if i > 0 and i <= table.getn(gameModes) then
                         local offset = -(max - i) + 1
                         local abs = math.abs(offset)
@@ -392,7 +398,7 @@ local function leftPanel(data)
                         local sizeMul = 1 - abs * 0.1
                         local length = size.x * 0.7 * sizeMul
                         local centerX = (size.x - length) / 2
-                        
+
                         -- load needed textures
                         if thisData.loadedTextures[i] == nil then
                             thisData.loadedTextures[i] = rendering.loadTexture(gameModes[i].iconLocation)
@@ -412,19 +418,49 @@ local function leftPanel(data)
 
                 local screenWidth = utils.getScreenWidth()
                 local screenHeight = utils.getScreenHeight()
-                
+
                 local name = gameModes[thisData.scroll].name
                 local fontSize = 70 * (screenWidth / 1920 + screenHeight / 1080) * 0.5
                 local textSize = rendering.measureText(name, fontSize)
                 local textPos = pos + Vector2((size.x - textSize.x) / 2, size.y * 0.85 - textSize.y)
-                
+
                 local arrowSize = rendering.getTextureSize(arrowLeftTexture);
                 local arrowNewSize = Vector2((arrowSize.x / arrowSize.y) * textSize.y * 0.8, textSize.y * 0.8)
+                local origin = arrowNewSize / 2
                 local arrowY = textSize.y * 0.35
-                
-                rendering.drawText(name, fontSize, textPos, colors.backgroundColor);
-                rendering.drawTexture(arrowLeftTexture, textPos + Vector2(-arrowNewSize.x - textSize.x * 0.5, arrowY), arrowNewSize)
-                rendering.drawTextureFlip(arrowLeftTexture, textPos + Vector2(textSize.x * 1.5, arrowY), arrowNewSize, true, false)
+                local leftArrPos = textPos + Vector2(-arrowNewSize.x - textSize.x * 0.5 - arrowNewSize.x / 2, arrowY + arrowNewSize.y / 2)
+                local rightArrPos = textPos + Vector2(textSize.x * 1.62 + arrowNewSize.x / 2, arrowY + arrowNewSize.y / 2)
+                local isHoveringL = rendering.isMouseHovering(leftArrPos - arrowNewSize / 2, arrowNewSize)
+
+                if isHoveringL and not thisData.arrowLHovered then
+                    thisData.arrowLTween:runForward()
+                    thisData.arrowLHovered = true
+                end
+
+                if not isHoveringL and thisData.arrowLHovered then
+                    thisData.arrowLTween:runBackward()
+                    thisData.arrowLHovered = false
+                end
+
+                rendering.drawText(name, fontSize, textPos, colors.backgroundColor)
+                rendering.drawTextureCustom(
+                        arrowLeftTexture,
+                        leftArrPos,
+                        arrowNewSize * thisData.arrowLTween:get(),
+                        origin,
+                        false,
+                        false,
+                        Color(255, 255, 255, 255)
+                )
+                rendering.drawTextureCustom(
+                        arrowLeftTexture,
+                        rightArrPos,
+                        arrowNewSize * thisData.arrowRTween:get(),
+                        origin,
+                        true,
+                        false,
+                        Color(255, 255, 255, 255)
+                )
             end
         }
     }
@@ -474,7 +510,7 @@ m.events = {
             return
         end
 
-        local network = require("api.network")
+        local network = require("partylab.network")
         for _, v in pairs(currentLobby:getAllMembers()) do
             local isReady = LobbyReadyStatus[v.id]
             network.sendPacketToReliable(user, PACKETS.readyToggle, {
@@ -499,7 +535,7 @@ m.load = function()
     hostTexture = rendering.loadTexture("resources/crown.png")
     selfTexture = rendering.loadTexture("resources/self.png")
     arrowLeftTexture = rendering.loadTexture("resources/arrow_left.png")
-    
+
     currentLobby = steam.getCurrentLobby()
     hostSteamID = currentLobby:getHost()
     selfSteamID = steam.getCurrentUserID()
@@ -510,11 +546,11 @@ m.cleanup = function()
     rendering.unloadTexture(hostTexture)
     rendering.unloadTexture(selfTexture)
     rendering.unloadTexture(arrowLeftTexture)
-    
+
     currentLobby = nil
     hostSteamID = nil
     selfSteamID = nil
-    
+
     flux = nil
 end
 

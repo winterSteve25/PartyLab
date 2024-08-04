@@ -1,10 +1,10 @@
 ---@type Scene
 local m = {}
 
-local colors = require("api.ui.colors")
-local layout = require("api.ui.layout")
-local styles = require("api.ui.styles")
-local core = require("api.core")
+local colors = require("partylab.ui.colors")
+local layout = require("partylab.ui.layout")
+local styles = require("partylab.ui.styles")
+local core = require("partylab.core")
 
 local ui = {
     style = {

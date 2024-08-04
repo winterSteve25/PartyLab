@@ -26,7 +26,7 @@ void UITextField::Render(const lay_context* ctx)
         m_focused = ui_helper::Within(GetMousePosition(), GetPos(ctx), GetSize(ctx));
     }
 
-    if (IsKeyPressed(KEY_ENTER))
+    if (m_focused && IsKeyPressed(KEY_ENTER))
     {
         Submit();
     }

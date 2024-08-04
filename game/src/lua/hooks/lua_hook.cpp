@@ -3,6 +3,7 @@
 #include "networkhook.h"
 #include "steamhook.h"
 #include "core/Core.h"
+#include "lua/LuaTween.h"
 #include "lua/async/WaitFor.h"
 #include "ui/Transition.h"
 #include "ui/ui_helper.h"
@@ -130,11 +131,26 @@ void lua_hook::AddCppTypes(sol::state* state, bool privileged)
         "WaitFor",
         sol::call_constructor,
         sol::factories(
-            [](const uint32_t type)
+            [](const uint32_t& type)
             {
                 return WaitFor(static_cast<LuaWaitForEvent>(type));
             }
         )
+    );
+
+    state->new_usertype<LuaTween>(
+        "Tween",
+        sol::call_constructor,
+        sol::factories([](const float& from, const float& to, const float& duration,
+                          const sol::protected_function& ease)
+        {
+            return LuaTween(from, to, duration, ease);
+        }),
+        "update", &LuaTween::Update,
+        "runForward", &LuaTween::RunForward,
+        "runBackward", &LuaTween::RunBackward,
+        "reset", &LuaTween::Reset,
+        "get", &LuaTween::Get
     );
 }
 
@@ -200,21 +216,22 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
         );
     });
 
-    AddCppFunc(state, "drawTextureFlip", [](const int& handle, const Vector2& pos, const Vector2& size, bool flipH, bool flipV)
-    {
-        Texture2D tex = Core::INSTANCE->resourceManager.GetTex(handle);
-        float mulX = flipH ? -1 : 1;
-        float mulY = flipV ? -1 : 1;
+    AddCppFunc(state, "drawTextureFlip",
+               [](const int& handle, const Vector2& pos, const Vector2& size, bool flipH, bool flipV)
+               {
+                   Texture2D tex = Core::INSTANCE->resourceManager.GetTex(handle);
+                   float mulX = flipH ? -1 : 1;
+                   float mulY = flipV ? -1 : 1;
 
-        DrawTexturePro(
-            tex,
-            {0, 0, mulX * static_cast<float>(tex.width), mulY * static_cast<float>(tex.height)},
-            {pos.x, pos.y, size.x, size.y},
-            {0, 0},
-            0,
-            WHITE
-        );
-    });
+                   DrawTexturePro(
+                       tex,
+                       {0, 0, mulX * static_cast<float>(tex.width), mulY * static_cast<float>(tex.height)},
+                       {pos.x, pos.y, size.x, size.y},
+                       {0, 0},
+                       0,
+                       WHITE
+                   );
+               });
 
     AddCppFunc(state, "drawTextureWithTint",
                [](const int& handle, const Vector2& pos, const Vector2& size, const Color& tint)
@@ -230,6 +247,22 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
                        tint
                    );
                });
+
+    AddCppFunc(state, "drawTextureCustom", [](const int& handle, const Vector2& pos, const Vector2& size, const Vector2& origin, const bool& flipH, const bool& flipV, const Color& tint)
+    {
+        const Texture2D tex = Core::INSTANCE->resourceManager.GetTex(handle);
+        const float mulX = flipH ? -1 : 1;
+        const float mulY = flipV ? -1 : 1;
+
+        DrawTexturePro(
+            tex,
+            {0, 0, mulX * static_cast<float>(tex.width), mulY * static_cast<float>(tex.height)},
+            {pos.x, pos.y, size.x, size.y},
+            origin,
+            0,
+            tint
+        );
+    });
 
     AddCppFunc(state, "getTextureSize", [](const int& handle)
     {
@@ -255,6 +288,11 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
     AddCppFunc(state, "drawText", [](const std::string& text, float fontSize, const Vector2& pos, const Color& color)
     {
         ui_helper::DrawText(text.c_str(), fontSize, pos, color);
+    });
+
+    AddCppFunc(state, "isMouseHovering", [](const Vector2& pos, const Vector2& size)
+    {
+        return ui_helper::Within(GetMousePosition(), pos, size);
     });
 
     lua_steam_hook::AddCppFuncs(state, privileged, modDir);

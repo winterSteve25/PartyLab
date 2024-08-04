@@ -1,6 +1,6 @@
 import os
 
-base_dir = "../resources/scripts/api/"
+base_dir = "../resources/scripts/partylab/"
 funcs = {
     "utils": [
         # raylib
@@ -25,6 +25,7 @@ funcs = {
         ("drawTexture", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size")]),
         ("drawTextureFlip", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("boolean", "flipH"), ("boolean", "flipV")]),
         ("drawTextureWithTint", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Color", "tint")]),
+        ("drawTextureCustom", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Vector2", "origin"), ("boolean", "flipH"), ("boolean", "flipV"), ("Color", "tint")]),
         ("getTextureSize", "Vector2", [("int", "textureHandle")]),
         ("drawRectangle", "nil", [("Vector2", "pos"), ("Vector2", "size"), ("Color", "color")]),
         ("beginScissor", "nil", [("Vector2", "pos"), ("Vector2", "size")]),
@@ -33,6 +34,7 @@ funcs = {
         ("measureText", "Vector2", [("string", "text"), ("number", "fontSize")]),
         ("getCenter", "Vector2", [("Vector2", "size"), ("Vector2", "totalSize")]),
         ("within", "boolean", [("Vector2", "x"), ("Vector2", "pos"), ("Vector2", "size")]),
+        ("isMouseHovering", "boolean", [("Vector2", "pos"), ("Vector2", "size")]),
     ],
 }
 

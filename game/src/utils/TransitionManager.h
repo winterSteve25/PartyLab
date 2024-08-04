@@ -5,7 +5,7 @@
 
 /**
  * Accessed via Core::INSTANCE->transitionManager
- * Accessed via require("api.core").transitionTo() in lua
+ * Accessed via require("partylab.core").transitionTo() in lua
  * Can be used to transition to a different scene
  */
 class TransitionManager

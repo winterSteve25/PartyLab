@@ -1,11 +1,11 @@
 local m = {}
 
-local colors = require("api.ui.colors")
-local ease = require("api.ui.ease")
+local colors = require("partylab.ui.colors")
+local ease = require("partylab.ui.ease")
 
 ---@type Style
 m.defaultButton = {
-    alignSelf = require("api.ui.layout").self.LAY_LEFT,
+    alignSelf = require("partylab.ui.layout").self.LAY_LEFT,
     color = colors.textColor,
     fontSize = 100,
     marginTop = 0.04,
