@@ -13,7 +13,7 @@ m.unloadTexture = function(textureHandle)
 	cpp_unloadTexture(textureHandle)
 end
 
----@param textureHandle int
+---@param textureHandle number
 ---@param pos Vector2
 ---@param size Vector2
 ---@return nil
@@ -21,7 +21,7 @@ m.drawTexture = function(textureHandle,pos,size)
 	cpp_drawTexture(textureHandle,pos,size)
 end
 
----@param textureHandle int
+---@param textureHandle number
 ---@param pos Vector2
 ---@param size Vector2
 ---@param flipH boolean
@@ -31,7 +31,7 @@ m.drawTextureFlip = function(textureHandle,pos,size,flipH,flipV)
 	cpp_drawTextureFlip(textureHandle,pos,size,flipH,flipV)
 end
 
----@param textureHandle int
+---@param textureHandle number
 ---@param pos Vector2
 ---@param size Vector2
 ---@param tint Color
@@ -40,7 +40,7 @@ m.drawTextureWithTint = function(textureHandle,pos,size,tint)
 	cpp_drawTextureWithTint(textureHandle,pos,size,tint)
 end
 
----@param textureHandle int
+---@param textureHandle number
 ---@param pos Vector2
 ---@param size Vector2
 ---@param origin Vector2
@@ -52,7 +52,7 @@ m.drawTextureCustom = function(textureHandle,pos,size,origin,flipH,flipV,tint)
 	cpp_drawTextureCustom(textureHandle,pos,size,origin,flipH,flipV,tint)
 end
 
----@param textureHandle int
+---@param textureHandle number
 ---@return Vector2
 m.getTextureSize = function(textureHandle)
 	return cpp_getTextureSize(textureHandle)
@@ -114,6 +114,22 @@ end
 ---@return boolean
 m.isMouseHovering = function(pos,size)
 	return cpp_isMouseHovering(pos,size)
+end
+
+---@return boolean
+m.isMouseLeftClicked = function()
+	return cpp_isMouseLeftClicked()
+end
+
+---@return boolean
+m.isMouseRightClicked = function()
+	return cpp_isMouseRightClicked()
+end
+
+---@param button number
+---@return boolean
+m.isMouseClicked = function(button)
+	return cpp_isMouseClicked(button)
 end
 
 

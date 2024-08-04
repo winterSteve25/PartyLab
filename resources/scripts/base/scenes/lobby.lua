@@ -16,6 +16,7 @@ local currentLobby = nil
 local hostSteamID = nil
 local selfSteamID = nil
 
+local UIObject = require("partylab.ui.object")
 local tween = require("partylab.ui.tween")
 local rendering = require("partylab.rendering")
 local layout = require("partylab.ui.layout")
@@ -361,20 +362,31 @@ local function leftPanel(data)
             type = "rendered",
             data = {
                 gameModes = require("partylab.core").getAllGameModes(),
-                scroll = 2,
+                scroll = 1,
                 loadedTextures = {}, -- should be in format: scrollIndex = texHandle
-                arrowLTween = tween.createLinear(1, 1.2, 0.05, require("partylab.ui.ease").easeOutExpo),
-                arrowRTween = tween.createLinear(1, 1.2, 0.05, require("partylab.ui.ease").easeOutExpo),
-                arrowLHovered = false,
-                arrowRHovered = false,
+                arrowLeftObject = UIObject:new {
+                    tween = tween.createLinear(1, 1.2, 0.05, require("partylab.ui.ease").easeOutExpo),
+                    onHoverEnter = function(self)
+                        self.tween:runForward()
+                    end,
+                    onHoverExit = function(self)
+                        self.tween:runBackward()
+                    end,
+                },
+                arrowRightObject = UIObject:new {
+                    tween = tween.createLinear(1, 1.2, 0.05, require("partylab.ui.ease").easeOutExpo),
+                    onHoverEnter = function(self)
+                        self.tween:runForward()
+                    end,
+                    onHoverExit = function(self)
+                        self.tween:runBackward()
+                    end,
+                },
             },
             style = {
                 alignSelf = layout.self.LAY_FILL,
             },
             render = function(pos, size, thisData)
-                thisData.arrowLTween:update()
-                thisData.arrowRTween:update()
-
                 ---@type GameMode[]
                 local gameModes = thisData.gameModes
                 local min = thisData.scroll - 1
@@ -382,7 +394,7 @@ local function leftPanel(data)
 
                 -- unload unneeded textures
                 for k, v in pairs(thisData.loadedTextures) do
-                    if k < min or k > max then
+                    if k < min - 1 or k > max + 1 then
                         rendering.unloadTexture(v)
                         thisData.loadedTextures[k] = nil
                     end
@@ -392,25 +404,29 @@ local function leftPanel(data)
 
                 for i = min - 1, max + 1, 1 do
                     if i > 0 and i <= table.getn(gameModes) then
-                        local offset = -(max - i) + 1
-                        local abs = math.abs(offset)
-                        local alpha = abs * 50;
-                        local sizeMul = 1 - abs * 0.1
-                        local length = size.x * 0.7 * sizeMul
-                        local centerX = (size.x - length) / 2
-
+                        local iAsIdx = math.floor(i)
+                        
                         -- load needed textures
-                        if thisData.loadedTextures[i] == nil then
-                            thisData.loadedTextures[i] = rendering.loadTexture(gameModes[i].iconLocation)
+                        if thisData.loadedTextures[iAsIdx] == nil then
+                            thisData.loadedTextures[iAsIdx] = rendering.loadTexture(gameModes[iAsIdx].iconLocation)
                         end
 
-                        local texture = thisData.loadedTextures[i]
-                        rendering.drawTextureWithTint(
-                                texture,
-                                Vector2(pos.x + centerX + offset * length * 1.15, pos.y - size.y * 0.1 + (size.y - length) / 2),
-                                Vector2(length, length),
-                                Color(255, 255, 255, 255 - alpha)
-                        )
+                        if i >= min and i <= max then
+                            local offset = -(max - i) + 1
+                            local abs = math.abs(offset)
+                            local alpha = abs * 50;
+                            local sizeMul = 1 - abs * 0.1
+                            local length = size.x * 0.7 * sizeMul
+                            local centerX = (size.x - length) * 0.5
+
+                            local texture = thisData.loadedTextures[i]
+                            rendering.drawTextureWithTint(
+                                    texture,
+                                    Vector2(pos.x + centerX + offset * length * 1.15, pos.y - size.y * 0.1 + (size.y - length) * 0.5),
+                                    Vector2(length, length),
+                                    Color(255, 255, 255, 255 - alpha)
+                            )
+                        end
                     end
                 end
 
@@ -422,31 +438,39 @@ local function leftPanel(data)
                 local name = gameModes[thisData.scroll].name
                 local fontSize = 70 * (screenWidth / 1920 + screenHeight / 1080) * 0.5
                 local textSize = rendering.measureText(name, fontSize)
-                local textPos = pos + Vector2((size.x - textSize.x) / 2, size.y * 0.85 - textSize.y)
+                local textPos = pos + Vector2((size.x - textSize.x) * 0.5, size.y * 0.85 - textSize.y)
 
                 local arrowSize = rendering.getTextureSize(arrowLeftTexture);
-                local arrowNewSize = Vector2((arrowSize.x / arrowSize.y) * textSize.y * 0.8, textSize.y * 0.8)
-                local origin = arrowNewSize / 2
+                local arrowNewSize = Vector2((arrowSize.x / arrowSize.y) * textSize.y, textSize.y)
+                local origin = arrowNewSize * 0.5
                 local arrowY = textSize.y * 0.35
-                local leftArrPos = textPos + Vector2(-arrowNewSize.x - textSize.x * 0.5 - arrowNewSize.x / 2, arrowY + arrowNewSize.y / 2)
-                local rightArrPos = textPos + Vector2(textSize.x * 1.62 + arrowNewSize.x / 2, arrowY + arrowNewSize.y / 2)
-                local isHoveringL = rendering.isMouseHovering(leftArrPos - arrowNewSize / 2, arrowNewSize)
+                local leftArrPos = textPos + Vector2(-arrowNewSize.x - textSize.x * 0.5 - arrowNewSize.x * 0.5, arrowY + arrowNewSize.y * 0.4)
+                local rightArrPos = textPos + Vector2(textSize.x * 1.62 + arrowNewSize.x * 0.5, arrowY + arrowNewSize.y * 0.4)
 
-                if isHoveringL and not thisData.arrowLHovered then
-                    thisData.arrowLTween:runForward()
-                    thisData.arrowLHovered = true
+                if thisData.arrowLeftObject.onClick == nil then
+                    thisData.arrowLeftObject.onClick = function(self)
+                        if thisData.scroll > 1 then
+                            thisData.scroll = thisData.scroll - 1
+                        end
+                    end
                 end
 
-                if not isHoveringL and thisData.arrowLHovered then
-                    thisData.arrowLTween:runBackward()
-                    thisData.arrowLHovered = false
+                if thisData.arrowRightObject.onClick == nil then
+                    thisData.arrowRightObject.onClick = function(self)
+                        if thisData.scroll < table.getn(gameModes) then
+                            thisData.scroll = thisData.scroll + 1
+                        end
+                    end
                 end
+
+                thisData.arrowLeftObject:update(leftArrPos - arrowNewSize * 0.5, arrowNewSize)
+                thisData.arrowRightObject:update(rightArrPos - arrowNewSize * 0.5, arrowNewSize)
 
                 rendering.drawText(name, fontSize, textPos, colors.backgroundColor)
                 rendering.drawTextureCustom(
                         arrowLeftTexture,
                         leftArrPos,
-                        arrowNewSize * thisData.arrowLTween:get(),
+                        arrowNewSize * thisData.arrowLeftObject.tween:get(),
                         origin,
                         false,
                         false,
@@ -455,7 +479,7 @@ local function leftPanel(data)
                 rendering.drawTextureCustom(
                         arrowLeftTexture,
                         rightArrPos,
-                        arrowNewSize * thisData.arrowRTween:get(),
+                        arrowNewSize * thisData.arrowRightObject.tween:get(),
                         origin,
                         true,
                         false,

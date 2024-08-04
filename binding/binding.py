@@ -22,11 +22,11 @@ funcs = {
     "rendering": [
         ("loadTexture", "number", [("string", "file")]),
         ("unloadTexture", "nil", [("number", "textureHandle")]),
-        ("drawTexture", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size")]),
-        ("drawTextureFlip", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("boolean", "flipH"), ("boolean", "flipV")]),
-        ("drawTextureWithTint", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Color", "tint")]),
-        ("drawTextureCustom", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Vector2", "origin"), ("boolean", "flipH"), ("boolean", "flipV"), ("Color", "tint")]),
-        ("getTextureSize", "Vector2", [("int", "textureHandle")]),
+        ("drawTexture", "nil", [("number", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size")]),
+        ("drawTextureFlip", "nil", [("number", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("boolean", "flipH"), ("boolean", "flipV")]),
+        ("drawTextureWithTint", "nil", [("number", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Color", "tint")]),
+        ("drawTextureCustom", "nil", [("number", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Vector2", "origin"), ("boolean", "flipH"), ("boolean", "flipV"), ("Color", "tint")]),
+        ("getTextureSize", "Vector2", [("number", "textureHandle")]),
         ("drawRectangle", "nil", [("Vector2", "pos"), ("Vector2", "size"), ("Color", "color")]),
         ("beginScissor", "nil", [("Vector2", "pos"), ("Vector2", "size")]),
         ("endScissor", "nil", []),
@@ -35,6 +35,9 @@ funcs = {
         ("getCenter", "Vector2", [("Vector2", "size"), ("Vector2", "totalSize")]),
         ("within", "boolean", [("Vector2", "x"), ("Vector2", "pos"), ("Vector2", "size")]),
         ("isMouseHovering", "boolean", [("Vector2", "pos"), ("Vector2", "size")]),
+        ("isMouseLeftClicked", "boolean", []),
+        ("isMouseRightClicked", "boolean", []),
+        ("isMouseClicked", "boolean", [("number", "button")]),
     ],
 }
 
