@@ -14,55 +14,111 @@ static void AddCppFunc(sol::state* state, const std::string& name, Func&& fn)
 
 void lua_network_hook::AddCppTypes(sol::state* state, bool privileged)
 {
-    state->new_usertype<SteamIDWrapper>(
-        "SteamID",
+    state->new_usertype<MemoryWriter>(
+        "MemoryWriter",
         sol::no_constructor,
-        sol::meta_function::equal_to, [](const SteamIDWrapper& a, const SteamIDWrapper& b)
+        "writeUI8", [](MemoryWriter& writer, const uint8_t& num)
         {
-            const CSteamID ac = a;
-            const CSteamID ab = b;
-            return ac.ConvertToUint64() == ab.ConvertToUint64();
+            writer.WriteGeneric<uint8_t>(num);
         },
-        "equals", [](const SteamIDWrapper& id, const SteamIDWrapper& other)
+        "writeUI16", [](MemoryWriter& writer, const uint16_t& num)
         {
-            TraceLog(LOG_INFO, std::to_string(static_cast<CSteamID>(id).ConvertToUint64()).c_str());
-            const CSteamID ac = id;
-            const CSteamID ab = other;
-            return ac.ConvertToUint64() == ab.ConvertToUint64();
+            writer.WriteGeneric<uint16_t>(num);
         },
-        "id", &SteamIDWrapper::unAccountId
+        "writeUI32", [](MemoryWriter& writer, const uint32_t& num)
+        {
+            writer.WriteGeneric<uint32_t>(num);
+        },
+        "writeI8", [](MemoryWriter& writer, const int8_t& num)
+        {
+            writer.WriteGeneric<int8_t>(num);
+        },
+        "writeI16", [](MemoryWriter& writer, const int16_t& num)
+        {
+            writer.WriteGeneric<int16_t>(num);
+        },
+        "writeI32", [](MemoryWriter& writer, const int32_t& num)
+        {
+            writer.WriteGeneric<int32_t>(num);
+        },
+        "writeFloat", [](MemoryWriter& writer, const float& num)
+        {
+            writer.WriteGeneric<float>(num);
+        },
+        "writeDouble", [](MemoryWriter& writer, const double& num)
+        {
+            writer.WriteGeneric<double>(num);
+        },
+        "writeString", [](MemoryWriter& writer, const std::string& str)
+        {
+            writer.WriteString(str);
+        },
+        "writeBool", [](MemoryWriter& writer, const bool& b)
+        {
+            writer.WriteBool(b);
+        },
+        "writeObject", [](MemoryWriter& writer, const sol::object& b)
+        {
+            writer.WriteObject(b);
+        },
+        "writeSteamID", [](MemoryWriter& writer, const SteamIDWrapper& id)
+        {
+            CSteamID cid = id;
+            writer.WriteGeneric<uint64>(cid.ConvertToUint64());
+        }
     );
 
-    state->new_usertype<GameLobby>(
-        "GameLobby",
-        sol::call_constructor,
-        sol::factories(
-            [](const SteamIDWrapper id)
-            {
-                return std::make_shared<GameLobby>(id);
-            }
-        ),
-        "getHost", [](const GameLobby& gameLobby)
+    state->new_usertype<MemoryReader>(
+        "MemoryReader",
+        sol::no_constructor,
+        "readUI8", [](MemoryReader& readr)
         {
-            return static_cast<SteamIDWrapper>(gameLobby.GetHost());
+            readr.ReadGeneric<uint8_t>();
         },
-        "sendChatString", [](const GameLobby& gameLobby, const std::string& str)
+        "readUI16", [](MemoryReader& readr)
         {
-            gameLobby.SendChatString(str);
+            readr.ReadGeneric<uint16_t>();
         },
-        "getAllMembers", [](const GameLobby& gameLobby)
+        "readUI32", [](MemoryReader& readr)
         {
-            std::vector<SteamIDWrapper> v;
-            gameLobby.GetAllMembers(&v);
-            return sol::as_table(v);
+            readr.ReadGeneric<uint32_t>();
         },
-        "getData", [](const GameLobby& gameLobby, const std::string& key)
+        "readI8", [](MemoryReader& readr)
         {
-            return gameLobby.GetData(key);
+            readr.ReadGeneric<int8_t>();
         },
-        "setData", [](const GameLobby& gameLobby, const std::string& key, const std::string& val)
+        "readI16", [](MemoryReader& readr)
         {
-            gameLobby.SetData(key, val);
+            readr.ReadGeneric<int16_t>();
+        },
+        "readI32", [](MemoryReader& readr)
+        {
+            readr.ReadGeneric<int32_t>();
+        },
+        "readFloat", [](MemoryReader& readr)
+        {
+            readr.ReadGeneric<float>();
+        },
+        "readDouble", [](MemoryReader& readr)
+        {
+            readr.ReadGeneric<double>();
+        },
+        "readString", [](MemoryReader& readr)
+        {
+            readr.ReadString();
+        },
+        "readBool", [](MemoryReader& readr)
+        {
+            readr.ReadBool();
+        },
+        "readObject", [](sol::this_state state_view, MemoryReader& readr)
+        {
+            readr.ReadObject(state_view.lua_state());
+        },
+        "readSteamID", [](MemoryReader& reader)
+        {
+            const CSteamID id = reader.ReadGeneric<uint64>();
+            return SteamIDWrapper(id);
         }
     );
 }

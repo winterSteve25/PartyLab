@@ -18,6 +18,8 @@ UIElement::UIElement(const sol::table& table):
     sMarginBottom(properties::MarginBottom()),
     sAlignSelf(LayFlagProperty(LAY_TOP, "alignSelf")),
     sAlignItems(LayFlagProperty(LAY_ROW, "alignItems")),
+    id(LAY_INVALID_ID),
+    markedDead(false),
     m_normalStyle(Style(table.lua_state(), table["style"])),
     m_hoverStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("hovered"))),
     m_pressStyle(Style(table.lua_state(), m_normalStyle.Get<sol::table>("pressed"))),
@@ -207,6 +209,7 @@ sol::table UIElement::CreateLuaObject(lua_State* L)
 {
     sol::table table = sol::state::create_table(L);
     table["data"] = m_customData;
+    table["remove"] = [this]() { this->markedDead = true; };
     return table;
 }
 

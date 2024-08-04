@@ -14,7 +14,6 @@ UIToggleButton::UIToggleButton(const sol::table& table):
 
 void UIToggleButton::OnClick()
 {
-    UIElement::OnClick();
     m_value = !m_value;
     m_text = m_value ? m_toggledText : m_idleText;
     ApplyDefaultStyles();

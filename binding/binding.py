@@ -5,17 +5,14 @@ funcs = {
     "utils": [
         # raylib
         ("getScreenWidth", "number", []),
-        ("getScreenHeight", "number", []),
-        
-        # ui helper
-        ("measureText", "Vector2", [("string", "text"), ("number", "fontSize")]),
-        ("getCenter", "Vector2", [("Vector2", "size"), ("Vector2", "totalSize")]),
-        ("within", "boolean", [("Vector2", "x"), ("Vector2", "pos"), ("Vector2", "size")])
+        ("getScreenHeight", "number", []), 
+        ("getDeltaTime", "number", []), 
     ],
     "core": [
         ("transitionTo", "nil", [("number", "scene")]),
         ("transitionToCB", "nil", [("number", "scene"), ("fun()", "callback")]),
-        ("exit", "nil", [])
+        ("exit", "nil", []),
+        ("getAllGameModes", "GameMode[]", []),
     ],
     "steam": [
         ("getCurrentUserID", "SteamID", []),
@@ -26,7 +23,16 @@ funcs = {
         ("loadTexture", "number", [("string", "file")]),
         ("unloadTexture", "nil", [("number", "textureHandle")]),
         ("drawTexture", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size")]),
+        ("drawTextureFlip", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("boolean", "flipH"), ("boolean", "flipV")]),
+        ("drawTextureWithTint", "nil", [("int", "textureHandle"), ("Vector2", "pos"), ("Vector2", "size"), ("Color", "tint")]),
         ("getTextureSize", "Vector2", [("int", "textureHandle")]),
+        ("drawRectangle", "nil", [("Vector2", "pos"), ("Vector2", "size"), ("Color", "color")]),
+        ("beginScissor", "nil", [("Vector2", "pos"), ("Vector2", "size")]),
+        ("endScissor", "nil", []),
+        ("drawText", "nil", [("string", "text"), ("number", "fontSize"), ("Vector2", "pos"), ("Color", "color")]),
+        ("measureText", "Vector2", [("string", "text"), ("number", "fontSize")]),
+        ("getCenter", "Vector2", [("Vector2", "size"), ("Vector2", "totalSize")]),
+        ("within", "boolean", [("Vector2", "x"), ("Vector2", "pos"), ("Vector2", "size")]),
     ],
 }
 

@@ -11,5 +11,6 @@ public:
     void Render(const lay_context* pos) override;
 
 private:
-    sol::optional<sol::protected_function> m_renderer;
+    static const std::string fail_callback_txt;
+    sol::protected_function m_renderer;
 };

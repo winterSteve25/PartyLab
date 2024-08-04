@@ -19,4 +19,7 @@ private:
     std::string m_text;
     bool m_focused;
     uint32_t m_cursorIdx;
+    
+    float m_backspaceTime;
+    float m_deleteTime;
 };

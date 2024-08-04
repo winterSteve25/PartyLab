@@ -41,6 +41,8 @@ public:
     RatioProperty sRatio;
 
     lay_id id;
+    bool markedDead;
+
 protected:
     UIElement(const sol::table& table);
 

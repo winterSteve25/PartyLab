@@ -64,6 +64,10 @@
 //     std::cout << std::format("{}", reader.ReadBool()) << std::endl;
 // }
 
+// void* operator new(size_t size) {
+    // return malloc(size);
+// }
+
 int main()
 {
      if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid))

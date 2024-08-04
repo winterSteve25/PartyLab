@@ -80,26 +80,9 @@ m.getScreenHeight = function()
 	return cpp_getScreenHeight()
 end
 
----@param text string
----@param fontSize number
----@return Vector2
-m.measureText = function(text,fontSize)
-	return cpp_measureText(text,fontSize)
-end
-
----@param size Vector2
----@param totalSize Vector2
----@return Vector2
-m.getCenter = function(size,totalSize)
-	return cpp_getCenter(size,totalSize)
-end
-
----@param x Vector2
----@param pos Vector2
----@param size Vector2
----@return boolean
-m.within = function(x,pos,size)
-	return cpp_within(x,pos,size)
+---@return number
+m.getDeltaTime = function()
+	return cpp_getDeltaTime()
 end
 
 

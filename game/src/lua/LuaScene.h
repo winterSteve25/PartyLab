@@ -33,7 +33,7 @@ public:
         if (!handler.has_value()) return;
         sol::state_view stateView = m_eventHandlers.value().lua_state();
         sol::protected_function_result result = handler.value()(args(&stateView)...);
-        lua_utils::UnwrapResult(result, std::optional<std::string>(std::nullopt));
+        lua_utils::UnwrapResult(result, "Failed to run event handler");
     }
     
 private:

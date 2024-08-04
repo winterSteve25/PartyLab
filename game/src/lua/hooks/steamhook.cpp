@@ -4,7 +4,6 @@
 
 #include "raylib.h"
 #include "core/Core.h"
-#include "network/GameLobby.h"
 #include "steam/SteamIDWrapper.h"
 
 template <typename Func>
@@ -40,7 +39,7 @@ void lua_steam_hook::AddCppTypes(sol::state* state, bool privileged)
         sol::factories(
             [](const SteamIDWrapper id)
             {
-                return std::make_shared<GameLobby>(id);
+                return GameLobby(id);
             }
         ),
         "getHost", [](const GameLobby& gameLobby)
@@ -89,7 +88,11 @@ void lua_steam_hook::AddCppFuncs(sol::state* state, bool privilege, const std::f
         return x;
     });
 
-    AddCppFunc(state, "getCurrentLobby", []() { return GameLobby::CURRENT_LOBBY; });
+    AddCppFunc(state, "getCurrentLobby", []()
+    {
+        return GameLobby::CURRENT_LOBBY;
+    });
+    
     AddCppFunc(state, "getSteamUsername", [](const SteamIDWrapper& id)
     {
         return SteamFriends()->GetFriendPersonaName(id);

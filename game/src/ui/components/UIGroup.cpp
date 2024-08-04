@@ -53,7 +53,7 @@ void UIGroup::Update()
         }
         m_clearAllChildren = false;
     }
-    
+
     for (const int& i : m_queuedRemoveChild)
     {
         if (i < 0 || i > m_components.size()) continue;
@@ -69,7 +69,8 @@ void UIGroup::Update()
         for (int i = 0; i < m_components.size(); i++)
         {
             UIElement* pointer = m_components[i];
-            if (!lua_utils::UnwrapResult<bool>(pred(i, pointer->CreateLuaObject(pred.lua_state())), "Failed to run remove child predicate")) continue;
+            if (!lua_utils::UnwrapResult<bool>(pred(i, pointer->CreateLuaObject(pred.lua_state())),
+                                               "Failed to run remove child predicate")) continue;
             delete pointer;
             m_components.erase(m_components.begin() + i);
             i--;
@@ -85,9 +86,19 @@ void UIGroup::Update()
 
     m_queuedAddChild.clear();
 
-    for (UIElement* child : m_components)
+    for (int i = 0; i < m_components.size(); i++)
     {
-        child->Update();
+        UIElement* element = m_components[i];
+
+        if (element->markedDead)
+        {
+            delete element;
+            m_components.erase(m_components.begin() + i);
+            i--;
+            continue;
+        }
+
+        element->Update();
     }
 }
 

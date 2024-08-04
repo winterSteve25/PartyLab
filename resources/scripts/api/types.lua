@@ -55,12 +55,17 @@ local ModDescriptor = {}
 ---@class Scene
 ---@field load fun()
 ---@field cleanup fun()
----@field ui fun(): UI
+---@field ui fun(data: UIData): UI
 ---@field render fun()
 ---@field renderOverlay fun()
 ---@field update fun()
 ---@field events SceneEventHandler
 local Scene = {}
+
+---@class UIData
+---@field query fun(id: string): table
+---@field rebuild fun()
+local UIData = {}
 
 ---@class Size
 ---@field measure
@@ -71,11 +76,6 @@ local Size = {}
 local SteamID = {}
 
 ---@class GameLobby
----@field getHost fun(): SteamID
----@field sendChatString fun(msg: string)
----@field getAllMembers fun(): SteamID[]
----@field setData fun(key: string, value: string)
----@field getData fun(key: string): string
 local GameLobby = {}
 
 ---@return SteamID
@@ -101,6 +101,15 @@ function GameLobby:getData(key) end
 ---@field handler fun(sender: SteamID, data: any)
 local Packet = {}
 
+---@class GameMode
+---@field name string
+---@field description string
+---@field iconLocation string
+---@field maxPlayers number
+---@field minPlayers number
+---@field scene number
+local GameMode = {}
+
 ---@class SceneEventHandler
 ---@field playerEnteredLobby fun(user: SteamID)
 ---@field playerLeftLobby fun(user: SteamID)
@@ -110,12 +119,25 @@ local Packet = {}
 local SceneEventHandler = {}
 
 ---@class GlobalEventHandler
----@field addScenes fun(registrar: fun(scene: Scene)): number
----@field addPackets fun(registrar: fun(packet: Packet)): number
+---@field addScenes fun(registrar: fun(scene: Scene): number)
+---@field addPackets fun(registrar: fun(packet: Packet): number)
+---@field addGameModes fun(registrar: fun(gamemode: GameMode))
 local GlobalEventHandler = {}
 
 ---@class MemoryWriter 
 local MemoryWriter = {}
+
+---@param num number
+function MemoryWriter:writeUI8(num) end
+
+---@param num number
+function MemoryWriter:writeUI16(num) end
+
+---@param num number
+function MemoryWriter:writeUI32(num) end
+
+---@param num number
+function MemoryWriter:writeI8(num) end
 
 ---@param num number
 function MemoryWriter:writeI16(num) end
@@ -124,10 +146,10 @@ function MemoryWriter:writeI16(num) end
 function MemoryWriter:writeI32(num) end
 
 ---@param num number
-function MemoryWriter:writeF32(num) end
+function MemoryWriter:writeFloat(num) end
 
 ---@param num number
-function MemoryWriter:writeF64(num) end
+function MemoryWriter:writeDouble(num) end
 
 ---@param str string
 function MemoryWriter:writeString(str) end
@@ -135,8 +157,26 @@ function MemoryWriter:writeString(str) end
 ---@param b boolean
 function MemoryWriter:writeBool(b) end
 
+---@param o any
+function MemoryWriter:writeObject(o) end
+
+---@param id SteamID
+function MemoryWriter:writeSteamID(o) end
+
 ---@class MemoryReader
 local MemoryReader = {}
+
+---@return number
+function MemoryReader:readUI8() end
+
+---@return number
+function MemoryReader:readUI16() end
+
+---@return number
+function MemoryReader:readUI32() end
+
+---@return number
+function MemoryReader:readI8() end
 
 ---@return number
 function MemoryReader:readI16() end
@@ -145,13 +185,19 @@ function MemoryReader:readI16() end
 function MemoryReader:readI32() end
 
 ---@return number
-function MemoryReader:readF32() end
+function MemoryReader:readFloat() end
 
 ---@return number
-function MemoryReader:readF64() end
+function MemoryReader:readDouble() end
 
 ---@return string
 function MemoryReader:readString() end
 
 ---@return boolean
 function MemoryReader:readBool() end
+
+---@return any
+function MemoryReader:readObject() end
+
+---@return SteamID
+function MemoryReader:readSteamID() end

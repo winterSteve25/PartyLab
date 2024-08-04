@@ -18,6 +18,7 @@ Core::Core(int defaultScene) :
     modManager.LoadMods();
     AddLuaScenes();
     networkManager.RegisterPackets();
+    AddGameModes();
 
     if (m_activesScene < 0) return;
     m_scenes[m_activesScene]->Load();
@@ -35,7 +36,7 @@ size_t Core::AddScene(LuaScene* scene)
 void Core::AddLuaScenes()
 {
     m_luaSceneStartIdx = m_scenes.size();
-    modManager.BroadcastEvent<std::function<size_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
+    modManager.BroadcastEvent<std::function<uint32_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
     {
         return [this](const sol::table& scene)
         {
@@ -49,6 +50,19 @@ void Core::AddLuaScenes()
                 scene["ui"],
                 scene["events"]
             ));
+        };
+    });
+}
+
+void Core::AddGameModes()
+{
+    modManager.BroadcastEvent<std::function<void(const sol::table&)>>(GAME_EVENT_ADD_GAME_MODES, [this](sol::state*)
+    {
+        return [this](const sol::table& gamemode)
+        {
+            const uint32_t idx = static_cast<uint32_t>(gameModes.size());
+            TraceLog(LOG_INFO, std::format("Adding custom lua game mode type with id {}", idx).c_str());
+            this->gameModes.push_back(gamemode);
         };
     });
 }
@@ -75,12 +89,14 @@ void Core::ReloadLua()
         i--;
     }
 
+    gameModes.clear();
+    networkManager.UnregisterPackets();
     modManager.UnloadMods();
     modManager.LoadMods();
 
     AddLuaScenes();
-    networkManager.UnregisterPackets();
     networkManager.RegisterPackets();
+    AddGameModes();
 
     if (m_activesScene >= m_scenes.size())
     {

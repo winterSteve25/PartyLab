@@ -19,5 +19,10 @@ m.exit = function()
 	cpp_exit()
 end
 
+---@return GameMode[]
+m.getAllGameModes = function()
+	return cpp_getAllGameModes()
+end
+
 
 return m

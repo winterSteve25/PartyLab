@@ -52,13 +52,13 @@ void LuaScene::Update()
 
 void LuaScene::Load()
 {
-    if (m_ui.has_value())
+    if (m_load.has_value())
     {
-        m_uiBuilt = new LuaUI(m_ui.value());
+        lua_utils::UnwrapResult(m_load.value()(), "Failed to load a custom lua scene");
     }
 
-    if (!m_load.has_value()) return;
-    lua_utils::UnwrapResult(m_load.value()(), "Failed to load a custom lua scene");
+    if (!m_ui.has_value()) return;
+    m_uiBuilt = new LuaUI(m_ui.value());
 }
 
 void LuaScene::Cleanup()

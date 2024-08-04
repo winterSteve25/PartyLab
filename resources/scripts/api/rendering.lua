@@ -22,9 +22,79 @@ m.drawTexture = function(textureHandle,pos,size)
 end
 
 ---@param textureHandle int
+---@param pos Vector2
+---@param size Vector2
+---@param flipH boolean
+---@param flipV boolean
+---@return nil
+m.drawTextureFlip = function(textureHandle,pos,size,flipH,flipV)
+	cpp_drawTextureFlip(textureHandle,pos,size,flipH,flipV)
+end
+
+---@param textureHandle int
+---@param pos Vector2
+---@param size Vector2
+---@param tint Color
+---@return nil
+m.drawTextureWithTint = function(textureHandle,pos,size,tint)
+	cpp_drawTextureWithTint(textureHandle,pos,size,tint)
+end
+
+---@param textureHandle int
 ---@return Vector2
 m.getTextureSize = function(textureHandle)
 	return cpp_getTextureSize(textureHandle)
+end
+
+---@param pos Vector2
+---@param size Vector2
+---@param color Color
+---@return nil
+m.drawRectangle = function(pos,size,color)
+	cpp_drawRectangle(pos,size,color)
+end
+
+---@param pos Vector2
+---@param size Vector2
+---@return nil
+m.beginScissor = function(pos,size)
+	cpp_beginScissor(pos,size)
+end
+
+---@return nil
+m.endScissor = function()
+	cpp_endScissor()
+end
+
+---@param text string
+---@param fontSize number
+---@param pos Vector2
+---@param color Color
+---@return nil
+m.drawText = function(text,fontSize,pos,color)
+	cpp_drawText(text,fontSize,pos,color)
+end
+
+---@param text string
+---@param fontSize number
+---@return Vector2
+m.measureText = function(text,fontSize)
+	return cpp_measureText(text,fontSize)
+end
+
+---@param size Vector2
+---@param totalSize Vector2
+---@return Vector2
+m.getCenter = function(size,totalSize)
+	return cpp_getCenter(size,totalSize)
+end
+
+---@param x Vector2
+---@param pos Vector2
+---@param size Vector2
+---@return boolean
+m.within = function(x,pos,size)
+	return cpp_within(x,pos,size)
 end
 
 

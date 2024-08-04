@@ -25,7 +25,7 @@ public:
         std::optional<sol::protected_function> handler = m_eventListeners[event];
         if (!handler.has_value()) return;
         sol::protected_function_result result = handler.value()(args(&m_lua)...);
-        lua_utils::UnwrapResult(result, std::optional<std::string>(std::nullopt));
+        lua_utils::UnwrapResult(result, "Failed to run event handler");
     }
 
 private:

@@ -1,12 +1,22 @@
 ---@type Scene
 local m = {}
 
+---@type UIData
 local uiData = nil
 local chatEmpty = true
+local settingsOpen = false
 
 local readyTexture = nil
 local hostTexture = nil
 local selfTexture = nil
+local arrowLeftTexture = nil
+
+---@type GameLobby
+local currentLobby = nil
+local hostSteamID = nil
+local selfSteamID = nil
+
+local flux = nil
 
 local rendering = require("api.rendering")
 local layout = require("api.ui.layout")
@@ -54,8 +64,7 @@ local function makePlayerUIItem(steamID)
         {
             type = "rendered",
             data = {
-                isHost = steam.getCurrentLobby():getHost() == steam.getCurrentUserID(),
-                isSelf = steamID == steam.getCurrentUserID(),
+                isSelf = steamID == selfSteamID,
             },
             style = {
                 alignSelf = layout.self.LAY_FILL,
@@ -74,7 +83,7 @@ local function makePlayerUIItem(steamID)
                 local selfRatio = selfTextureSize.x / selfTextureSize.y
                 local hostRatio = hostTextureSize.x / hostTextureSize.y
                 local readyRatio = readyTextureSize.x / readyTextureSize.y
-                
+
                 local offset = 0
                 local screenwidth = utils.getScreenWidth()
 
@@ -83,8 +92,8 @@ local function makePlayerUIItem(steamID)
                     rendering.drawTexture(selfTexture, pos, eachSize:newX(newx))
                     offset = offset + newx + screenwidth * 0.005
                 end
-                
-                if data.isHost then
+
+                if hostSteamID == steamID then
                     rendering.drawTexture(hostTexture, pos + Vector2(offset, 0), eachSize:newX(sizeY * hostRatio))
                 end
 
@@ -108,10 +117,7 @@ local function playerList(data)
         },
     }
 
-    -----@type GameLobby
-    local lobby = steam.getCurrentLobby()
-
-    for _, v in pairs(lobby:getAllMembers()) do
+    for _, v in pairs(currentLobby:getAllMembers()) do
         table.insert(lst, makePlayerUIItem(v))
     end
 
@@ -158,7 +164,10 @@ local function playerList(data)
                 }),
                 onToggle = function(val)
                     local network = require("api.network")
-                    network.sendPacketReliable(network.targets.Everyone, PACKETS.readyToggle, val)
+                    network.sendPacketReliable(network.targets.Everyone, PACKETS.readyToggle, {
+                        who = selfSteamID.id,
+                        val = val
+                    })
                 end
             },
         },
@@ -251,9 +260,8 @@ local function chat(data)
                         chatEmpty = false
                     end
 
-                    local lobby = steam.getCurrentLobby()
-                    lobby:sendChatString(text)
-                    list.addChild(makeChatUIItem(steam.getCurrentUserID(), text, steam.chatTypes.ChatMessage))
+                    currentLobby:sendChatString(text)
+                    list.addChild(makeChatUIItem(selfSteamID, text, steam.chatTypes.ChatMessage))
                 end,
             },
             {
@@ -350,14 +358,73 @@ local function leftPanel(data)
             },
         },
         {
+            id = "gameModesSelection",
             type = "rendered",
-            style = {},
+            data = {
+                gameModes = require("api.core").getAllGameModes(),
+                scroll = 2,
+                loadedTextures = {}, -- should be in format: scrollIndex = texHandle
+            },
+            style = {
+                alignSelf = layout.self.LAY_FILL,
+            },
             render = function(pos, size, thisData)
-                local settingsOpen = utils.getOr(data, "settings", false)
+                ---@type GameMode[]
+                local gameModes = thisData.gameModes
+                local min = thisData.scroll - 1
+                local max = thisData.scroll + 1
 
-                if settingsOpen then
-                else
+                -- unload unneeded textures
+                for k, v in pairs(thisData.loadedTextures) do
+                    if k < min or k > max then
+                        rendering.unloadTexture(v)
+                        thisData.loadedTextures[k] = nil
+                    end
                 end
+
+                rendering.beginScissor(pos, size);
+
+                for i = min, max, 1 do
+                    if i > 0 and i <= table.getn(gameModes) then
+                        local offset = -(max - i) + 1
+                        local abs = math.abs(offset)
+                        local alpha = abs * 50;
+                        local sizeMul = 1 - abs * 0.1
+                        local length = size.x * 0.7 * sizeMul
+                        local centerX = (size.x - length) / 2
+                        
+                        -- load needed textures
+                        if thisData.loadedTextures[i] == nil then
+                            thisData.loadedTextures[i] = rendering.loadTexture(gameModes[i].iconLocation)
+                        end
+
+                        local texture = thisData.loadedTextures[i]
+                        rendering.drawTextureWithTint(
+                                texture,
+                                Vector2(pos.x + centerX + offset * length * 1.15, pos.y - size.y * 0.1 + (size.y - length) / 2),
+                                Vector2(length, length),
+                                Color(255, 255, 255, 255 - alpha)
+                        )
+                    end
+                end
+
+                rendering.endScissor()
+
+                local screenWidth = utils.getScreenWidth()
+                local screenHeight = utils.getScreenHeight()
+                
+                local name = gameModes[thisData.scroll].name
+                local fontSize = 70 * (screenWidth / 1920 + screenHeight / 1080) * 0.5
+                local textSize = rendering.measureText(name, fontSize)
+                local textPos = pos + Vector2((size.x - textSize.x) / 2, size.y * 0.85 - textSize.y)
+                
+                local arrowSize = rendering.getTextureSize(arrowLeftTexture);
+                local arrowNewSize = Vector2((arrowSize.x / arrowSize.y) * textSize.y * 0.8, textSize.y * 0.8)
+                local arrowY = textSize.y * 0.35
+                
+                rendering.drawText(name, fontSize, textPos, colors.backgroundColor);
+                rendering.drawTexture(arrowLeftTexture, textPos + Vector2(-arrowNewSize.x - textSize.x * 0.5, arrowY), arrowNewSize)
+                rendering.drawTextureFlip(arrowLeftTexture, textPos + Vector2(textSize.x * 1.5, arrowY), arrowNewSize, true, false)
             end
         }
     }
@@ -388,7 +455,7 @@ m.events = {
     lobbyChatMsgReceived = function(sender, msg, type)
         local list = uiData.query("chatList")
 
-        if sender == steam.getCurrentUserID() then
+        if sender == selfSteamID then
             return
         end
 
@@ -401,8 +468,26 @@ m.events = {
     end,
     playerEnteredLobby = function(user)
         uiData.query("playerList").addChild(makePlayerUIItem(user))
+
+        --- when a new player joins if you are the host, tell the new player who is ready and who isn't
+        if hostSteamID ~= selfSteamID then
+            return
+        end
+
+        local network = require("api.network")
+        for _, v in pairs(currentLobby:getAllMembers()) do
+            local isReady = LobbyReadyStatus[v.id]
+            network.sendPacketToReliable(user, PACKETS.readyToggle, {
+                who = v,
+                val = isReady ~= nil and isReady
+            })
+        end
     end,
     playerLeftLobby = function(user)
+        if user == hostSteamID then
+            hostSteamID = currentLobby:getHost()
+        end
+
         uiData.query("playerList").removeChildWithPredicate(function(index, item)
             return item.data.steamID == user
         end)
@@ -413,20 +498,27 @@ m.load = function()
     readyTexture = rendering.loadTexture("resources/check.png")
     hostTexture = rendering.loadTexture("resources/crown.png")
     selfTexture = rendering.loadTexture("resources/self.png")
+    arrowLeftTexture = rendering.loadTexture("resources/arrow_left.png")
+    
+    currentLobby = steam.getCurrentLobby()
+    hostSteamID = currentLobby:getHost()
+    selfSteamID = steam.getCurrentUserID()
 end
 
 m.cleanup = function()
-    if readyTexture ~= nil then
-        rendering.unloadTexture(readyTexture)
-    end
+    rendering.unloadTexture(readyTexture)
+    rendering.unloadTexture(hostTexture)
+    rendering.unloadTexture(selfTexture)
+    rendering.unloadTexture(arrowLeftTexture)
+    
+    currentLobby = nil
+    hostSteamID = nil
+    selfSteamID = nil
+    
+    flux = nil
+end
 
-    if hostTexture ~= nil then
-        rendering.unloadTexture(hostTexture)
-    end
-
-    if selfTexture ~= nil then
-        rendering.unloadTexture(selfTexture)
-    end
+m.update = function()
 end
 
 return m

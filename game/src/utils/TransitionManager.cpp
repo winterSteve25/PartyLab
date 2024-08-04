@@ -1,5 +1,5 @@
 #include "TransitionManager.h"
-#include "Core.h"
+#include "core/Core.h"
 
 void TransitionManager::ExecuteSceneTransition()
 {

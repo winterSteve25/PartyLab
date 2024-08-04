@@ -4,6 +4,7 @@
 
 #define GAME_EVENT_ADD_SCENES "addScenes"
 #define GAME_EVENT_ADD_PACKETS "addPackets"
+#define GAME_EVENT_ADD_GAME_MODES "addGameModes"
 
 #define SCENE_EVENT_LOBBY_PLAYER_ENTERED "playerEnteredLobby"
 #define SCENE_EVENT_LOBBY_PLAYER_LEFT "playerLeftLobby"

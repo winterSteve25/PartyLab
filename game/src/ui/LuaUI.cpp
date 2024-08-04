@@ -107,8 +107,18 @@ void LuaUI::Update()
         m_needsRebuild = false;
     }
 
-    for (UIElement* element : m_components)
+    for (int i = 0; i < m_components.size(); i++)
     {
+        UIElement* element = m_components[i];
+
+        if (element->markedDead)
+        {
+            delete element;
+            m_components.erase(m_components.begin() + i);
+            i--;
+            continue;
+        }
+
         element->Update();
     }
 

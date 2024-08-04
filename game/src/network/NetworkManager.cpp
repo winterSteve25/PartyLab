@@ -21,7 +21,7 @@ void NetworkManager::UnregisterPackets()
 
 void NetworkManager::RegisterPackets()
 {
-    Core::INSTANCE->modManager.BroadcastEvent<std::function<int(const sol::table&)>>(
+    Core::INSTANCE->modManager.BroadcastEvent<std::function<uint32_t(const sol::table&)>>(
         GAME_EVENT_ADD_PACKETS, [this](sol::state*)
         {
             return [this](const sol::table& packet)
@@ -158,7 +158,7 @@ void NetworkManager::HandleMessages()
     // TODO: investigate this, this call blocks forever sometimes 
     int msgCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, m_messageBuffer, message_buffer_size);
     if (msgCount <= 0) return;
-
+    
     for (int i = 0; i < msgCount; i++)
     {
         SteamNetworkingMessage_t* msg = m_messageBuffer[i];

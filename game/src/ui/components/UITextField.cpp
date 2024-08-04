@@ -38,6 +38,24 @@ void UITextField::Render(const lay_context* ctx)
 
     if (m_focused)
     {
+        if (IsKeyDown(KEY_BACKSPACE))
+        {
+            m_backspaceTime += GetFrameTime();
+        }
+        else
+        {
+            m_backspaceTime = 0;
+        }
+
+        if (IsKeyDown(KEY_DELETE))
+        {
+            m_deleteTime += GetFrameTime();
+        }
+        else
+        {
+            m_deleteTime = 0;
+        }
+
         Vector2 textSize = ui_helper::MeasureText(m_text.substr(0, m_cursorIdx).c_str(), m_fontSize.Get());
 
         if (m_text.empty())
@@ -56,13 +74,12 @@ void UITextField::Render(const lay_context* ctx)
 
         if (!m_text.empty())
         {
-            if (m_cursorIdx > 0 && IsKeyPressed(KEY_BACKSPACE))
+            if (m_cursorIdx > 0 && (IsKeyPressed(KEY_BACKSPACE) || m_backspaceTime > 0.6))
             {
                 m_text.erase(m_cursorIdx - 1, 1);
                 m_cursorIdx--;
             }
-
-            if (m_cursorIdx < m_text.size() + 1 && IsKeyPressed(KEY_DELETE))
+            else if (m_cursorIdx < m_text.size() + 1 && (IsKeyPressed(KEY_DELETE) || m_deleteTime > 0.6))
             {
                 m_text.erase(m_cursorIdx, 1);
             }
@@ -105,10 +122,7 @@ void UITextField::ApplyStyles(const Style& style, bool doTransition)
 sol::table UITextField::CreateLuaObject(lua_State* L)
 {
     sol::table table = UIElement::CreateLuaObject(L);
-    table["submit"] = [this]()
-    {
-        Submit();
-    };
+    table["submit"] = [this]() { Submit(); };
     return table;
 }
 

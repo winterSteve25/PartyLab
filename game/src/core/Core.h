@@ -2,8 +2,8 @@
 #include <vector>
 
 #include "raylib.h"
-#include "TransitionManager.h"
-#include "SimpleTweenManager.h"
+#include "utils/TransitionManager.h"
+#include "utils/SimpleTweenManager.h"
 #include "assets/ResourceManager.h"
 #include "lua/LuaScene.h"
 #include "lua/ModManager.h"
@@ -31,6 +31,7 @@ public:
      */
     size_t AddScene(LuaScene* scene);
     void AddLuaScenes();
+    void AddGameModes();
 
     /**
      * Broadcasts a scene event to the active scene. This is different from the global events dispatched through ModManager
@@ -53,6 +54,7 @@ public:
     ModManager modManager;
     LuaAsyncManager luaAsyncManager;
     ResourceManager resourceManager;
+    std::vector<sol::table> gameModes;
     
     SimpleTweenManager<float> floatTweenManager;
     SimpleTweenManager<float, float> vec2TweenManager;
