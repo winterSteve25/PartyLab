@@ -30,7 +30,8 @@ UIElement::UIElement(const sol::table& table):
     m_isHeldDown(false),
     m_isHovering(false),
     m_randItemColor(Color(GetRandomValue(0, 255), GetRandomValue(0, 255),
-                          GetRandomValue(0, 255), 255))
+                          GetRandomValue(0, 255), 255)),
+    m_onDestroy(table.get<sol::optional<sol::protected_function>>("onDestroy"))
 {
 }
 
@@ -68,6 +69,14 @@ void UIElement::AdjustLayout(lay_context* ctx)
 {
     Vector2 size = sRatio.Apply(GetSize(ctx));
     lay_set_size_xy(ctx, id, SCALER_CAST(size.x), SCALER_CAST(size.y));
+}
+
+UIElement::~UIElement()
+{
+    if (m_onDestroy.has_value())
+    {
+        m_onDestroy.value()(m_customData);
+    }
 }
 
 void UIElement::Update()

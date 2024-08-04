@@ -7,7 +7,13 @@ namespace ui_helper
     Vector2 DrawText(const char* text, float fontSize, Vector2 pos, Color color)
     {
         Vector2 size = MeasureText(text, fontSize);
+        
+        // the default font size is a bit bigger than it actually is so we need to do some hacky stuff
+        pos.y -= size.y * 0.24f;
+        BeginShaderMode(game_assets::SDF_SHADER);
         DrawTextEx(game_assets::GAME_FONT, text, pos, fontSize, 1, color);
+        EndShaderMode();
+
         return size;
     }
 

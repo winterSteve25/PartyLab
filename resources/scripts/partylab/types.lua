@@ -13,9 +13,11 @@ local Vector2 = {}
 local Color = {}
 
 ---@class UI
+---@field id string
 ---@field type string
+---@field data table
 ---@field style Style
----@field children UI[]
+---@field onDestroy fun(data: table)
 local UI = {}
 
 ---@class Style
@@ -94,6 +96,12 @@ function GameLobby:setData(key, value) end
 ---@param key string
 ---@return string
 function GameLobby:getData(key) end
+
+---@return number
+function GameLobby:getMemberLimit() end
+
+---@return number
+function GameLobby:getMemberCount() end
 
 ---@class Packet
 ---@field serializer nil | fun(memory: MemoryWriter, data: any)

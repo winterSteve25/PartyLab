@@ -43,6 +43,11 @@ int GameLobby::GetMemberCount() const
     return SteamMatchmaking()->GetNumLobbyMembers(m_lobbyId);
 }
 
+int GameLobby::GetMemberLimit() const
+{
+    return SteamMatchmaking()->GetLobbyMemberLimit(m_lobbyId);
+}
+
 void GameLobby::SetData(const std::string& key, const std::string& value) const
 {
     SteamMatchmaking()->SetLobbyData(m_lobbyId, key.c_str(), value.c_str());

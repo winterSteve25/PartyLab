@@ -1,11 +1,21 @@
-
 TransitionData = {
     lobbyStatus = nil,
     joining = nil,
 }
 
-LobbyReadyStatus = {
+LobbyData = {
+    isEveryoneReady = false,
+    ready = {},
+    gameMode = 1,
 }
+
+function resetLobbyData()
+    LobbyData = {
+        isEveryoneReady = false,
+        ready = {},
+        gameMode = 1,
+    }
+end
 
 SCENES = {}
 PACKETS = {}

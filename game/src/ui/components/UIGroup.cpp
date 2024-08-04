@@ -77,7 +77,7 @@ void UIGroup::Update()
         }
     }
 
-    m_queuedRemoveChild.clear();
+    m_queuedRemoveChildPredicate.clear();
 
     for (const sol::table& t : m_queuedAddChild)
     {
@@ -162,7 +162,7 @@ sol::optional<UIElement*> UIGroup::Find(const std::string& id)
         if (c.has_value()) return c;
     }
 
-    return sol::optional<UIElement*>(sol::nullopt);
+    return {sol::nullopt};
 }
 
 sol::table UIGroup::CreateLuaObject(lua_State* L)

@@ -9,11 +9,12 @@ end
 
 m.addPackets = function(registrar)
     PACKETS.readyToggle = registrar(require("base.packets.readytoggle"))
+    PACKETS.chooseGamemode = registrar(require("base.packets.chooseGamemode"))
 end
 
 m.addGameModes = function(registrar) 
     registrar({
-        name = "Word Mania",
+        name = "Word Mania 1",
         description = "Jumbo the words",
         iconLocation = "resources/Word Mania.png",
         maxPlayers = 8,
@@ -22,7 +23,7 @@ m.addGameModes = function(registrar)
     })
 
     registrar({
-        name = "Word Mania",
+        name = "Word Mania 2",
         description = "Jumbo the words",
         iconLocation = "resources/Word Mania.png",
         maxPlayers = 8,
@@ -31,7 +32,7 @@ m.addGameModes = function(registrar)
     })
 
     registrar({
-        name = "Word Mania",
+        name = "Word Mania 3",
         description = "Jumbo the words",
         iconLocation = "resources/Word Mania.png",
         maxPlayers = 8,

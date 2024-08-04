@@ -96,7 +96,7 @@ void SteamEvents::OnJoinLobbyRequested(GameLobbyJoinRequested_t* pParam)
 {
     SteamIDWrapper lobby(pParam->m_steamIDLobby);
     SteamIDWrapper fr(pParam->m_steamIDFriend);
-    
+
     Core::INSTANCE->BroadcastSceneEvent<SteamIDWrapper, SteamIDWrapper>(SCENE_EVENT_JOIN_LOBBY_REQUEST,
         [lobby](sol::state_view* stateview)
         {

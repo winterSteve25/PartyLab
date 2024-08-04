@@ -132,5 +132,31 @@ m.isMouseClicked = function(button)
 	return cpp_isMouseClicked(button)
 end
 
+---@return Vector2
+m.getMousePosition = function()
+	return cpp_getMousePosition()
+end
+
+---@return Vector2
+m.getMouseDelta = function()
+	return cpp_getMouseDelta()
+end
+
+---@return boolean
+m.isMouseLeftDown = function()
+	return cpp_isMouseLeftDown()
+end
+
+---@return boolean
+m.isMouseRightDown = function()
+	return cpp_isMouseRightDown()
+end
+
+---@param button number
+---@return boolean
+m.isMouseDown = function(button)
+	return cpp_isMouseDown(button)
+end
+
 
 return m

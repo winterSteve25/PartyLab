@@ -96,8 +96,6 @@ void UITextField::Render(const lay_context* ctx)
         }
     }
 
-    pos.y -= size.y * 0.24f;
-
     if (m_text.empty() && !m_focused)
     {
         Color c = game_assets::BACKGROUND_COLOR;

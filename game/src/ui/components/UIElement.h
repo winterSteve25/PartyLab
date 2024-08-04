@@ -14,7 +14,7 @@ class UIElement
 {
 public:
     
-    virtual ~UIElement() = default;
+    virtual ~UIElement();
     virtual void Update();
     virtual void Render(const lay_context* ctx);
     virtual void ApplyDefaultStyles();
@@ -71,4 +71,6 @@ private:
     bool m_isHeldDown;
     bool m_isHovering;
     Color m_randItemColor;
+
+    sol::optional<sol::protected_function> m_onDestroy;
 };

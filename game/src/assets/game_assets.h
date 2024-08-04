@@ -4,6 +4,7 @@
 namespace game_assets
 {
     inline Font GAME_FONT;
+    inline Shader SDF_SHADER;
     
     inline Color TEXT_COLOR = { 22, 22, 22, 255 };
     inline Color ACCENT_COLOR = { 8, 88, 182, 255 };

@@ -17,7 +17,7 @@ void main()
 {
     // Texel color fetching from texture sampler
     // NOTE: Calculate alpha using signed distance field (SDF)
-    float distanceFromOutline = texture(texture0, fragTexCoord).a - 0.5;
+    float distanceFromOutline = texture(texture0, fragTexCoord).a - 0.52;
     float distanceChangePerFragment = length(vec2(dFdx(distanceFromOutline), dFdy(distanceFromOutline)));
     float alpha = smoothstep(-distanceChangePerFragment, distanceChangePerFragment, distanceFromOutline);
 

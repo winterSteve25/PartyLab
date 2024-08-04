@@ -37,6 +37,12 @@ public:
     }
     
 private:
+    static const std::string render_err;
+    static const std::string overlay_err;
+    static const std::string update_err;
+    static const std::string load_err;
+    static const std::string cleanup_err;
+    
     sol::optional<sol::protected_function> m_render;
     sol::optional<sol::protected_function> m_renderOverlay;
     sol::optional<sol::protected_function> m_update;

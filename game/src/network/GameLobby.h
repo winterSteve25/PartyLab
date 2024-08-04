@@ -20,6 +20,7 @@ public:
     void SendChatString(const std::string& message) const;
     void GetAllMembers(std::vector<SteamIDWrapper>* members) const;
     int GetMemberCount() const;
+    int GetMemberLimit() const;
     void SetData(const std::string& key, const std::string& value) const;
     std::string GetData(const std::string& key) const;
 

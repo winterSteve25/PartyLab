@@ -294,7 +294,7 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
     {
         return ui_helper::Within(GetMousePosition(), pos, size);
     });
-
+    
     AddCppFunc(state, "isMouseLeftClicked", []()
     {
         return IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
@@ -305,10 +305,20 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
         return IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
     });
     
-    AddCppFunc(state, "isMouseClicked", [](const int& btn)
+    AddCppFunc(state, "isMouseLeftDown", []()
     {
-        return IsMouseButtonPressed(btn);
+        return IsMouseButtonDown(MOUSE_BUTTON_LEFT);
     });
+    
+    AddCppFunc(state, "isMouseRightDown", []()
+    {
+        return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
+    });
+    
+    AddCppFunc(state, "getMousePosition", GetMousePosition);
+    AddCppFunc(state, "getMouseDelta", GetMouseDelta);
+    AddCppFunc(state, "isMouseClicked", IsMouseButtonPressed);
+    AddCppFunc(state, "isMouseDown", IsMouseButtonDown);
 
     lua_steam_hook::AddCppFuncs(state, privileged, modDir);
     lua_network_hook::AddCppFuncs(state, privileged, modDir);

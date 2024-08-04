@@ -21,8 +21,8 @@ m.update = function()
     if not lobbyReady then
         return
     end
-
-    LobbyReadyStatus = {}
+    
+    resetLobbyData()
     require("partylab.core").transitionTo(SCENES.lobby)
 end
 

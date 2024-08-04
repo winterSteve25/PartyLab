@@ -46,24 +46,16 @@ void lua_steam_hook::AddCppTypes(sol::state* state, bool privileged)
         {
             return static_cast<SteamIDWrapper>(gameLobby.GetHost());
         },
-        "sendChatString", [](const GameLobby& gameLobby, const std::string& str)
-        {
-            gameLobby.SendChatString(str);
-        },
+        "sendChatString", &GameLobby::SendChatString,
         "getAllMembers", [](const GameLobby& gameLobby)
         {
             std::vector<SteamIDWrapper> v;
             gameLobby.GetAllMembers(&v);
             return sol::as_table(v);
         },
-        "getData", [](const GameLobby& gameLobby, const std::string& key)
-        {
-            return gameLobby.GetData(key);
-        },
-        "setData", [](const GameLobby& gameLobby, const std::string& key, const std::string& val)
-        {
-            gameLobby.SetData(key, val);
-        }
+        "getMemberCount", &GameLobby::GetMemberCount,
+        "getData", &GameLobby::GetData,
+        "setData", &GameLobby::SetData
     );
 }
 
