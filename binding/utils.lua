@@ -67,3 +67,17 @@ m.getFirst = function(t, predicate, default)
     
     return default
 end
+
+---@param num number
+---@return number Returns -1 of the number is negative, 1 if positive, 0 if 0
+m.signof = function(num)
+    if num < 0 then
+        return -1
+    end
+
+    if num > 0 then
+        return 1
+    end
+    
+    return 0
+end

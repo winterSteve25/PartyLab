@@ -38,6 +38,11 @@ funcs = {
         ("isMouseLeftClicked", "boolean", []),
         ("isMouseRightClicked", "boolean", []),
         ("isMouseClicked", "boolean", [("number", "button")]),
+        ("getMousePosition", "Vector2", []),
+        ("getMouseDelta", "Vector2", []),
+        ("isMouseLeftDown", "boolean", []),
+        ("isMouseRightDown", "boolean", []),
+        ("isMouseDown", "boolean", [("number", "button")]),
     ],
 }
 
