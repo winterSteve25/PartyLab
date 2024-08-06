@@ -2,6 +2,10 @@
 
 #include <cstdint>
 
+#ifdef __linux__
+#include <cstddef>
+#endif
+
 namespace game_assets
 {
     void LoadAssets()
