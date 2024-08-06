@@ -48,15 +48,16 @@ end
 
 local function link_luajit() 
     includedirs { "../luajit/include", "luajit/include" }
-    libdirs { "../luajit", "luajit" }
     
     filter { "system:windows", "platforms:x86" }
-        links { "lua51-x86", "luajit-x86" }
-    	postbuildcommands { "{COPYFILE} \"../luajit/lua51.dll\" \"../bin/%{cfg.buildcfg}\"" }
+        libdirs { "../luajit/win32" }
+        links { "lua51", "luajit" }
+    	postbuildcommands { "{COPYFILE} \"../luajit/win32/lua51.dll\" \"../bin/%{cfg.buildcfg}\"" }
     
     filter { "system:windows", "platforms:x64" }
+        libdirs { "../luajit/win64" }
         links { "lua51", "luajit" }
-    	postbuildcommands { "{COPYFILE} \"../luajit/lua51.dll\" \"../bin/%{cfg.buildcfg}\"" }
+    	postbuildcommands { "{COPYFILE} \"../luajit/win64/lua51.dll\" \"../bin/%{cfg.buildcfg}\"" }
     
     filter { "system:linux", "platforms:x64" }
         libdirs { "../luajit/linux64" }
@@ -96,7 +97,7 @@ project (workspaceName)
         ["Source Files/*"] = {"src/**.c", "src/**.cpp","**.c", "**.cpp", "include/**.tcc" },
     }
 
-    -- defines { "SOL_LUAJIT=1" }
+    defines { "SOL_LUAJIT=1" }
     files {"**.c", "**.cpp", "**.h", "**.hpp", "**.tcc" }
 
     link_luajit()
