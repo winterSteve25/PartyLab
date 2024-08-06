@@ -13,4 +13,5 @@ namespace game_assets
     inline Color BACKGROUND_COLOR = { 243, 243, 243, 255 };
     
     void LoadAssets();
+    void UnloadAssets();
 }

@@ -15,6 +15,7 @@ namespace properties
     ColorProperty ColorProp(const Color& def);
     ColorProperty BackgroundColorProp(const Color& def);
     BooleanProperty CanClipProp();
+    BooleanProperty Scrollable();
     DirectionalProperty PaddingLeft();
     DirectionalProperty PaddingRight();
     DirectionalProperty PaddingTop();

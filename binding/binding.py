@@ -40,9 +40,15 @@ funcs = {
         ("isMouseClicked", "boolean", [("number", "button")]),
         ("getMousePosition", "Vector2", []),
         ("getMouseDelta", "Vector2", []),
+        ("getMouseWheel", "Vector2", []),
         ("isMouseLeftDown", "boolean", []),
         ("isMouseRightDown", "boolean", []),
         ("isMouseDown", "boolean", [("number", "button")]),
+        ("rlPushMatrix", "nil", []),
+        ("rlPopMatrix", "nil", []),
+        ("rlRotate", "nil", [("number", "angleInDeg"), ("number", "x"), ("number", "y"), ("number", "z")]),
+        ("rlTranslate", "nil", [("number", "x"), ("number", "y"), ("number", "z")]),
+        ("rlScale", "nil", [("number", "x"), ("number", "y"), ("number", "z")]),
     ],
 }
 

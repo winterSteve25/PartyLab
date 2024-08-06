@@ -56,6 +56,9 @@ protected:
     std::optional<std::string> m_id;
     sol::optional<sol::table> m_customData;
     
+    bool m_isHeldDown;
+    bool m_isHovering;
+    
     virtual void OnEnterHover();
     virtual void OnExitHover();
     virtual void OnClick();
@@ -68,9 +71,6 @@ protected:
 private:
     void CheckEvents(const lay_context* ctx, const Vector2& pos, const Vector2& size);
 
-    bool m_isHeldDown;
-    bool m_isHovering;
     Color m_randItemColor;
-
     sol::optional<sol::protected_function> m_onDestroy;
 };

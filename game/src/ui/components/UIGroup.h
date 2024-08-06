@@ -23,7 +23,8 @@ public:
     void AddToLayout(lay_context* ctx, lay_id root) override;
 
 protected:
-    void OnScrolled(const lay_context* ctx, float deltaX, float deltaY) override;
+    float m_scrollOffsetX;
+    float m_scrollOffsetY;
 
 private:
     std::vector<UIElement*> m_components;
@@ -33,7 +34,4 @@ private:
     bool m_clearAllChildren;
 
     BooleanProperty m_enableClipping;
-
-    float m_scrollOffsetX;
-    float m_scrollOffsetY;
 };

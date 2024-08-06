@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 
+#include "raylib.h"
 #include "tweeny/tweeny.h"
 #include "utils/Managed.h"
 

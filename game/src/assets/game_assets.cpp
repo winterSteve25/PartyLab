@@ -21,7 +21,12 @@ namespace game_assets
         UnloadFileData(fileData);
 
         SetTextureFilter(GAME_FONT.texture, TEXTURE_FILTER_BILINEAR);
+        SDF_SHADER = LoadShader("resources/shaders/sdf_vs.glsl", "resources/shaders/sdf_fs.glsl");
+    }
 
-        SDF_SHADER = LoadShader(NULL, "resources/shaders/sdf.fs");
+    void UnloadAssets()
+    {
+        UnloadFont(GAME_FONT);
+        UnloadShader(SDF_SHADER);
     }
 }

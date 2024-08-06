@@ -7,6 +7,7 @@
 #include "lua/async/WaitFor.h"
 #include "ui/Transition.h"
 #include "ui/ui_helper.h"
+#include "rlgl.h"
 
 template <typename Func>
 static void AddCppFunc(sol::state* state, const std::string& name, Func&& fn)
@@ -317,8 +318,15 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
     
     AddCppFunc(state, "getMousePosition", GetMousePosition);
     AddCppFunc(state, "getMouseDelta", GetMouseDelta);
+    AddCppFunc(state, "getMouseWheel", GetMouseWheelMoveV);
     AddCppFunc(state, "isMouseClicked", IsMouseButtonPressed);
     AddCppFunc(state, "isMouseDown", IsMouseButtonDown);
+
+    AddCppFunc(state, "rlPushMatrix", rlPushMatrix);
+    AddCppFunc(state, "rlPopMatrix", rlPopMatrix);
+    AddCppFunc(state, "rlRotate", rlRotatef);
+    AddCppFunc(state, "rlTranslate", rlTranslatef);
+    AddCppFunc(state, "rlScale", rlScalef);
 
     lua_steam_hook::AddCppFuncs(state, privileged, modDir);
     lua_network_hook::AddCppFuncs(state, privileged, modDir);

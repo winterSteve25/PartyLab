@@ -8,10 +8,16 @@
 #include "lua/LuaConstants.h"
 #include "steam/SteamIDWrapper.h"
 
-NetworkManager::NetworkManager()
+NetworkManager::NetworkManager():
+    m_messageBuffer(static_cast<SteamNetworkingMessage_t**>(malloc(message_buffer_size * sizeof(SteamNetworkingMessage_t*))))
 {
     SteamNetworkingUtils()->InitRelayNetworkAccess();
     m_currentLobbyPlayers.reserve(4);
+}
+
+NetworkManager::~NetworkManager()
+{
+    free(m_messageBuffer);
 }
 
 void NetworkManager::UnregisterPackets()
@@ -62,7 +68,8 @@ void NetworkManager::OnLobbyCreated(LobbyCreated_t* lobby, bool failed)
     TraceLog(LOG_INFO, "Steam lobby created");
 }
 
-void NetworkManager::SendMessage(const NetworkTarget target, const std::optional<SteamIDWrapper>& specifiedTarget, uint32_t type, const sol::object& data, int flags = -1)
+void NetworkManager::SendMessage(const NetworkTarget target, const std::optional<SteamIDWrapper>& specifiedTarget,
+                                 uint32_t type, const sol::object& data, int flags = -1)
 {
     if (type < 0 || type > m_packets.size())
     {
@@ -71,7 +78,7 @@ void NetworkManager::SendMessage(const NetworkTarget target, const std::optional
     }
 
     auto currentUser = SteamUser()->GetSteamID();
-    
+
     if (target == EVERYONE)
     {
         m_packets[type].RawHandle(currentUser, data);
@@ -99,13 +106,14 @@ void NetworkManager::SendMessage(const NetworkTarget target, const std::optional
     m_memWriter.WriteGeneric<uint32_t>(type);
     m_memWriter.WriteGeneric<uint64>(currentUser.ConvertToUint64());
     t.Serialize(m_memWriter, data);
-    
+
     std::vector<SteamNetworkingIdentity> identities;
     SetTarget(target, &identities, specifiedTarget);
-    
+
     for (const SteamNetworkingIdentity& tar : identities)
     {
-        SteamNetworkingMessages()->SendMessageToUser(tar, m_memWriter.GetPtr(), static_cast<uint32>(m_memWriter.GetSize()), flags, 0);
+        SteamNetworkingMessages()->SendMessageToUser(tar, m_memWriter.GetPtr(),
+                                                     static_cast<uint32>(m_memWriter.GetSize()), flags, 0);
     }
 }
 
@@ -125,7 +133,8 @@ void NetworkManager::HandleMessage(const SteamNetworkingMessage_t* message) cons
     t.Handle(id, reader);
 }
 
-void NetworkManager::SetTarget(const NetworkTarget& target, std::vector<SteamNetworkingIdentity>* identities, std::optional<SteamIDWrapper> specifiedTarget)
+void NetworkManager::SetTarget(const NetworkTarget& target, std::vector<SteamNetworkingIdentity>* identities,
+                               std::optional<SteamIDWrapper> specifiedTarget)
 {
     switch (target)
     {
@@ -158,7 +167,7 @@ void NetworkManager::HandleMessages()
     // TODO: investigate this, this call blocks forever sometimes 
     int msgCount = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, m_messageBuffer, message_buffer_size);
     if (msgCount <= 0) return;
-    
+
     for (int i = 0; i < msgCount; i++)
     {
         SteamNetworkingMessage_t* msg = m_messageBuffer[i];

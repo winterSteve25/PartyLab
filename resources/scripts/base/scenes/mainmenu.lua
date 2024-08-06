@@ -1,10 +1,12 @@
 ---@type Scene
 local m = {}
 
+local utils = require("partylab.utils")
 local colors = require("partylab.ui.colors")
 local layout = require("partylab.ui.layout")
 local styles = require("partylab.ui.styles")
 local core = require("partylab.core")
+local rendering = require("partylab.rendering")
 
 local ui = {
     style = {

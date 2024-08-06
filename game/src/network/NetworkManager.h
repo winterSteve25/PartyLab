@@ -13,6 +13,7 @@ class NetworkManager
 {
 public:
     NetworkManager();
+    ~NetworkManager();
 
     void UnregisterPackets();
     void RegisterPackets();
@@ -30,7 +31,7 @@ private:
     std::vector<PacketType> m_packets;
     // not guaranteed to be up-to-date, before using should call GameLobby::getAllMembers
     std::vector<SteamIDWrapper> m_currentLobbyPlayers;
-    SteamNetworkingMessage_t* m_messageBuffer[message_buffer_size];
+    SteamNetworkingMessage_t** m_messageBuffer;
 
     void HandleMessage(const SteamNetworkingMessage_t* message) const;
     void SetTarget(const NetworkTarget& target, std::vector<SteamNetworkingIdentity>* identity, std::optional<SteamIDWrapper> specifiedTarget);

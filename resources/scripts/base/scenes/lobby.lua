@@ -115,16 +115,18 @@ end
 
 local function playerList(data)
     local lst = {
+        type = "scrollable",
         id = "playerList",
         style = {
             alignSelf = layout.self.LAY_FILL,
             alignItems = bit32.bor(layout.items.LAY_COLUMN, layout.items.LAY_START),
             clip = true,
         },
+        children = {},
     }
 
     for _, v in pairs(currentLobby:getAllMembers()) do
-        table.insert(lst, makePlayerUIItem(v))
+        table.insert(lst.children, makePlayerUIItem(v))
     end
 
     return {
@@ -225,19 +227,22 @@ local function chat(data)
             marginTop = 0.02,
         },
         {
+            type = "scrollable",
             id = "chatList",
             style = {
                 alignItems = bit32.bor(layout.items.LAY_COLUMN, layout.items.LAY_START),
                 alignSelf = layout.self.LAY_FILL,
                 clip = true,
             },
-            {
-                "There is nothing in chat",
-                style = {
-                    color = colors.backgroundColor:newA(150),
-                    marginTop = 0.03,
-                },
-            }
+            children = {
+                {
+                    "There is nothing in chat",
+                    style = {
+                        color = colors.backgroundColor:newA(150),
+                        marginTop = 0.03,
+                    },
+                }
+            },
         },
         {
             style = {
@@ -259,6 +264,10 @@ local function chat(data)
                     fontSize = 48,
                 },
                 onSubmit = function(text)
+                    if string.len(text) == 0 then
+                        return
+                    end
+
                     local list = uiData.query("chatList")
 
                     if chatEmpty then
@@ -268,6 +277,7 @@ local function chat(data)
 
                     currentLobby:sendChatString(text)
                     list.addChild(makeChatUIItem(selfSteamID, text, steam.chatTypes.ChatMessage))
+                    list.scrollToY(1.0)
                 end,
             },
             {
@@ -476,8 +486,15 @@ local function makeGameModeSwitcher()
             rendering.drawText(name, fontSize, textPos, colors.backgroundColor)
             if amIhost then
 
-                if rendering.isMouseLeftClicked() and rendering.isMouseHovering(pos, size) then
-                    local deltaM = -utils.signof(rendering.getMouseDelta().x)
+                if rendering.isMouseHovering(pos, size) then
+                    if rendering.isMouseLeftClicked() then
+                        local deltaM = -utils.signof(rendering.getMouseDelta().x)
+                        if deltaM ~= 0 and thisData.scroll + deltaM <= numbGameModes and thisData.scroll + deltaM >= 1 then
+                            switchGameMode(thisData, deltaM)
+                        end
+                    end
+
+                    local deltaM = -utils.signof(rendering.getMouseWheel().y)
                     if deltaM ~= 0 and thisData.scroll + deltaM <= numbGameModes and thisData.scroll + deltaM >= 1 then
                         switchGameMode(thisData, deltaM)
                     end
@@ -667,6 +684,7 @@ m.events = {
         end
 
         list.addChild(makeChatUIItem(sender, msg, type))
+        list.scrollToY(1.0)
     end,
     playerEnteredLobby = function(user)
         uiData.query("playerList").addChild(makePlayerUIItem(user))

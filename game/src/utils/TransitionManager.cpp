@@ -7,10 +7,10 @@ void TransitionManager::ExecuteSceneTransition()
     Core::INSTANCE->floatTweenManager.DeleteAll();
     Core::INSTANCE->vec2TweenManager.DeleteAll();
 
-     Core::INSTANCE->m_scenes[Core::INSTANCE->m_activesScene]->Cleanup();
-     Core::INSTANCE->m_scenes[Core::INSTANCE->m_loadingScene]->Load();
-     Core::INSTANCE->m_activesScene = Core::INSTANCE->m_loadingScene;
-     Core::INSTANCE->m_loadingScene = -1;
+    Core::INSTANCE->m_scenes[Core::INSTANCE->m_activesScene]->Cleanup();
+    Core::INSTANCE->m_scenes[Core::INSTANCE->m_loadingScene]->Load();
+    Core::INSTANCE->m_activesScene = Core::INSTANCE->m_loadingScene;
+    Core::INSTANCE->m_loadingScene = -1;
 }
 
 TransitionManager::TransitionManager():
@@ -64,12 +64,13 @@ bool TransitionManager::IsInTransition() const
     return m_inTransition;
 }
 
-static void render_transition(float percentage)
+// percentage goes from 1 to 0 to -1
+static void RenderTransition(float percentage)
 {
     DrawRectangle(0, static_cast<int>(GetScreenHeight() * percentage), GetScreenWidth(), GetScreenHeight(), BLACK);
 }
 
-static float ease(float t)
+static float Ease(float t)
 {
     return 1.0f - static_cast<float>(pow(1 - t, 5));
 }
@@ -79,22 +80,15 @@ void TransitionManager::Render()
     if (!m_inTransition) return;
     m_transitionTime += GetFrameTime();
 
-    if (m_transitionTime >= 0)
-    {
-        float t = ease(m_transitionTime / m_totalTransitionTime);
-        render_transition(m_readyToFinishTransition ? -t : (1 - t));
-    }
-    else
-    {
-        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
-    }
+    float t = Ease(m_transitionTime / m_totalTransitionTime);
+    RenderTransition(m_readyToFinishTransition ? -t : (1 - t));
 
     if (m_transitionTime < m_totalTransitionTime) return;
     if (m_readyToFinishTransition)
     {
         // finished transition
         m_readyToFinishTransition = false;
-        m_transitionTime = 0;
+        m_transitionTime = 0.0f;
         m_inTransition = false;
     }
     else
@@ -103,7 +97,7 @@ void TransitionManager::Render()
         m_callback();
         m_readyToFinishTransition = true;
         m_transitionTime = 0.0f;
-        EndDrawing(); // used to reset frame time so the outro animation wont be cut if loading takes long
+        EndDrawing();
         BeginDrawing();
     }
 }

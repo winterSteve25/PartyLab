@@ -37,7 +37,6 @@ UISteamImage::UISteamImage(const sol::table& table):
     {
         int handle = lua_utils::UnwrapResult<int>(result, "Failed to get image handle");
         m_textureHandle = handle;
-        TraceLog(LOG_INFO, std::format("Using {} texture", m_textureHandle).c_str());
 
         if (m_storedTextures.contains(handle))
         {

@@ -8,7 +8,6 @@ Core* Core::INSTANCE = nullptr;
 
 Core::Core(int defaultScene) :
     shouldExit(false),
-    m_luaSceneStartIdx(-1),
     m_activesScene(defaultScene),
     m_loadingScene(-1)
 {
@@ -35,7 +34,6 @@ size_t Core::AddScene(LuaScene* scene)
 
 void Core::AddLuaScenes()
 {
-    m_luaSceneStartIdx = m_scenes.size();
     modManager.BroadcastEvent<std::function<uint32_t(const sol::table&)>>(GAME_EVENT_ADD_SCENES, [this](sol::state*)
     {
         return [this](const sol::table& scene)
@@ -75,7 +73,7 @@ void Core::ReloadLua()
     colorTweenManager.DeleteAll();
     vec2TweenManager.DeleteAll();
 
-    for (int i = m_luaSceneStartIdx; i < m_scenes.size(); i++)
+    for (int i = 0; i < m_scenes.size(); i++)
     {
         LuaScene* scene = m_scenes[i];
 
@@ -85,13 +83,16 @@ void Core::ReloadLua()
         }
 
         delete scene;
-        m_scenes.erase(m_scenes.begin() + i);
-        i--;
     }
 
+    m_scenes.clear();
     gameModes.clear();
     networkManager.UnregisterPackets();
     modManager.UnloadMods();
+
+    game_assets::UnloadAssets();
+    game_assets::LoadAssets();
+
     modManager.LoadMods();
 
     AddLuaScenes();
@@ -110,11 +111,6 @@ void Core::Render(Camera2D& camera)
 {
     ClearBackground(game_assets::BACKGROUND_COLOR);
 
-    if (m_activesScene >= 0)
-    {
-        m_scenes[m_activesScene]->RenderOverlay();
-    }
-
     BeginMode2D(camera);
 
     if (m_activesScene >= 0)
@@ -123,6 +119,12 @@ void Core::Render(Camera2D& camera)
     }
 
     EndMode2D();
+
+    if (m_activesScene >= 0)
+    {
+        m_scenes[m_activesScene]->RenderOverlay();
+    }
+
     transitionManager.Render();
 }
 

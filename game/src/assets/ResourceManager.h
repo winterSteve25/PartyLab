@@ -13,7 +13,6 @@ public:
     Texture2D GetTex(int handle);
 private:
     std::unordered_map<int, Texture2D> m_loadedTextures;
-    std::unordered_map<int, int> m_loadedTexturesRc;
 
     int m_next;
 };

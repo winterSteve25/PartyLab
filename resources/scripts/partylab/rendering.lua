@@ -142,6 +142,11 @@ m.getMouseDelta = function()
 	return cpp_getMouseDelta()
 end
 
+---@return Vector2
+m.getMouseWheel = function()
+	return cpp_getMouseWheel()
+end
+
 ---@return boolean
 m.isMouseLeftDown = function()
 	return cpp_isMouseLeftDown()
@@ -156,6 +161,41 @@ end
 ---@return boolean
 m.isMouseDown = function(button)
 	return cpp_isMouseDown(button)
+end
+
+---@return nil
+m.rlPushMatrix = function()
+	cpp_rlPushMatrix()
+end
+
+---@return nil
+m.rlPopMatrix = function()
+	cpp_rlPopMatrix()
+end
+
+---@param angleInDeg number
+---@param x number
+---@param y number
+---@param z number
+---@return nil
+m.rlRotate = function(angleInDeg,x,y,z)
+	cpp_rlRotate(angleInDeg,x,y,z)
+end
+
+---@param x number
+---@param y number
+---@param z number
+---@return nil
+m.rlTranslate = function(x,y,z)
+	cpp_rlTranslate(x,y,z)
+end
+
+---@param x number
+---@param y number
+---@param z number
+---@return nil
+m.rlScale = function(x,y,z)
+	cpp_rlScale(x,y,z)
 end
 
 

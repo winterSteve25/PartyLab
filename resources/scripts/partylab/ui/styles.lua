@@ -7,14 +7,14 @@ local ease = require("partylab.ui.ease")
 m.defaultButton = {
     alignSelf = require("partylab.ui.layout").self.LAY_LEFT,
     color = colors.textColor,
-    fontSize = 100,
+    fontSize = 90,
     marginTop = 0.04,
     hovered = {
         color = colors.accentColor,
-        fontSize = 130,
+        fontSize = 110,
     },
     pressed = {
-        fontSize = 150,
+        fontSize = 130,
     },
     transition = {
         color = Transition(100, ease.easeLinear),

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 
-#include "raylib.h"
 #include "utils/TransitionManager.h"
 #include "utils/SimpleTweenManager.h"
 #include "assets/ResourceManager.h"
@@ -62,7 +61,6 @@ public:
 private:
     void ReloadLua();
 
-    size_t m_luaSceneStartIdx;
     std::vector<LuaScene*> m_scenes;
     int m_activesScene;
     int m_loadingScene;

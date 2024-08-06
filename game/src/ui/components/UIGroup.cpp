@@ -3,7 +3,6 @@
 #include <format>
 
 #include "layout.h"
-#include "raymath.h"
 #include "lua/lua_utils.h"
 #include "ui/LuaUI.h"
 #include "ui/properties/properties.h"
@@ -19,8 +18,7 @@ UIGroup::UIGroup(const sol::table& table):
 
     sol::optional<sol::table> children = table["children"];
     if (!children.has_value()) return;
-
-    table.for_each([this](auto pair)
+    children.value().for_each([this](auto pair)
     {
         sol::object key = pair.first;
         sol::object val = pair.second;
@@ -69,8 +67,11 @@ void UIGroup::Update()
         for (int i = 0; i < m_components.size(); i++)
         {
             UIElement* pointer = m_components[i];
+
             if (!lua_utils::UnwrapResult<bool>(pred(i, pointer->CreateLuaObject(pred.lua_state())),
-                                               "Failed to run remove child predicate")) continue;
+                                               "Failed to run remove child predicate"))
+                continue;
+
             delete pointer;
             m_components.erase(m_components.begin() + i);
             i--;
@@ -104,10 +105,10 @@ void UIGroup::Update()
 
 void UIGroup::Render(const lay_context* ctx)
 {
-    UIElement::Render(ctx);
-
     Vector2 xy = GetPos(ctx);
     Vector2 size = GetSize(ctx);
+
+    UIElement::Render(ctx);
 
     if (m_enableClipping.Get())
     {
@@ -214,49 +215,4 @@ void UIGroup::AddToLayout(lay_context* ctx, lay_id root)
     {
         child->AddToLayout(ctx, id);
     }
-}
-
-void UIGroup::OnScrolled(const lay_context* ctx, float deltaX, float deltaY)
-{
-    constexpr float multiplier = 16.0f;
-    const lay_id lastChild = lay_last_child(ctx, id);
-
-    // no children
-    if (lastChild == LAY_INVALID_ID) return;
-
-    lay_vec4 lastChildRect = lay_get_rect(ctx, lastChild);
-    lay_vec4 lastChildMargin = lay_get_margins(ctx, lastChild);
-    lay_vec4 thisRect = lay_get_rect(ctx, id);
-
-    const float lowestX = thisRect[0] +
-        thisRect[2] - lastChildRect[0] - lastChildRect[2] - lastChildMargin[2];
-    const float lowestY = thisRect[1] +
-        thisRect[3] - lastChildRect[1] - lastChildRect[3] - lastChildMargin[3];
-
-    if (deltaX < 0 && m_scrollOffsetX > lowestX)
-    {
-        m_scrollOffsetX += deltaX * multiplier;
-    }
-
-    if (deltaY < 0 && m_scrollOffsetY > lowestY)
-    {
-        m_scrollOffsetY += deltaY * multiplier;
-    }
-
-    lay_id firstChild = lay_first_child(ctx, id);
-    lay_vec4 firstChildRect = lay_get_rect(ctx, firstChild);
-    lay_vec4 firstChildMargin = lay_get_margins(ctx, firstChild);
-
-    if (deltaX > 0 && m_scrollOffsetX < 0)
-    {
-        m_scrollOffsetX += deltaX * multiplier;
-    }
-
-    if (deltaY > 0 && m_scrollOffsetY < 0)
-    {
-        m_scrollOffsetY += deltaY * multiplier;
-    }
-
-    m_scrollOffsetX = Clamp(m_scrollOffsetX, lowestX, 0);
-    m_scrollOffsetY = Clamp(m_scrollOffsetY, lowestY, 0);
 }

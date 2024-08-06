@@ -5,6 +5,7 @@
 #include "components/UIButton.h"
 #include "components/UIGroup.h"
 #include "components/UIRendered.h"
+#include "components/UIScrollableGroup.h"
 #include "components/UISteamImage.h"
 #include "components/UIText.h"
 #include "components/UITextField.h"
@@ -18,6 +19,7 @@ static std::unordered_map<std::string, std::function<UIElement*(const sol::table
     {"button", [](const sol::table& table) { return new UIButton(table); }},
     {"text", [](const sol::table& table) { return new UIText(table); }},
     {"group", [](const sol::table& table) { return new UIGroup(table); }},
+    {"scrollable", [](const sol::table& table) { return new UIScrollableGroup(table); }},
     {"rendered", [](const sol::table& table) { return new UIRendered(table); }},
     {"steamImage", [](const sol::table& table) { return new UISteamImage(table); }},
     {"textField", [](const sol::table& table) { return new UITextField(table); }},

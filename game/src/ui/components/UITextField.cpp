@@ -13,12 +13,17 @@ UITextField::UITextField(const sol::table& table):
     m_onSubmit(table.get<sol::optional<sol::protected_function>>("onSubmit")),
     m_placeholderText(table.get<std::optional<std::string>>("placeholder").value_or("Enter something here")),
     m_focused(false),
-    m_cursorIdx(0)
+    m_cursorIdx(0),
+    m_backspaceTime(0),
+    m_deleteTime(0),
+    m_idleTime(0)
 {
 }
 
 void UITextField::Render(const lay_context* ctx)
 {
+    m_idleTime += GetFrameTime();
+
     UIElement::Render(ctx);
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
@@ -38,6 +43,19 @@ void UITextField::Render(const lay_context* ctx)
 
     if (m_focused)
     {
+        Vector2 textSize = ui_helper::MeasureText(m_text.substr(0, m_cursorIdx).c_str(), m_fontSize.Get());
+
+        if (m_idleTime <= 1 || static_cast<int>(ceil(m_idleTime)) % 2 != 0)
+        {
+            DrawRectangle(
+                static_cast<int>(pos.x + textSize.x),
+                static_cast<int>(pos.y),
+                2,
+                static_cast<int>(size.y),
+                game_assets::BACKGROUND_COLOR
+            );
+        }
+
         if (IsKeyDown(KEY_BACKSPACE))
         {
             m_backspaceTime += GetFrameTime();
@@ -56,19 +74,15 @@ void UITextField::Render(const lay_context* ctx)
             m_deleteTime = 0;
         }
 
-        Vector2 textSize = ui_helper::MeasureText(m_text.substr(0, m_cursorIdx).c_str(), m_fontSize.Get());
-
         if (m_text.empty())
         {
             textSize.x = 0;
         }
 
-        DrawRectangle(static_cast<int>(pos.x + textSize.x), static_cast<int>(pos.y), 2, static_cast<int>(size.y),
-                      game_assets::BACKGROUND_COLOR);
-
         if (const char pressed = GetCharPressed(); pressed != 0)
         {
             m_text.insert(m_cursorIdx, 1, pressed);
+            m_idleTime = 0;
             m_cursorIdx++;
         }
 
@@ -77,11 +91,13 @@ void UITextField::Render(const lay_context* ctx)
             if (m_cursorIdx > 0 && (IsKeyPressed(KEY_BACKSPACE) || m_backspaceTime > 0.6))
             {
                 m_text.erase(m_cursorIdx - 1, 1);
+                m_idleTime = 0;
                 m_cursorIdx--;
             }
             else if (m_cursorIdx < m_text.size() + 1 && (IsKeyPressed(KEY_DELETE) || m_deleteTime > 0.6))
             {
                 m_text.erase(m_cursorIdx, 1);
+                m_idleTime = 0;
             }
         }
 

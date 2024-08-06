@@ -22,10 +22,10 @@ static int CustomRequire(lua_State* lua)
         luaL_loadfile(lua, filepathInStr.c_str());
         return 1;
     }
-    
+
     filepath = modsDir / actualPath;
     filepathInStr = filepath.generic_string();
-    
+
     if (FileExists(filepathInStr.c_str()))
     {
         luaL_loadfile(lua, filepathInStr.c_str());
@@ -39,7 +39,15 @@ LuaMod::LuaMod(const std::string& filepath, bool privileged) : m_rootDir(GetDire
 {
     TraceLog(LOG_INFO, std::format("Loading mod at: {}", m_rootDir).c_str());
 
-    m_lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table, sol::lib::bit32, sol::lib::coroutine);
+    m_lua.open_libraries(
+        sol::lib::base,
+        sol::lib::package,
+        sol::lib::math,
+        sol::lib::table,
+        sol::lib::bit32,
+        sol::lib::coroutine,
+        sol::lib::string
+    );
     m_lua.add_package_loader(CustomRequire, false);
 
     lua_hook::AddCppTypes(&m_lua, privileged);

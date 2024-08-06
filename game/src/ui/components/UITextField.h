@@ -22,4 +22,5 @@ private:
     
     float m_backspaceTime;
     float m_deleteTime;
+    float m_idleTime;
 };
