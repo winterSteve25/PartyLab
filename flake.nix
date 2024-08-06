@@ -17,6 +17,8 @@
                     xorg.libXi
                     xorg.libX11
                     xorg.libX11.dev
+					luajit
+					lua
 				];
 				packages = with pkgs; [
 				] ++ libraries;

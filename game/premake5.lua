@@ -32,10 +32,12 @@ local function link_steam()
     filter { "system:linux", "platforms:x64" }
         libdirs { "../steam/redistributable_bin/linux64" }
         links { "steam_api" }
+        postbuildcommands { "{COPYFILE} \"../steam/redistributable_bin/linux64/libsteam_api.so\" \"../bin/%{cfg.buildcfg}\"" }
         
     filter { "system:linux", "platforms:x86" }
         libdirs { "../steam/redistributable_bin/linux32" }
         links { "steam_api" }
+        postbuildcommands { "{COPYFILE} \"../steam/redistributable_bin/linux32/libsteam_api.so\" \"../bin/%{cfg.buildcfg}\"" }
 
     filter "system:macosx"
         libdirs { "../steam/redistributable_bin/osx" }
@@ -56,8 +58,9 @@ local function link_luajit()
         links { "lua51", "luajit" }
     	postbuildcommands { "{COPYFILE} \"../luajit/lua51.dll\" \"../bin/%{cfg.buildcfg}\"" }
     
-    -- filter { "system:linux", "platforms:x64" }
-    -- 	links { "lua5.1", "luajit" }
+    filter { "system:linux", "platforms:x64" }
+        libdirs { "../luajit/linux64" }
+    	links { "luajit" }
 
     filter {}
     
