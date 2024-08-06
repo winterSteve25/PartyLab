@@ -217,6 +217,37 @@ local function makeChatUIItem(sender, msg, type)
     }
 end
 
+local function enterOrLeaveLobbyMsg(player, left)
+    local style = {
+        marginLeft = 0,
+        marginTop = 0,
+        marginRight = 0,
+        marginBottom = 0,
+        alignSelf = layout.self.LAY_HFILL,
+        marginTop = 0.03,
+        marginLeft = 0.015,
+        fontSize = 36,
+        color = colors.backgroundColor:newA(200)
+    }
+    
+    if left then
+        return
+        {
+            type = "text",
+            text = steam.getSteamUsername(player) .. " left the lobby",
+            style = style,
+        }
+    else
+        return
+        {
+            type = "text",
+            text = steam.getSteamUsername(player) .. " entered the lobby",
+            style = style,
+        }
+    end
+end
+
+
 local function chat(data)
     return
     {
@@ -689,6 +720,17 @@ m.events = {
     playerEnteredLobby = function(user)
         uiData.query("playerList").addChild(makePlayerUIItem(user))
 
+
+        local list = uiData.query("chatList")
+
+        if chatEmpty then
+            chatEmpty = false
+            list.clearChildren()
+        end
+        
+        list.addChild(enterOrLeaveLobbyMsg(user, false))
+        list.scrollToY(1.0)
+
         --- when a new player joins if you are the host, tell the new player who is ready and who isn't
         if hostSteamID ~= selfSteamID then
             return
@@ -707,6 +749,16 @@ m.events = {
         network.sendPacketToReliable(user, PACKETS.chooseGamemode, LobbyData.gameMode)
     end,
     playerLeftLobby = function(user)
+        local list = uiData.query("chatList")
+
+        if chatEmpty then
+            chatEmpty = false
+            list.clearChildren()
+        end
+        
+        list.addChild(enterOrLeaveLobbyMsg(user, true))
+        list.scrollToY(1.0)
+        
         if user == hostSteamID then
             hostSteamID = currentLobby:getHost()
         end

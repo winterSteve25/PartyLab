@@ -8,6 +8,7 @@ class MemoryWriter
 {
 public:
     MemoryWriter();
+    MemoryWriter(const size_t& initialSize);
 
     void Write(void* data, size_t size);
     void WriteString(const std::string& str);

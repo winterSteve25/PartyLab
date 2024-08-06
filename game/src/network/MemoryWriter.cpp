@@ -7,6 +7,11 @@ MemoryWriter::MemoryWriter()
     m_buffer.reserve(128);
 }
 
+MemoryWriter::MemoryWriter(const size_t& initialSize)
+{
+    m_buffer.reserve(initialSize);
+}
+
 void MemoryWriter::Write(void* data, size_t size)
 {
     const auto buffer = static_cast<std::byte*>(data);

@@ -127,12 +127,13 @@ void lua_network_hook::AddCppFuncs(sol::state* state, bool privilege, const std:
 {
     AddCppFunc(state, "sendPacket", [](const int& target, const int& type, const sol::object& data, const int& flags)
     {
-        Core::INSTANCE->networkManager.SendMessage(static_cast<NetworkTarget>(target), std::optional<SteamIDWrapper>(std::nullopt), type, data, flags);
+        Core::INSTANCE->networkManager.SendMessage(static_cast<NetworkTarget>(target),
+                                                   std::optional<SteamIDWrapper>(std::nullopt), type, data, flags);
     });
-    
-    AddCppFunc(state, "sendPacketTo", [](const SteamIDWrapper& target, const int& type, const sol::object& data, const int& flags)
-    {
-        Core::INSTANCE->networkManager.SendMessage(PLAYER, target, type, data, flags);
-    });
-}
 
+    AddCppFunc(state, "sendPacketTo",
+               [](const SteamIDWrapper& target, const int& type, const sol::object& data, const int& flags)
+               {
+                   Core::INSTANCE->networkManager.SendMessage(PLAYER, target, type, data, flags);
+               });
+}

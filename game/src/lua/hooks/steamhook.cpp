@@ -47,6 +47,7 @@ void lua_steam_hook::AddCppTypes(sol::state* state, bool privileged)
             return static_cast<SteamIDWrapper>(gameLobby.GetHost());
         },
         "sendChatString", &GameLobby::SendChatString,
+        "sendChatString", &GameLobby::SendChatString,
         "getAllMembers", [](const GameLobby& gameLobby)
         {
             std::vector<SteamIDWrapper> v;
@@ -66,14 +67,17 @@ void lua_steam_hook::AddCppFuncs(sol::state* state, bool privilege, const std::f
     {
         return SteamFriends()->GetLargeFriendAvatar(sid);
     });
+    
     AddCppFunc(state, "getSteamAvatar_Medium", [](const SteamIDWrapper& sid)
     {
         return SteamFriends()->GetMediumFriendAvatar(sid);
     });
+    
     AddCppFunc(state, "getSteamAvatar_Small", [](const SteamIDWrapper& sid)
     {
         return SteamFriends()->GetSmallFriendAvatar(sid);
     });
+    
     AddCppFunc(state, "getCurrentUserID", []()
     {
         SteamIDWrapper x = SteamUser()->GetSteamID();
@@ -89,9 +93,8 @@ void lua_steam_hook::AddCppFuncs(sol::state* state, bool privilege, const std::f
     {
         return SteamFriends()->GetFriendPersonaName(id);
     });
-
+    
     if (!privilege) return;
-
     AddCppFunc(state, "hostLobby", []() { Core::INSTANCE->networkManager.HostLobby(); });
     AddCppFunc(state, "leaveLobby", []() { Core::INSTANCE->networkManager.LeaveCurrentLobby(); });
     AddCppFunc(state, "joinLobby", [](const SteamIDWrapper& id) { Core::INSTANCE->networkManager.JoinLobby(id); });
