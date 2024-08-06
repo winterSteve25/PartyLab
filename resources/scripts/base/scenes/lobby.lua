@@ -3,8 +3,6 @@ local m = {}
 
 ---@type UIData
 local uiData = nil
-local chatEmpty = true
-local settingsOpen = false
 
 local readyTexture = nil
 local hostTexture = nil
@@ -226,7 +224,7 @@ local function enterOrLeaveLobbyMsg(player, left)
         alignSelf = layout.self.LAY_HFILL,
         marginTop = 0.03,
         marginLeft = 0.015,
-        fontSize = 36,
+        fontSize = 40,
         color = colors.backgroundColor:newA(200)
     }
     
@@ -247,7 +245,6 @@ local function enterOrLeaveLobbyMsg(player, left)
     end
 end
 
-
 local function chat(data)
     return
     {
@@ -266,13 +263,7 @@ local function chat(data)
                 clip = true,
             },
             children = {
-                {
-                    "There is nothing in chat",
-                    style = {
-                        color = colors.backgroundColor:newA(150),
-                        marginTop = 0.03,
-                    },
-                }
+                enterOrLeaveLobbyMsg(selfSteamID, false),
             },
         },
         {
@@ -300,11 +291,6 @@ local function chat(data)
                     end
 
                     local list = uiData.query("chatList")
-
-                    if chatEmpty then
-                        list.clearChildren()
-                        chatEmpty = false
-                    end
 
                     currentLobby:sendChatString(text)
                     list.addChild(makeChatUIItem(selfSteamID, text, steam.chatTypes.ChatMessage))
@@ -709,11 +695,6 @@ m.events = {
 
         local list = uiData.query("chatList")
 
-        if chatEmpty then
-            chatEmpty = false
-            list.clearChildren()
-        end
-
         list.addChild(makeChatUIItem(sender, msg, type))
         list.scrollToY(1.0)
     end,
@@ -722,11 +703,6 @@ m.events = {
 
 
         local list = uiData.query("chatList")
-
-        if chatEmpty then
-            chatEmpty = false
-            list.clearChildren()
-        end
         
         list.addChild(enterOrLeaveLobbyMsg(user, false))
         list.scrollToY(1.0)
@@ -750,11 +726,6 @@ m.events = {
     end,
     playerLeftLobby = function(user)
         local list = uiData.query("chatList")
-
-        if chatEmpty then
-            chatEmpty = false
-            list.clearChildren()
-        end
         
         list.addChild(enterOrLeaveLobbyMsg(user, true))
         list.scrollToY(1.0)
