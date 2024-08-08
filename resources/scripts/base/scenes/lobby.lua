@@ -15,7 +15,7 @@ local hostSteamID = nil
 local selfSteamID = nil
 local currentMemberCount = 1
 
-local gamemodeSelected = SyncedVar("gamemodeSelected", true, 0)
+local gamemodeSelected = SyncedVar("gamemodeSelected", true, 1)
 
 local UIObject = require("partylab.ui.object")
 local tween = require("partylab.ui.tween")
