@@ -5,6 +5,7 @@ local uiData = nil
 local lobbyReady = false
 
 m.load = function()
+    resetLobbyData()
     if TransitionData.lobbyStatus == LOBBY_STATUS.HOSTING then
         cpp_hostLobby()
     else
@@ -22,7 +23,6 @@ m.update = function()
         return
     end
     
-    resetLobbyData()
     require("partylab.core").transitionTo(SCENES.lobby)
 end
 

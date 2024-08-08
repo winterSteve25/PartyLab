@@ -725,13 +725,26 @@ m.events = {
         currentMemberCount = currentLobby:getMemberCount()
         local network = require("partylab.network")
         network.sendPacketToReliable(user, PACKETS.handshake)
+        
+        local allMembers = currentLobby:getAllMembers()
 
+        local all = true
+        for _, v in pairs(require(allMembers)) do
+            local isReady = LobbyData.ready[v.id]
+            if isReady == nil or not isReady then
+                all = false
+                break
+            end
+        end
+
+        LobbyData.isEveryoneReady = all
+        
         --- when a new player joins if you are the host, tell the new player who is ready and who isn't
         if hostSteamID ~= selfSteamID then
             return
         end
 
-        for _, v in pairs(currentLobby:getAllMembers()) do
+        for _, v in pairs(allMembers) do
             local isReady = LobbyData.ready[v.id]
             network.sendPacketToReliable(user, PACKETS.readyToggle, {
                 who = v.id,

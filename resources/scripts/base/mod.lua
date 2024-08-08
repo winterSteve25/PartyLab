@@ -3,18 +3,13 @@ TransitionData = {
     joining = nil,
 }
 
-LobbyData = {
-    isEveryoneReady = false,
-    ready = {},
-}
-
 function resetLobbyData()
     LobbyData = {
         isEveryoneReady = false,
         ready = {},
-        gameMode = 1,
     }
 end
+resetLobbyData()
 
 SCENES = {}
 PACKETS = {}
