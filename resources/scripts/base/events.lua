@@ -12,7 +12,7 @@ end
 
 m.addPackets = function(registrar)
     PACKETS.readyToggle = registrar(require("base.packets.readytoggle"))
-    PACKETS.chooseGamemode = registrar(require("base.packets.chooseGamemode"))
+    PACKETS.handshake = registrar(require("base.packets.handshake"))
 end
 
 m.addGameModes = function(registrar) 

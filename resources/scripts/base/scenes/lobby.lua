@@ -36,7 +36,6 @@ local textStyle = {
 local function switchGameMode(data, increment)
     data.scroll = data.scroll + increment
     local network = require("partylab.network")
-    --network.sendPacketReliable(network.targets.Everyone, PACKETS.chooseGamemode, data.scroll)
     gamemodeSelected:set(data.scroll)
 end
 
@@ -724,17 +723,18 @@ m.events = {
         list.addChild(enterOrLeaveLobbyMsg(user, false))
         list.scrollToY(1.0)
         currentMemberCount = currentLobby:getMemberCount()
+        local network = require("partylab.network")
+        network.sendPacketToReliable(user, PACKETS.handshake)
 
         --- when a new player joins if you are the host, tell the new player who is ready and who isn't
         if hostSteamID ~= selfSteamID then
             return
         end
 
-        local network = require("partylab.network")
         for _, v in pairs(currentLobby:getAllMembers()) do
             local isReady = LobbyData.ready[v.id]
             network.sendPacketToReliable(user, PACKETS.readyToggle, {
-                who = v,
+                who = v.id,
                 val = isReady ~= nil and isReady
             })
         end

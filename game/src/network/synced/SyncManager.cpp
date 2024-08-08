@@ -36,7 +36,7 @@ void SyncManager::Update(const std::string& modId, const std::string& id, const 
 
     if (const std::shared_ptr<SyncedVar> var = m_vars[realID].lock())
     {
-        var->val = val;
+        var->SetNoNotify(val);
     } else
     {
         TraceLog(LOG_WARNING, std::format("Tried updating a already deleted synced var of id {}, ignoring update call", realID).c_str());
