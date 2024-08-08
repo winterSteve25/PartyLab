@@ -170,7 +170,7 @@ void NetworkManager::SetTarget(const NetworkTarget& target, std::vector<SteamNet
         break;
     case PLAYER:
         SteamNetworkingIdentity ident;
-        identity.SetSteamID(specifiedTarget.value());
+        ident.SetSteamID(specifiedTarget.value());
         identities->push_back(ident);
         break;
     }
