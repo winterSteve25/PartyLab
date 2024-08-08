@@ -4,6 +4,7 @@
 
 #include "raylib.h"
 #include "core/Core.h"
+#include "network/GameLobby.h"
 #include "steam/SteamIDWrapper.h"
 
 template <typename Func>
@@ -37,7 +38,7 @@ void lua_steam_hook::AddCppTypes(sol::state* state, bool privileged)
         "GameLobby",
         sol::call_constructor,
         sol::factories(
-            [](const SteamIDWrapper id)
+            [](const SteamIDWrapper& id)
             {
                 return GameLobby(id);
             }
@@ -91,6 +92,42 @@ void lua_steam_hook::AddCppFuncs(sol::state* state, bool privilege, const std::f
     AddCppFunc(state, "getSteamUsername", [](const SteamIDWrapper& id)
     {
         return SteamFriends()->GetFriendPersonaName(id);
+    });
+    
+    AddCppFunc(state, "getFriends", []()
+    {
+        int count = SteamFriends()->GetFriendCount(k_EFriendFlagImmediate);
+        std::vector<SteamIDWrapper> lst;
+        lst.reserve(count);
+    
+        for (int i = 0; i < count; i++)
+        {
+            lst.emplace_back(SteamFriends()->GetFriendByIndex(i, k_EFriendFlagImmediate));
+        }
+    
+        return sol::as_table(lst);
+    });
+
+    AddCppFunc(state, "isPlayingSameGame", [](const SteamIDWrapper& id)
+    {
+        FriendGameInfo_t info;
+        if (SteamFriends()->GetFriendGamePlayed(id, &info))
+        {
+            if (info.m_gameID.ToUint64() == 480) return true;
+        }
+
+        return false;
+    });
+
+    AddCppFunc(state, "getFriendLobby", [](const SteamIDWrapper& id)
+    {
+        FriendGameInfo_t info;
+        if (SteamFriends()->GetFriendGamePlayed(id, &info) && info.m_steamIDLobby.IsValid())
+        {
+            return sol::optional<SteamIDWrapper>(info.m_steamIDLobby);
+        }
+
+        return sol::optional<SteamIDWrapper>(sol::nullopt);
     });
     
     if (!privilege) return;

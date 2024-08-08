@@ -8,6 +8,7 @@
 #include "lua/ModManager.h"
 #include "lua/async/LuaAsyncManager.h"
 #include "network/NetworkManager.h"
+#include "network/synced/SyncManager.h"
 
 /**
  * Manages the scenes in the game
@@ -52,6 +53,7 @@ public:
     NetworkManager networkManager;
     ModManager modManager;
     LuaAsyncManager luaAsyncManager;
+    SyncManager syncManager;
     ResourceManager resourceManager;
     std::vector<sol::table> gameModes;
     

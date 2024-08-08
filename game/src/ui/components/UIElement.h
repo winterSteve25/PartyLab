@@ -42,6 +42,13 @@ public:
 
     lay_id id;
     bool markedDead;
+    
+    virtual void OnEnterHover();
+    virtual void OnExitHover();
+    virtual void OnClick();
+    virtual void OnPressed();
+    virtual void OnReleased();
+    virtual void OnScrolled(const lay_context* ctx, float deltaX, float deltaY);
 
 protected:
     UIElement(const sol::table& table);
@@ -58,13 +65,6 @@ protected:
     
     bool m_isHeldDown;
     bool m_isHovering;
-    
-    virtual void OnEnterHover();
-    virtual void OnExitHover();
-    virtual void OnClick();
-    virtual void OnPressed();
-    virtual void OnReleased();
-    virtual void OnScrolled(const lay_context* ctx, float deltaX, float deltaY);
 
     Vector2 GetPos(const lay_context* ctx) const;
     Vector2 GetSize(const lay_context* ctx) const;
@@ -73,4 +73,5 @@ private:
 
     Color m_randItemColor;
     sol::optional<sol::protected_function> m_onDestroy;
+    sol::optional<sol::protected_function> m_onClick;
 };

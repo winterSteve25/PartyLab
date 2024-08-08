@@ -1,19 +1,24 @@
-#include "PacketType.h"
+#include "LuaPacketType.h"
 
 #include <format>
 
 #include "lua/lua_utils.h"
 #include "steam/SteamIDWrapper.h"
 
-PacketType::PacketType(uint32_t id, const sol::table& table):
+LuaPacketType::LuaPacketType(uint32_t id, const sol::table& table):
     m_id(id),
     m_serializer(table.get<sol::optional<sol::protected_function>>("serializer")),
     m_deserializer(table.get<sol::optional<sol::protected_function>>("deserializer")),
     m_handler(table.get<sol::protected_function>("handler"))
 {
+
 }
 
-void PacketType::Handle(const CSteamID& sender, MemoryReader& reader) const
+LuaPacketType::~LuaPacketType()
+{
+}
+
+void LuaPacketType::Handle(const CSteamID& sender, MemoryReader& reader) const
 {
     if (m_deserializer.has_value())
     {
@@ -29,7 +34,7 @@ void PacketType::Handle(const CSteamID& sender, MemoryReader& reader) const
     }
 }
 
-void PacketType::Serialize(MemoryWriter& memory, const sol::object& data) const
+void LuaPacketType::Serialize(MemoryWriter& memory, const sol::object& data) const
 {
     if (m_serializer.has_value())
     {
@@ -44,7 +49,7 @@ void PacketType::Serialize(MemoryWriter& memory, const sol::object& data) const
     }
 }
 
-void PacketType::RawHandle(const SteamIDWrapper& sender, const sol::object& data) const
+void LuaPacketType::RawHandle(const SteamIDWrapper& sender, const sol::object& data) const
 {
     lua_utils::UnwrapResult(m_handler(sender, data), std::format("Failed to handle packet of id {}", m_id));
 }

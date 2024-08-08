@@ -3,6 +3,7 @@
 #include <format>
 
 #include "layout.h"
+#include "lua/lua_utils.h"
 #include "ui/ui_helper.h"
 #include "ui/properties/properties.h"
 
@@ -31,7 +32,8 @@ UIElement::UIElement(const sol::table& table):
     m_isHovering(false),
     m_randItemColor(Color(GetRandomValue(0, 255), GetRandomValue(0, 255),
                           GetRandomValue(0, 255), 255)),
-    m_onDestroy(table.get<sol::optional<sol::protected_function>>("onDestroy"))
+    m_onDestroy(table.get<sol::optional<sol::protected_function>>("onDestroy")),
+    m_onClick(table.get<sol::optional<sol::protected_function>>("onClick"))
 {
 }
 
@@ -184,6 +186,8 @@ void UIElement::OnReleased()
 
 void UIElement::OnClick()
 {
+    if (!m_onClick.has_value()) return;
+    lua_utils::UnwrapResult(m_onClick.value()(), "Failed to call onClick callback");
 }
 
 void UIElement::OnScrolled(const lay_context* ctx, float deltaX, float deltaY)

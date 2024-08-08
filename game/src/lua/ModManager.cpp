@@ -18,9 +18,10 @@ void ModManager::LoadMods()
     for (unsigned int i = 0; i < mods.count; i++)
     {
         std::filesystem::path dir = mods.paths[i];
+        std::string filename = dir.filename().generic_string();
         std::string path = (dir / base).generic_string();
         if (!FileExists(path.c_str())) continue;
-        m_luaMods.push_back(new LuaMod(path, true));
+        m_luaMods[filename] = new LuaMod(path, true, filename);
     }
 
     UnloadDirectoryFiles(mods);
@@ -31,9 +32,15 @@ void ModManager::LoadMods()
     for (unsigned int i = 0; i < mods.count; i++)
     {
         std::filesystem::path dir = mods.paths[i];
+        std::string filename = dir.filename().generic_string();
+        if (m_luaMods.contains(filename) || filename == "partylab")
+        {
+            TraceLog(LOG_WARNING, std::format("Skipping mod: {}, mod with same id already exists", filename).c_str());
+            continue;
+        }
         std::string path = (dir / base).generic_string();
         if (!FileExists(path.c_str())) continue;
-        m_luaMods.emplace_back(new LuaMod(path, false));
+        m_luaMods[filename] = new LuaMod(path, true, filename);
     }
 
     UnloadDirectoryFiles(mods);
@@ -41,10 +48,20 @@ void ModManager::LoadMods()
 
 void ModManager::UnloadMods()
 {
-    for (LuaMod*& mod : m_luaMods)
+    for (auto pair : m_luaMods)
     {
-        delete mod;
+        delete pair.second;
     }
     
     m_luaMods.clear();
+}
+
+LuaMod* ModManager::GetModWithIdNullable(const std::string& id)
+{
+    if (!m_luaMods.contains(id))
+    {
+        return nullptr;
+    }
+
+    return m_luaMods[id];
 }

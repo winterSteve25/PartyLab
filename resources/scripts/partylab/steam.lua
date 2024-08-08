@@ -107,5 +107,22 @@ m.getSteamUsername = function(userId)
 	return cpp_getSteamUsername(userId)
 end
 
+---@return SteamID[]
+m.getFriends = function()
+	return cpp_getFriends()
+end
+
+---@param user SteamID
+---@return boolean
+m.isPlayingSameGame = function(user)
+	return cpp_isPlayingSameGame(user)
+end
+
+---@param user SteamID
+---@return SteamID | nil
+m.getFriendLobby = function(user)
+	return cpp_getFriendLobby(user)
+end
+
 
 return m

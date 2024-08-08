@@ -45,7 +45,7 @@ void UITextField::Render(const lay_context* ctx)
     {
         Vector2 textSize = ui_helper::MeasureText(m_text.substr(0, m_cursorIdx).c_str(), m_fontSize.Get());
 
-        if (m_idleTime <= 1 || static_cast<int>(ceil(m_idleTime)) % 2 != 0)
+        if (m_idleTime <= 1 || static_cast<int>(floor(m_idleTime * 2)) % 2 != 0)
         {
             DrawRectangle(
                 static_cast<int>(pos.x + textSize.x),

@@ -12,16 +12,17 @@ public:
     
     void LoadMods();
     void UnloadMods();
+    LuaMod* GetModWithIdNullable(const std::string& id);
     
     template <typename... Args>
     void BroadcastEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)
     {
-        for (LuaMod*& lua : m_luaMods)
+        for (auto pair : m_luaMods)
         {
-            lua->ReceiveEvent<Args...>(event, args...);
+            pair.second->ReceiveEvent<Args...>(event, args...);
         }
     }
 
 private:
-    std::vector<LuaMod*> m_luaMods;
+    std::unordered_map<std::string, LuaMod*> m_luaMods;
 };

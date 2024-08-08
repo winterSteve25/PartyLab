@@ -65,9 +65,14 @@ local ModDescriptor = {}
 local Scene = {}
 
 ---@class UIData
----@field query fun(id: string): table
+---@field query fun(id: string): UIElementData
 ---@field rebuild fun()
 local UIData = {}
+
+---@class UIElementData
+---@field data table
+---@field remove fun()
+local UIElementData = {}
 
 ---@class Size
 ---@field measure

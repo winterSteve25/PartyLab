@@ -13,6 +13,9 @@ local arrowLeftTexture = nil
 local currentLobby = nil
 local hostSteamID = nil
 local selfSteamID = nil
+local currentMemberCount = 1
+
+local gamemodeSelected = SyncedVar("gamemodeSelected", true, 0)
 
 local UIObject = require("partylab.ui.object")
 local tween = require("partylab.ui.tween")
@@ -227,7 +230,7 @@ local function enterOrLeaveLobbyMsg(player, left)
         fontSize = 40,
         color = colors.backgroundColor:newA(200)
     }
-    
+
     if left then
         return
         {
@@ -298,6 +301,7 @@ local function chat(data)
                 end,
             },
             {
+                "Send",
                 style = utils.mergeTables(styles.defaultButton, {
                     color = colors.backgroundColor:newA(200),
                     alignSelf = layout.self.LAY_VCENTER,
@@ -312,8 +316,6 @@ local function chat(data)
                         fontSize = 64,
                     },
                 }),
-                type = "button",
-                text = "Send",
                 onClick = function()
                     data.query("chatTextField").submit()
                 end
@@ -366,7 +368,7 @@ local function makeGameModeSwitcher()
             local amIhost = hostSteamID == selfSteamID
 
             if not amIhost then
-                thisData.scroll = LobbyData.gameMode
+                thisData.scroll = gamemodeSelected:get()
             end
 
             ---@type GameMode[]
@@ -394,6 +396,12 @@ local function makeGameModeSwitcher()
             end
 
             rendering.beginScissor(pos, size);
+            
+            local centerSize
+            local centerPos
+            local mp = rendering.getMousePosition()
+            local screenWidth = utils.getScreenWidth()
+            local screenHeight = utils.getScreenHeight()
 
             for i = min - 1, max + 1, 1 do
                 if i > 0 and i <= numbGameModes then
@@ -473,10 +481,14 @@ local function makeGameModeSwitcher()
                                 Color(255, 255, 255, 255 - alpha)
                         )
 
+                        if offset == 0 then 
+                            centerPos = actualPos
+                            centerSize = actualSize
+                        end
+
                         -- click on game mode on the side switches it
                         if amIhost then
                             if offset ~= 0 then
-                                local mp = rendering.getMousePosition()
                                 -- dont question it
                                 if (offset == 1 and mp.x > actualPos.x and mp.y > actualPos.y and mp.x < pos.x + size.x and mp.y < actualPos.y + length) or
                                         (offset == -1 and mp.x > pos.x and mp.y > actualPos.y and mp.x < actualPos.x + length and mp.y < actualPos.y + length)
@@ -490,12 +502,11 @@ local function makeGameModeSwitcher()
                     end
                 end
             end
-
+            
             rendering.endScissor()
 
-            local screenWidth = utils.getScreenWidth()
-            local screenHeight = utils.getScreenHeight()
-            local name = gameModes[thisData.scroll].name
+            local gamemode = gameModes[thisData.scroll]
+            local name = gamemode.name
             local fontSize = 70 * (screenWidth / 1920 + screenHeight / 1080) * 0.5
             local textSize = rendering.measureText(name, fontSize)
             local textPos = pos + Vector2((size.x - textSize.x) * 0.5, size.y * 0.85 - textSize.y)
@@ -521,9 +532,17 @@ local function makeGameModeSwitcher()
                 local arrowNewSize = Vector2((arrowSize.x / arrowSize.y) * textSize.y, textSize.y)
                 local origin = arrowNewSize * 0.5
                 local arrowY = textSize.y * 0.35
-                local leftArrPos = textPos + Vector2(-arrowNewSize.x - textSize.x * 0.3 - arrowNewSize.x * 0.5, arrowY + arrowNewSize.y * 0.4)
-                local rightArrPos = textPos + Vector2(textSize.x * 1.42 + arrowNewSize.x * 0.5, arrowY + arrowNewSize.y * 0.4)
+                local leftArrPos = textPos + Vector2(-arrowNewSize.x - textSize.x * 0.3 - arrowNewSize.x * 0.5, arrowY + arrowNewSize.y * 0.1)
+                local rightArrPos = textPos + Vector2(textSize.x * 1.42 + arrowNewSize.x * 0.5, arrowY + arrowNewSize.y * 0.1)
 
+                if leftArrPos.x < pos.x then
+                    leftArrPos.x = pos.x + arrowNewSize.x
+                end
+                
+                if rightArrPos.x > pos.x + size.x then
+                    rightArrPos.x = pos.x + size.x - arrowNewSize.x
+                end
+                
                 if thisData.arrowLeftObject.onClick == nil then
                     thisData.arrowLeftObject.onClick = function(self)
                         if thisData.scroll > 1 then
@@ -600,8 +619,7 @@ local function leftPanel(data)
                 backgroundColor = colors.foregroundColor,
             },
             {
-                type = "button",
-                text = "Leave",
+                "Leave",
                 style = utils.mergeTables(styles.defaultButton, {
                     alignSelf = layout.self.LAY_LEFT,
                     color = colors.backgroundColor:newA(200),
@@ -701,11 +719,10 @@ m.events = {
     playerEnteredLobby = function(user)
         uiData.query("playerList").addChild(makePlayerUIItem(user))
 
-
         local list = uiData.query("chatList")
-        
         list.addChild(enterOrLeaveLobbyMsg(user, false))
         list.scrollToY(1.0)
+        currentMemberCount = currentLobby:getMemberCount()
 
         --- when a new player joins if you are the host, tell the new player who is ready and who isn't
         if hostSteamID ~= selfSteamID then
@@ -721,15 +738,17 @@ m.events = {
             })
         end
 
-        -- which game mode is active
-        network.sendPacketToReliable(user, PACKETS.chooseGamemode, LobbyData.gameMode)
+        gamemodeSelected:update(user)
     end,
     playerLeftLobby = function(user)
         local list = uiData.query("chatList")
-        
+
         list.addChild(enterOrLeaveLobbyMsg(user, true))
         list.scrollToY(1.0)
-        
+
+        LobbyData.ready[user.id] = nil
+        currentMemberCount = currentLobby:getMemberCount()
+
         if user == hostSteamID then
             hostSteamID = currentLobby:getHost()
         end
@@ -765,13 +784,17 @@ end
 local time = 0
 
 m.renderOverlay = function()
+    if currentLobby == nil then
+        return
+    end
+
     local core = require("partylab.core")
     ---@type GameMode
-    local gamemode = core.getAllGameModes()[LobbyData.gameMode]
+    local gamemode = core.getAllGameModes()[gamemodeSelected:get()]
 
     if not LobbyData.isEveryoneReady
-            or currentLobby:getMemberCount() < gamemode.minPlayers
-            or currentLobby:getMemberCount() > gamemode.maxPlayers
+            or currentMemberCount < gamemode.minPlayers
+            or currentMemberCount > gamemode.maxPlayers
     then
         time = 0
         return

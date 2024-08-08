@@ -18,6 +18,9 @@ funcs = {
         ("getCurrentUserID", "SteamID", []),
         ("getCurrentLobby", "GameLobby", []),
         ("getSteamUsername", "string", [("SteamID", "userId")]),
+        ("getFriends", "SteamID[]", []),
+        ("isPlayingSameGame", "boolean", [("SteamID", "user")]),
+        ("getFriendLobby", "SteamID | nil", [("SteamID", "user")]),
     ],
     "rendering": [
         ("loadTexture", "number", [("string", "file")]),
@@ -31,6 +34,7 @@ funcs = {
         ("beginScissor", "nil", [("Vector2", "pos"), ("Vector2", "size")]),
         ("endScissor", "nil", []),
         ("drawText", "nil", [("string", "text"), ("number", "fontSize"), ("Vector2", "pos"), ("Color", "color")]),
+        ("drawTextBoxed", "nil", [("string", "text"), ("number", "fontSize"), ("Vector2", "pos"), ("Vector2", "size"), ("Color", "color")]),
         ("measureText", "Vector2", [("string", "text"), ("number", "fontSize")]),
         ("getCenter", "Vector2", [("Vector2", "size"), ("Vector2", "totalSize")]),
         ("within", "boolean", [("Vector2", "x"), ("Vector2", "pos"), ("Vector2", "size")]),

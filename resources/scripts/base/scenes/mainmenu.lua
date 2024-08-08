@@ -43,15 +43,14 @@ local ui = {
             marginLeft = 0.03,
         },
         {
-            type = "button",
-            text = "Join Game",
+            "Join Game",
             style = styles.defaultButton,
             onClick = function()
+                core.transitionTo(SCENES.join)
             end
         },
         {
-            type = "button",
-            text = "Host Game",
+            "Host Game",
             style = styles.defaultButton,
             onClick = function()
                 TransitionData.lobbyStatus = LOBBY_STATUS.HOSTING
@@ -59,8 +58,7 @@ local ui = {
             end
         },
         {
-            type = "button",
-            text = "Quit",
+            "Quit",
             style = styles.defaultButton,
             onClick = function()
                 core.exit()
@@ -69,7 +67,7 @@ local ui = {
     },
 }
 
-m.ui = function(data)
+function m.ui(data)
     return ui
 end
 
@@ -78,7 +76,7 @@ m.events = {
         TransitionData.lobbyStatus = LOBBY_STATUS.JOINING
         TransitionData.joining = lobby
         core.transitionTo(SCENES.waitingLobby)
-    end
+    end,
 }
 
 return m

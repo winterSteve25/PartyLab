@@ -27,6 +27,18 @@ void UIText::Render(const lay_context* ctx)
     ui_helper::DrawText(m_text.c_str(), m_sFontSize.Get(), pos, m_sColor.Get());
 }
 
+sol::table UIText::CreateLuaObject(lua_State* L)
+{
+    sol::table table = UIElement::CreateLuaObject(L);
+
+    table["setText"] = [this](const std::string& text)
+    {
+        m_text = text;
+    };
+    
+    return table;
+}
+
 void UIText::ApplyStyles(const Style& style, bool doTransition)
 {
     m_sColor.Set(style, doTransition);

@@ -15,8 +15,10 @@ public:
     std::string name;
     std::optional<std::string> description;
 
-    LuaMod(const std::string& file_path, bool privileged);
+    LuaMod(const std::string& file_path, bool privileged, const std::string& modId);
     ~LuaMod();
+
+    const sol::state& GetState() const;
     
     template <typename... Args>
     void ReceiveEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)

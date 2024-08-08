@@ -15,10 +15,10 @@ static void AddCppFunc(sol::state* state, const std::string& name, Func&& fn)
     state->set_function("cpp_" + name, fn);
 }
 
-void lua_hook::AddCppTypes(sol::state* state, bool privileged)
+void lua_hook::AddCppTypes(sol::state* state, bool privileged, const std::string& modId)
 {
     lua_steam_hook::AddCppTypes(state, privileged);
-    lua_network_hook::AddCppTypes(state, privileged);
+    lua_network_hook::AddCppTypes(state, privileged, modId);
 
     state->new_usertype<Vector2>(
         "Vector2",
@@ -281,10 +281,7 @@ void lua_hook::AddCppFuncs(sol::state* state, bool privileged, const std::filesy
         BeginScissorMode(pos.x, pos.y, size.x, size.y);
     });
 
-    AddCppFunc(state, "endScissor", []()
-    {
-        EndScissorMode();
-    });
+    AddCppFunc(state, "endScissor", EndScissorMode);
 
     AddCppFunc(state, "drawText", [](const std::string& text, float fontSize, const Vector2& pos, const Color& color)
     {

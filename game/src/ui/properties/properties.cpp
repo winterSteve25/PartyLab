@@ -46,8 +46,3 @@ BooleanProperty properties::CanClipProp()
 {
     return BooleanProperty(false, "clip");
 }
-
-BooleanProperty properties::Scrollable()
-{
-    return BooleanProperty(false, "scrollable");
-}

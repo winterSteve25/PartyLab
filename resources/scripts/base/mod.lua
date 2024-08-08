@@ -6,7 +6,6 @@ TransitionData = {
 LobbyData = {
     isEveryoneReady = false,
     ready = {},
-    gameMode = 1,
 }
 
 function resetLobbyData()

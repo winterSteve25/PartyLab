@@ -11,6 +11,8 @@ public:
     UIText(const sol::table& table, const std::string& text);
     UIText(const sol::table& table);
     void Render(const lay_context* pos) override;
+    sol::table CreateLuaObject(lua_State* L) override;
+
 protected:
     void ApplyStyles(const Style& style, bool doTransition) override;
     std::string m_text;

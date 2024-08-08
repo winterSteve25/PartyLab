@@ -12,7 +12,7 @@ static void AddCppFunc(sol::state* state, const std::string& name, Func&& fn)
     state->set_function("cpp_" + name, fn);
 }
 
-void lua_network_hook::AddCppTypes(sol::state* state, bool privileged)
+void lua_network_hook::AddCppTypes(sol::state* state, bool privileged, const std::string& modId)
 {
     state->new_usertype<MemoryWriter>(
         "MemoryWriter",
@@ -120,6 +120,18 @@ void lua_network_hook::AddCppTypes(sol::state* state, bool privileged)
             const CSteamID id = reader.ReadGeneric<uint64>();
             return SteamIDWrapper(id);
         }
+    );
+
+    state->new_usertype<SyncedVar>(
+        "SyncedVar",
+        sol::call_constructor,
+        sol::factories([modId](const std::string& id, const bool& hostOnly, const sol::object& initialValue)
+        {
+            return Core::INSTANCE->syncManager.NewVar(modId, id, initialValue, hostOnly);
+        }),
+        "set", &SyncedVar::Set,
+        "get", &SyncedVar::Get,
+        "update", &SyncedVar::Update
     );
 }
 

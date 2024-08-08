@@ -2,7 +2,6 @@
 
 #include <format>
 
-#include "components/UIButton.h"
 #include "components/UIGroup.h"
 #include "components/UIRendered.h"
 #include "components/UIScrollableGroup.h"
@@ -16,7 +15,6 @@
 #define CONSTRUCT() lua_utils::UnwrapResult<sol::table>(m_uiSupplier(m_customData), "Failed to build UI by calling the constructor")
 
 static std::unordered_map<std::string, std::function<UIElement*(const sol::table&)>> CONSTRUCTORS{
-    {"button", [](const sol::table& table) { return new UIButton(table); }},
     {"text", [](const sol::table& table) { return new UIText(table); }},
     {"group", [](const sol::table& table) { return new UIGroup(table); }},
     {"scrollable", [](const sol::table& table) { return new UIScrollableGroup(table); }},

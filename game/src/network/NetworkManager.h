@@ -3,7 +3,7 @@
 #include <isteamnetworkingmessages.h>
 
 #include "NetworkTarget.h"
-#include "PacketType.h"
+#include "IPacketType.h"
 #include "steam/SteamIDWrapper.h"
 
 /**
@@ -28,7 +28,7 @@ private:
     static constexpr uint16_t message_buffer_size = 64;
 
     MemoryWriter m_memWriter;
-    std::vector<PacketType> m_packets;
+    std::vector<IPacketType*> m_packets;
     // not guaranteed to be up-to-date, before using should call GameLobby::getAllMembers
     std::vector<SteamIDWrapper> m_currentLobbyPlayers;
     SteamNetworkingMessage_t** m_messageBuffer;

@@ -35,7 +35,7 @@ static int CustomRequire(lua_State* lua)
     return 0;
 }
 
-LuaMod::LuaMod(const std::string& filepath, bool privileged) : m_rootDir(GetDirectoryPath(filepath.c_str()))
+LuaMod::LuaMod(const std::string& filepath, bool privileged, const std::string& modId) : m_rootDir(GetDirectoryPath(filepath.c_str()))
 {
     TraceLog(LOG_INFO, std::format("Loading mod at: {}", m_rootDir).c_str());
 
@@ -50,7 +50,7 @@ LuaMod::LuaMod(const std::string& filepath, bool privileged) : m_rootDir(GetDire
     );
     m_lua.add_package_loader(CustomRequire, false);
 
-    lua_hook::AddCppTypes(&m_lua, privileged);
+    lua_hook::AddCppTypes(&m_lua, privileged, modId);
     lua_hook::AddCppFuncs(&m_lua, privileged, m_rootDir);
 
     sol::protected_function_result result = m_lua.script_file(filepath);
@@ -67,4 +67,9 @@ LuaMod::LuaMod(const std::string& filepath, bool privileged) : m_rootDir(GetDire
 LuaMod::~LuaMod()
 {
     TraceLog(LOG_INFO, std::format("Unloading mod at: {}", m_rootDir).c_str());
+}
+
+const sol::state& LuaMod::GetState() const
+{
+    return m_lua;
 }

@@ -89,6 +89,16 @@ end
 
 ---@param text string
 ---@param fontSize number
+---@param pos Vector2
+---@param size Vector2
+---@param color Color
+---@return nil
+m.drawTextBoxed = function(text,fontSize,pos,size,color)
+	cpp_drawTextBoxed(text,fontSize,pos,size,color)
+end
+
+---@param text string
+---@param fontSize number
 ---@return Vector2
 m.measureText = function(text,fontSize)
 	return cpp_measureText(text,fontSize)

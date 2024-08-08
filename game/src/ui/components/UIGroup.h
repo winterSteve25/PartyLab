@@ -25,7 +25,7 @@ public:
 protected:
     float m_scrollOffsetX;
     float m_scrollOffsetY;
-
+    
 private:
     std::vector<UIElement*> m_components;
     std::vector<sol::table> m_queuedAddChild;
