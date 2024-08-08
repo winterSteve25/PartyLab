@@ -36,7 +36,8 @@ local textStyle = {
 local function switchGameMode(data, increment)
     data.scroll = data.scroll + increment
     local network = require("partylab.network")
-    network.sendPacketReliable(network.targets.Everyone, PACKETS.chooseGamemode, data.scroll)
+    --network.sendPacketReliable(network.targets.Everyone, PACKETS.chooseGamemode, data.scroll)
+    gamemodeSelected:set(data.scroll)
 end
 
 local function makePlayerUIItem(steamID)
