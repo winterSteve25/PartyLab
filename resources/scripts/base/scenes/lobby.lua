@@ -729,7 +729,7 @@ m.events = {
         local allMembers = currentLobby:getAllMembers()
 
         local all = true
-        for _, v in pairs(require(allMembers)) do
+        for _, v in pairs(allMembers) do
             local isReady = LobbyData.ready[v.id]
             if isReady == nil or not isReady then
                 all = false
