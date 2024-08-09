@@ -4,6 +4,11 @@ local m = {}
 local num = SyncedVar("num", true, 0)
 
 m.ui = function(data)
+    num:clearSubscribers()
+    num:subscribe(function(newVal)
+        data.query("num").setText(tostring(newVal))
+    end)
+    
     return
     {
         {
@@ -15,7 +20,6 @@ m.ui = function(data)
             text = tostring(num:get()),
             onClick = function()
                 num:set(num:get() + 1)
-                data.query("num").setText(tostring(num:get()))
             end
         }
     }

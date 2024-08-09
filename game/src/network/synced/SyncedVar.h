@@ -19,6 +19,7 @@ public:
     void Update(const SteamIDWrapper& target);
     uint32_t Subscribe(const sol::protected_function& callback);
     void Unsubscribe(const uint32_t& index);
+    void RemoveSubscribers();
 private:
     static uint32_t m_nextId;
     std::map<uint32_t, sol::protected_function> m_subscribers;

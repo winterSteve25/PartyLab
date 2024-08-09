@@ -68,3 +68,8 @@ void SyncedVar::Unsubscribe(const uint32_t& index)
 {
     m_subscribers.erase(index);
 }
+
+void SyncedVar::RemoveSubscribers()
+{
+    m_subscribers.clear();
+}
