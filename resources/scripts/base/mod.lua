@@ -4,8 +4,7 @@ TransitionData = {
 }
 
 function resetLobbyData()
-    LobbyData = {
-        isEveryoneReady = false,
+    LobbyData = { 
         ready = {},
     }
 end

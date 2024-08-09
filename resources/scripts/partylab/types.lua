@@ -222,3 +222,20 @@ function Tween:runForward() end
 function Tween:runBackward() end
 function Tween:reset() end
 function Tween:get() end
+
+---@class SyncedVar
+local SyncedVar = {}
+
+function SyncedVar:set(val) end
+function SyncedVar:get() end
+function SyncedVar:clearSubscribers() end
+
+---@param user SteamID
+function SyncedVar:update(user) end
+
+---@param callback fun(newVal): void
+---@return number
+function SyncedVar:subscribe(callback) end
+
+---@param index number
+function SyncedVar:unsubscribe(index) end

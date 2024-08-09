@@ -15,6 +15,7 @@ local hostSteamID = nil
 local selfSteamID = nil
 local currentMemberCount = 1
 
+---@type SyncedVar
 local gamemodeSelected = SyncedVar("gamemodeSelected", true, 1)
 
 local UIObject = require("partylab.ui.object")
@@ -727,17 +728,6 @@ m.events = {
         network.sendPacketToReliable(user, PACKETS.handshake)
         
         local allMembers = currentLobby:getAllMembers()
-
-        local all = true
-        for _, v in pairs(allMembers) do
-            local isReady = LobbyData.ready[v.id]
-            if isReady == nil or not isReady then
-                all = false
-                break
-            end
-        end
-
-        LobbyData.isEveryoneReady = all
         
         --- when a new player joins if you are the host, tell the new player who is ready and who isn't
         if hostSteamID ~= selfSteamID then
@@ -806,10 +796,21 @@ m.renderOverlay = function()
     ---@type GameMode
     local gamemode = core.getAllGameModes()[gamemodeSelected:get()]
 
-    if not LobbyData.isEveryoneReady
-            or currentMemberCount < gamemode.minPlayers
-            or currentMemberCount > gamemode.maxPlayers
-    then
+    if currentMemberCount < gamemode.minPlayers or currentMemberCount > gamemode.maxPlayers then
+        time = 0
+        return
+    end
+    
+    local all = true
+    for _, v in pairs(currentLobby:getAllMembers()) do
+        local isReady = LobbyData.ready[v.id]
+        if isReady == nil or not isReady then
+            all = false
+            break
+        end
+    end
+
+    if not all then
         time = 0
         return
     end

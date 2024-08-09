@@ -26,7 +26,6 @@ void lua_steam_hook::AddCppTypes(sol::state* state, bool privileged)
         },
         "equals", [](const SteamIDWrapper& id, const SteamIDWrapper& other)
         {
-            TraceLog(LOG_INFO, std::to_string(static_cast<CSteamID>(id).ConvertToUint64()).c_str());
             const CSteamID ac = id;
             const CSteamID ab = other;
             return ac.ConvertToUint64() == ab.ConvertToUint64();
