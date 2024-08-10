@@ -136,6 +136,23 @@ void lua_network_hook::AddCppTypes(sol::state* state, bool privileged, const std
         "unsubscribe", &SyncedVar::Unsubscribe,
         "clearSubscribers", &SyncedVar::RemoveSubscribers
     );
+
+    state->new_usertype<SyncedList>(
+        "SyncedList",
+        sol::call_constructor,
+        sol::factories([modId](const sol::this_state& state, const std::string& id, const bool& hostOnly)
+        {
+            return Core::INSTANCE->syncManager.NewList(modId, id, sol::table::create(state.lua_state()), hostOnly);
+        }),
+        "set", &SyncedVar::Set,
+        "get", &SyncedVar::Get,
+        "add", &SyncedList::Add,
+        "remove", &SyncedList::Remove,
+        "update", &SyncedVar::Update,
+        "subscribe", &SyncedVar::Subscribe,
+        "unsubscribe", &SyncedVar::Unsubscribe,
+        "clearSubscribers", &SyncedVar::RemoveSubscribers
+    );
 }
 
 void lua_network_hook::AddCppFuncs(sol::state* state, bool privilege, const std::filesystem::path& modDir)

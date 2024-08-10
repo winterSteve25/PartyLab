@@ -8,6 +8,7 @@
 #include "core/Core.h"
 #include "lua/LuaConstants.h"
 #include "steam/SteamIDWrapper.h"
+#include "synced/SyncListPacket.h"
 #include "synced/SyncPacket.h"
 
 NetworkManager::NetworkManager():
@@ -35,6 +36,8 @@ void NetworkManager::UnregisterPackets()
 void NetworkManager::RegisterPackets()
 {
     m_packets.emplace_back(new SyncPacket);
+    m_packets.emplace_back(new SyncListPacket);
+    
     Core::INSTANCE->modManager.BroadcastEvent<std::function<uint32_t(const sol::table&)>>(
         GAME_EVENT_ADD_PACKETS, [this](sol::state*)
         {

@@ -12,12 +12,6 @@ SyncPacket::~SyncPacket()
 void SyncPacket::Handle(const CSteamID& sender, MemoryReader& reader) const
 {
     bool hostOnly = reader.ReadBool();
-    if (hostOnly)
-    {
-        if (!GameLobby::CURRENT_LOBBY.has_value()) return;
-        if (sender != GameLobby::CURRENT_LOBBY.value()->GetHost()) return;
-    }
-
     std::string id = reader.ReadString();
     std::string modId = reader.ReadString();
     LuaMod* mod = Core::INSTANCE->modManager.GetModWithIdNullable(modId);

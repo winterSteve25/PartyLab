@@ -34,6 +34,7 @@ sol::table UIText::CreateLuaObject(lua_State* L)
     table["setText"] = [this](const std::string& text)
     {
         m_text = text;
+        m_sFontSize.Remeasure();
     };
     
     return table;

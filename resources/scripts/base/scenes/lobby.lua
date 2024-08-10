@@ -13,7 +13,6 @@ local arrowLeftTexture = nil
 local currentLobby = nil
 local hostSteamID = nil
 local selfSteamID = nil
-local currentMemberCount = 1
 
 ---@type SyncedVar
 local gamemodeSelected = SyncedVar("gamemodeSelected", true, 1)
@@ -723,7 +722,6 @@ m.events = {
         local list = uiData.query("chatList")
         list.addChild(enterOrLeaveLobbyMsg(user, false))
         list.scrollToY(1.0)
-        currentMemberCount = currentLobby:getMemberCount()
         local network = require("partylab.network")
         network.sendPacketToReliable(user, PACKETS.handshake)
         
@@ -751,7 +749,6 @@ m.events = {
         list.scrollToY(1.0)
 
         LobbyData.ready[user.id] = nil
-        currentMemberCount = currentLobby:getMemberCount()
 
         if user == hostSteamID then
             hostSteamID = currentLobby:getHost()
@@ -788,6 +785,8 @@ end
 local time = 0
 
 m.renderOverlay = function()
+    utils.info("Hi")
+    
     if currentLobby == nil then
         return
     end
@@ -795,12 +794,13 @@ m.renderOverlay = function()
     local core = require("partylab.core")
     ---@type GameMode
     local gamemode = core.getAllGameModes()[gamemodeSelected:get()]
-
+    local currentMemberCount = currentLobby:getMemberCount()
+    
     if currentMemberCount < gamemode.minPlayers or currentMemberCount > gamemode.maxPlayers then
         time = 0
         return
     end
-    
+
     local all = true
     for _, v in pairs(currentLobby:getAllMembers()) do
         local isReady = LobbyData.ready[v.id]

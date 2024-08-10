@@ -5,6 +5,7 @@ class FontSizeProperty : public FloatProperty
 {
 public:
     FontSizeProperty(UIElement* parent, const std::string* text);
+    void Remeasure();
 
 protected:
     void OnSet() override;

@@ -10,11 +10,16 @@ FontSizeProperty::FontSizeProperty(UIElement* parent, const std::string* text):
 {
 }
 
-void FontSizeProperty::OnSet()
+void FontSizeProperty::Remeasure()
 {
     Vector2 size = ui_helper::MeasureText(this->m_parentText->c_str(), m_val);
     this->m_parent->sWidth.Override(size.x);
     this->m_parent->sHeight.Override(size.y);
+}
+
+void FontSizeProperty::OnSet()
+{
+    Remeasure();
 }
 
 float FontSizeProperty::GetNewValue(const Style& style)
