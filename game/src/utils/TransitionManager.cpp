@@ -11,6 +11,8 @@ void TransitionManager::ExecuteSceneTransition()
     Core::INSTANCE->m_scenes[Core::INSTANCE->m_loadingScene]->Load();
     Core::INSTANCE->m_activesScene = Core::INSTANCE->m_loadingScene;
     Core::INSTANCE->m_loadingScene = -1;
+
+    Core::INSTANCE->modManager.TriggerGC();
 }
 
 TransitionManager::TransitionManager():

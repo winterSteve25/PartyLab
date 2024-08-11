@@ -7,7 +7,6 @@
 
 ModManager::ModManager()
 {
-    m_luaMods.reserve(1);
 }
 
 void ModManager::LoadMods()
@@ -64,4 +63,12 @@ LuaMod* ModManager::GetModWithIdNullable(const std::string& id)
     }
 
     return m_luaMods[id];
+}
+
+void ModManager::TriggerGC() const
+{
+    for (auto pair : m_luaMods)
+    {
+        pair.second->GetState()->collect_gc();
+    }
 }

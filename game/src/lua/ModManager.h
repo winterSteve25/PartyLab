@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+
 #include "LuaMod.h"
 
 /**
@@ -13,6 +15,7 @@ public:
     void LoadMods();
     void UnloadMods();
     LuaMod* GetModWithIdNullable(const std::string& id);
+    void TriggerGC() const;
     
     template <typename... Args>
     void BroadcastEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)
@@ -24,5 +27,5 @@ public:
     }
 
 private:
-    std::unordered_map<std::string, LuaMod*> m_luaMods;
+    std::map<std::string, LuaMod*> m_luaMods;
 };

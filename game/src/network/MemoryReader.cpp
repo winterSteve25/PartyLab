@@ -1,6 +1,9 @@
 #include "MemoryReader.h"
 
+#include <steamtypes.h>
+
 #include "raylib.h"
+#include "steam/SteamIDWrapper.h"
 
 MemoryReader::MemoryReader(const void* data, const size_t size):
     m_buffer(data),
@@ -90,6 +93,12 @@ sol::object MemoryReader::ReadObject(lua_State* L)
         }
 
         return table;
+    }
+
+    if (type == 10)
+    {
+        uint64 num = ReadGeneric<uint64>();
+        return sol::make_object(L, SteamIDWrapper(num));
     }
 
     TraceLog(LOG_ERROR, "Lua object has a non serializable type");

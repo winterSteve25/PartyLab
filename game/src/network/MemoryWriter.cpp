@@ -1,6 +1,7 @@
 #include "MemoryWriter.h"
 
 #include "raylib.h"
+#include "steam/SteamIDWrapper.h"
 
 MemoryWriter::MemoryWriter()
 {
@@ -35,8 +36,17 @@ void MemoryWriter::WriteBool(bool data)
 void MemoryWriter::WriteObject(const sol::object& object)
 {
     /// All serializable lua objects have the following format
-    /// 1 byte | type of object 0 - none, 1 - nil, 2 - string, 3 - number, 4 - boolean, 5 - table
+    /// 1 byte | type of object
     /// Unknown | object data
+    ///
+    /// OBJECT TYPES AS FOLLOWS
+    /// 0 - none
+    /// 1 - nil
+    /// 2 - string,
+    /// 3 - number
+    /// 4 - boolean
+    /// 5 - table
+    /// 10 - SteamID
     
     sol::type type = object.get_type();
     switch (type) {
@@ -47,6 +57,13 @@ void MemoryWriter::WriteObject(const sol::object& object)
         TraceLog(LOG_ERROR, "Serialization of type 'function' is not allowed");
         return;
     case sol::type::userdata:
+        if (object.is<SteamIDWrapper>())
+        {
+            m_buffer.push_back(static_cast<std::byte>(10));
+            WriteGeneric<uint64>(static_cast<CSteamID>(object.as<SteamIDWrapper>()).ConvertToUint64());
+            break;
+        }
+        
         TraceLog(LOG_ERROR, "Serialization of type 'userdata' is not allowed");
         return;
     case sol::type::lightuserdata:

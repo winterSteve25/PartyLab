@@ -69,7 +69,12 @@ LuaMod::~LuaMod()
     TraceLog(LOG_INFO, std::format("Unloading mod at: {}", m_rootDir).c_str());
 }
 
-const sol::state& LuaMod::GetState() const
+const sol::state& LuaMod::GetStateRef() const
 {
     return m_lua;
+}
+
+sol::state* LuaMod::GetState()
+{
+    return &m_lua;
 }

@@ -98,3 +98,10 @@ std::weak_ptr<SyncedList> SyncManager::GetList(lua_State* L, const std::string& 
     std::weak_ptr<SyncedList> p;
     return p;
 }
+
+void SyncManager::Remove(const std::string& modId, const std::string& id)
+{
+    const auto realId = std::format("{}:{}", modId, id);
+    if (!m_vars.contains(realId)) return;
+    m_vars.erase(realId);
+}

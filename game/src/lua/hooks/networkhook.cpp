@@ -151,7 +151,13 @@ void lua_network_hook::AddCppTypes(sol::state* state, bool privileged, const std
         "update", &SyncedVar::Update,
         "subscribe", &SyncedVar::Subscribe,
         "unsubscribe", &SyncedVar::Unsubscribe,
-        "clearSubscribers", &SyncedVar::RemoveSubscribers
+        "clearSubscribers", &SyncedVar::RemoveSubscribers,
+        "subscribeAdd", &SyncedList::SubscribeAdd,
+        "unsubscribeAdd", &SyncedList::UnsubscribeAdd,
+        "clearAddSubscribers", &SyncedList::RemoveAddSubscribers,
+        "subscribeRemove", &SyncedList::SubscribeRemove,
+        "unsubscribeRemove", &SyncedList::UnsubscribeRemove,
+        "clearRemoveSubscribers", &SyncedList::RemoveRemoveSubscribers
     );
 }
 

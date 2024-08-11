@@ -15,6 +15,11 @@ SyncedVar::SyncedVar(const std::string& modId, const std::string& id, const sol:
 {
 }
 
+SyncedVar::~SyncedVar()
+{
+    Core::INSTANCE->syncManager.Remove(modId, id);
+}
+
 void SyncedVar::Set(const sol::object& val)
 {
     if (!CanEdit()) return;

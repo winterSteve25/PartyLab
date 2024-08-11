@@ -13,9 +13,10 @@ local arrowLeftTexture = nil
 local currentLobby = nil
 local hostSteamID = nil
 local selfSteamID = nil
+local leaving = false
 
 ---@type SyncedVar
-local gamemodeSelected = SyncedVar("gamemodeSelected", true, 1)
+local gamemodeSelected 
 
 local UIObject = require("partylab.ui.object")
 local tween = require("partylab.ui.tween")
@@ -637,7 +638,7 @@ local function leftPanel(data)
                     }
                 }),
                 onClick = function()
-                    cpp_leaveLobby()
+                    leaving = true
                     require("partylab.core").transitionTo(SCENES.mainmenu)
                 end,
             },
@@ -769,6 +770,9 @@ m.load = function()
     currentLobby = steam.getCurrentLobby()
     hostSteamID = currentLobby:getHost()
     selfSteamID = steam.getCurrentUserID()
+    gamemodeSelected = SyncedVar("gamemodeSelected", true, 1)
+    
+    leaving = false
 end
 
 m.cleanup = function()
@@ -780,13 +784,17 @@ m.cleanup = function()
     currentLobby = nil
     hostSteamID = nil
     selfSteamID = nil
+    
+    gamemodeSelected = nil
+
+    if leaving then
+        cpp_leaveLobby()
+    end
 end
 
 local time = 0
 
 m.renderOverlay = function()
-    utils.info("Hi")
-    
     if currentLobby == nil then
         return
     end

@@ -1,25 +1,45 @@
 ---@type Scene
 local m = {}
 
-local num = SyncedVar("num", true, 0)
+local layout = require("partylab.ui.layout")
+---@type SyncedList
+local submitted
+
+m.load = function()
+    submitted = SyncedList("submittedPeople", false)
+end
+
+m.cleanup = function()
+    submitted = nil
+end
 
 m.ui = function(data)
-    num:clearSubscribers()
-    num:subscribe(function(newVal)
-        data.query("num").setText(tostring(newVal))
+    submitted:clearAddSubscribers()
+    submitted:subscribeAdd(function(i, newVal) 
+        require("partylab.utils").info(newVal.id)
+    end)
+    
+    submitted:clearRemoveSubscribers()
+    submitted:subscribeRemove(function(index, removedVal)
+        require("partylab.utils").info("Removed: " .. tostring(removedVal.id))
     end)
     
     return
     {
+        id = "list",
+        style = {
+            alignSelf = layout.self.LAY_CENTER,
+            alignItems = layout.items.LAY_COLUMN,
+        },
         {
-            "Complete the sentence: ",
+            "Complete the sentence",
         },
         {
             type = "text",
             id = "num",
-            text = tostring(num:get()),
+            text = "Hi",
             onClick = function()
-                num:set(num:get() + 1)
+                submitted:add(require("partylab.steam").getCurrentUserID())
             end
         }
     }

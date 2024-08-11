@@ -22,7 +22,7 @@ void SyncPacket::Handle(const CSteamID& sender, MemoryReader& reader) const
         return;
     }
     
-    sol::object val = reader.ReadObject(mod->GetState().lua_state());
+    sol::object val = reader.ReadObject(mod->GetStateRef().lua_state());
     Core::INSTANCE->syncManager.Update(modId, id, val, hostOnly);
 }
 

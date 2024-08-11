@@ -18,7 +18,8 @@ public:
     LuaMod(const std::string& file_path, bool privileged, const std::string& modId);
     ~LuaMod();
 
-    const sol::state& GetState() const;
+    const sol::state& GetStateRef() const;
+    sol::state* GetState();
     
     template <typename... Args>
     void ReceiveEvent(const std::string& event, const std::function<Args(sol::state*)>&... args)

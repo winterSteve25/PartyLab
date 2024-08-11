@@ -239,3 +239,25 @@ function SyncedVar:subscribe(callback) end
 
 ---@param index number
 function SyncedVar:unsubscribe(index) end
+
+---@class SyncedList : SyncedVar
+local SyncedList = {}
+
+function SyncedList:add(val) end
+function SyncedList:remove(index) end
+function SyncedList:clearAddSubscribers() end
+function SyncedList:clearRemoveSubscribers() end
+
+---@param callback fun(index, newVal): void
+---@return number
+function SyncedList:subscribeAdd(callback) end
+
+---@param index number
+function SyncedList:unsubscribeAdd(index) end
+
+---@param callback fun(index, removedVal): void
+---@return number
+function SyncedList:subscribeRemove(callback) end
+
+---@param index number
+function SyncedList:unsubscribeRemove(index) end

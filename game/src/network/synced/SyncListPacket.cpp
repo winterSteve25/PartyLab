@@ -21,8 +21,8 @@ void SyncListPacket::Handle(const CSteamID& sender, MemoryReader& reader) const
         return;
     }
 
-    sol::object val = reader.ReadObject(mod->GetState());
-    std::weak_ptr<SyncedList> l = Core::INSTANCE->syncManager.GetList(mod->GetState(), modId, id, hostOnly);
+    sol::object val = reader.ReadObject(mod->GetStateRef());
+    std::weak_ptr<SyncedList> l = Core::INSTANCE->syncManager.GetList(mod->GetStateRef(), modId, id, hostOnly);
 
     if (auto list = l.lock())
     {

@@ -16,6 +16,8 @@ public:
     std::shared_ptr<SyncedList> NewList(const std::string& modid, const std::string& id, const sol::table& initialValue, const bool& hostOnly);
     std::weak_ptr<SyncedList> GetList(lua_State* L, const std::string& modId, const std::string& id,
                                      const bool& hostOnly);
+
+    void Remove(const std::string& modId, const std::string& id);
 private:
     std::unordered_map<std::string, std::weak_ptr<SyncedVar>> m_vars;
 };
