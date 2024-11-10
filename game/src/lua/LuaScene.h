@@ -3,7 +3,6 @@
 #include <format>
 
 #include "lua_utils.h"
-#include "sol/forward.hpp"
 #include "sol/sol.hpp"
 #include "ui/LuaUI.h"
 

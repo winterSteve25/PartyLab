@@ -116,7 +116,7 @@ m.ui = function(data)
                     alignItems = bit32.bor(layout.items.LAY_COLUMN, layout.items.LAY_START),
                     clip = true,
                     height = 0.5,
-                    width = 0.23,
+                    width = anyone and 0.23 or 0, -- anyone ? 0.23 : 0
                 },
                 children = children,
             }
