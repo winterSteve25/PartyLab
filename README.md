@@ -49,14 +49,14 @@ Game-premake comes with a visual studio code project file, simply open the folde
 ## MinGW-w64 Users
 Open your compiler terminal (w64devkit if you are using it), change to the game folder and type 
 
-    make
+    ./run
 	
 This will build your game
 	
 ## Linux/macOS users
 Open your terminal, change to the root folder and type.
 
-    make
+    ./run
 	
 This will build your starting game template
 	
