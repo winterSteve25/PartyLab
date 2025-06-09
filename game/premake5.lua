@@ -86,7 +86,7 @@ project (workspaceName)
         entrypoint "mainCRTStartup"
 
     filter { "action:vs*", "configurations:Debug" }
-        sanitize { "Address", "Fuzzer" }
+--         sanitize { "Address", "Fuzzer" }
         editandcontinue "Off"
 
     filter {}

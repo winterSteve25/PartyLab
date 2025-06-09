@@ -6,7 +6,7 @@ m.addScenes = function(registrar)
     SCENES.join = registrar(require("base.scenes.join"))
     SCENES.lobby = registrar(require("base.scenes.lobby"))
     SCENES.waitingLobby = registrar(require("base.scenes.waitingLobby"))
-    
+
     SCENES.game_fortunatelyUnfortunately = registrar(require("base.scenes.games.fortunatelyunfortunately.game"))
 end
 
@@ -15,7 +15,7 @@ m.addPackets = function(registrar)
     PACKETS.handshake = registrar(require("base.packets.handshake"))
 end
 
-m.addGameModes = function(registrar) 
+m.addGameModes = function(registrar)
     registrar({
         name = "Word Mania 1",
         description = "Jumbo the words",

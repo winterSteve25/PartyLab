@@ -16,7 +16,7 @@ local selfSteamID = nil
 local leaving = false
 
 ---@type SyncedVar
-local gamemodeSelected 
+local gamemodeSelected
 
 local UIObject = require("partylab.ui.object")
 local tween = require("partylab.ui.tween")
