@@ -41,7 +41,7 @@ void SyncListPacket::Handle(const CSteamID& sender, MemoryReader& reader) const
             // remove by indices
             val.as<sol::table>().for_each([&list](auto pair)
             {
-                list->RemoveNoNotify(pair.second.as<int>());
+                list->RemoveNoNotify(pair.second.template as<int>());
             });
         }
     }

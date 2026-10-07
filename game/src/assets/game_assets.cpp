@@ -17,7 +17,7 @@ namespace game_assets
         GAME_FONT = {};
         GAME_FONT.baseSize = baseSize;
         GAME_FONT.glyphCount = 95;
-        GAME_FONT.glyphs = LoadFontData(fileData, fileSize, baseSize, NULL, 0, FONT_SDF);
+        GAME_FONT.glyphs = LoadFontData(fileData, fileSize, baseSize, nullptr, 0, FONT_SDF, nullptr);
 
         Image atlas = GenImageFontAtlas(GAME_FONT.glyphs, &GAME_FONT.recs, 95, baseSize, 0, 1);
         GAME_FONT.texture = LoadTextureFromImage(atlas);
