@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                // "${workspaceFolder}/luajit/macos-arm64/include",
+                // "${workspaceFolder}/game",
+                // "${workspaceFolder}/game/src",
+                // "${workspaceFolder}/game/include",
+                // "${workspaceFolder}/steam/include",
+                // "${workspaceFolder}/raylib-master/src",
+                // "${workspaceFolder}/raylib-master/src/external",
+                // "${workspaceFolder}/raylib-master/src/external/glfw/include"
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "DEBUG",
+                "SOL_LUAJIT=1",
+                "PLATFORM_DESKTOP",
+                "GRAPHICS_API_OPENGL_33"
+            ],
+            "compilerPath": "/usr/bin/clang++",
+            "cStandard": "c99",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "macos-clang-arm64"
+        }
+    ],
+    "version": 4
+}
