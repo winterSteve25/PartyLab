@@ -42,11 +42,13 @@ local function link_steam()
     filter "system:macosx"
         libdirs { "../steam/redistributable_bin/osx" }
         links { "steam_api" }
+        postbuildcommands { "{COPYFILE} \"../steam/redistributable_bin/osx/libsteam_api.dylib\" \"../bin/%{cfg.buildcfg}/libsteam_api.dylib\"" }
     
     filter {}
 end
 
 local function link_luajit() 
+    filter "system:not macosx"
     includedirs { "../luajit/include", "luajit/include" }
     
     filter { "system:windows", "platforms:x86" }
@@ -62,6 +64,13 @@ local function link_luajit()
     filter { "system:linux", "platforms:x64" }
         libdirs { "../luajit/linux64" }
     	links { "luajit" }
+
+    filter "system:macosx"
+        includedirs { "../luajit/macos-arm64/include" }
+
+    filter { "system:macosx", "platforms:ARM64" }
+        libdirs { "../luajit/macos-arm64" }
+        links { "luajit" }
 
     filter {}
     

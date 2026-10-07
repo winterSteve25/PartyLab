@@ -1,2 +1,2 @@
-make
+make config=debug_arm64 -j4
 ./bin/Debug/PartyLab
