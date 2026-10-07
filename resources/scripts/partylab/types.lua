@@ -1,16 +1,22 @@
 ---@meta types
 
+-- sol::lib::bit32 exposes LuaJIT's bit module under this name.
+bit32 = require("bit")
+
 ---@class Vector2 Created by calling Vector2(x, y)
 ---@field x number
 ---@field y number
-local Vector2 = {}
+---@overload fun(x: number, y: number): Vector2
+---@overload fun(): Vector2
+Vector2 = {}
 
 ---@class Color Created by calling Color(r, g, b, a)
 ---@field r number
 ---@field g number
 ---@field b number
 ---@field a number
-local Color = {}
+---@overload fun(r: number, g: number, b: number, a: number): Color
+Color = {}
 
 ---@class UI
 ---@field id string
@@ -46,7 +52,12 @@ local Style = {}
 ---@class Transition
 ---@field duration number
 ---@field ease string | fun(t: number): number
-local Transition = {}
+---@overload fun(duration: number, ease: string | fun(t: number): number): Transition
+Transition = {}
+
+---@class WaitFor
+---@overload fun(type: integer): WaitFor
+WaitFor = {}
 
 ---@class ModDescriptor
 ---@field name string
@@ -83,7 +94,8 @@ local Size = {}
 local SteamID = {}
 
 ---@class GameLobby
-local GameLobby = {}
+---@overload fun(id: SteamID): GameLobby
+GameLobby = {}
 
 ---@return SteamID
 function GameLobby:getHost() end 
@@ -216,7 +228,8 @@ function MemoryReader:readObject() end
 function MemoryReader:readSteamID() end
 
 ---@class Tween
-local Tween = {}
+---@overload fun(from: number, to: number, duration: number, ease: fun(t: number): number): Tween
+Tween = {}
 function Tween:update() end
 function Tween:runForward() end
 function Tween:runBackward() end
@@ -224,7 +237,8 @@ function Tween:reset() end
 function Tween:get() end
 
 ---@class SyncedVar
-local SyncedVar = {}
+---@overload fun(id: string, hostOnly: boolean, initialValue: any): SyncedVar
+SyncedVar = {}
 
 function SyncedVar:set(val) end
 function SyncedVar:get() end
@@ -241,7 +255,8 @@ function SyncedVar:subscribe(callback) end
 function SyncedVar:unsubscribe(index) end
 
 ---@class SyncedList : SyncedVar
-local SyncedList = {}
+---@overload fun(id: string, hostOnly: boolean): SyncedList
+SyncedList = {}
 
 function SyncedList:add(val) end
 function SyncedList:remove(index) end

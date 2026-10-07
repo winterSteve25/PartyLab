@@ -1,8 +1,8 @@
 ---@type Packet
-local m = {}
-
-m.deserializer = function(mem) end
-m.serializer = function(mem, data) end
-m.handler = function(sender, data) end
+local m = {
+    deserializer = function(mem) end,
+    serializer = function(mem, data) end,
+    handler = function(sender, data) end
+}
 
 return m
